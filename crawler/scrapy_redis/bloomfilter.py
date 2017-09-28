@@ -79,7 +79,7 @@ class RedisBloomFilter(object):
 
     def insert(self, data):
         """
-            Insert 1 into each bit
+            Insert 1 into each bit by local_hash
         """
         if not data:
             return
