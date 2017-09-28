@@ -3,10 +3,9 @@ import time
 
 from scrapy.dupefilters import BaseDupeFilter
 from scrapy.utils.request import request_fingerprint
-
+from .bloomfilter import RedisBloomFilter
 from . import defaults
 from .connection import get_redis_from_settings
-
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +37,7 @@ class RFPDupeFilter(BaseDupeFilter):
         self.key = key
         self.debug = debug
         self.logdupes = True
+        self.bloomfilter = RedisBloomFilter(server, key)
 
     @classmethod
     def from_settings(cls, settings):
@@ -96,9 +96,15 @@ class RFPDupeFilter(BaseDupeFilter):
 
         """
         fp = self.request_fingerprint(request)
+        # deprecated set of redis,use bloomfilter to implement filter
+        if self.bloomfilter.is_contains(fp):
+            return True
+        else:
+            self.bloomfilter.insert(fp)
+            return False
         # This returns the number of values added, zero if already exists.
-        added = self.server.sadd(self.key, fp)
-        return added == 0
+        # added = self.server.sadd(self.key, fp)
+        # return added == 0
 
     def request_fingerprint(self, request):
         """Returns a fingerprint for a given request.
