@@ -96,15 +96,31 @@ class RFPDupeFilter(BaseDupeFilter):
 
         """
         fp = self.request_fingerprint(request)
-        # deprecated set of redis,use bloomfilter to implement filter
+        # This returns the number of values added, zero if already exists.
+        added = self.server.sadd(self.key, fp)
+        return added == 0
+
+    def request_seen_by_bloomfilter(self, request):
+        """
+            Returns True if request was already seen.
+            The Function meaning with request_seen() is same,
+            but use bloomfilter to implement the filter.
+
+            Parameters
+            ----------
+            request : scrapy.http.Request
+
+            Returns
+            -------
+            bool
+
+        """
+        fp = self.request_fingerprint(request)
         if self.bloomfilter.is_contains(fp):
             return True
         else:
             self.bloomfilter.insert(fp)
             return False
-        # This returns the number of values added, zero if already exists.
-        # added = self.server.sadd(self.key, fp)
-        # return added == 0
 
     def request_fingerprint(self, request):
         """Returns a fingerprint for a given request.
