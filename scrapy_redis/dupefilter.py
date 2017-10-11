@@ -3,7 +3,8 @@ import time
 
 from scrapy.dupefilters import BaseDupeFilter
 from scrapy.utils.request import request_fingerprint
-from .bloomfilter import RedisBloomFilter
+
+from utils.bloomfilter import RedisBloomFilter
 from . import defaults
 from .connection import get_redis_from_settings
 
