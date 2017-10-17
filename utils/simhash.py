@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Created by SylvanasSun in 2017.10.17
+import collections
 from hashlib import md5
 
 import jieba
@@ -36,7 +37,7 @@ class Simhash(object):
         Simhash default tokenizer is jieba (https://github.com/fxsjy/jieba).
     """
 
-    def __init__(self, content, keyword_weight_pair=20, hashfunc=None, tokenizer_func=None):
+    def __init__(self, data, keyword_weight_pair=20, hash_bit_number=64, hashfunc=None, tokenizer_func=None):
         if hashfunc is None:
             self.hashfunc = _default_hashfunc
         else:
@@ -47,10 +48,64 @@ class Simhash(object):
         else:
             self.tokenizer_func = tokenizer_func
 
-        self.simhash = self._simhash(content, keyword_weight_pair)
+        self.hash_bit_number = hash_bit_number
+        self.keyword_weight_pari = keyword_weight_pair
+        if isinstance(data, Simhash):
+            self.content = data.content
+        else:
+            self._simhash(data)
 
     def __str__(self):
-        return str(self.simhash)
+        return str(self.content)
 
-    def _simhash(self, content, keyword_weight_pair):
-        pass
+    def _simhash(self, content):
+        if content is None or content == "":
+            self.content = None
+            return
+
+        if isinstance(content, collections.Iterable):
+            self.content = self.build_by_features(content)
+        elif isinstance(content, str):
+            features = self.tokenizer_func(content, self.keyword_weight_pari)
+            self.content = self.build_by_features(features)
+        elif isinstance(content, int):
+            self.content = content
+        else:
+            raise Exception("Unsupported parameter type %s" % type(content))
+
+    def build_by_features(self, features):
+        """
+        :param features: a list of (token,weight) tuples or a token -> weight dict,
+                        if is a string so it need compute weight (a weight of 1 will be assumed).
+
+        :return:
+        """
+        v = [0] * self.hash_bit_number
+        masks = [1 << i for i in range(self.hash_bit_number)]
+        if isinstance(features, dict):
+            features = features.items()
+
+        # Starting longitudinal accumulation of bits, current bit add current weight
+        # when the position that & result of the hashcode and mask are 1
+        # else current bit minus the current weight.
+        for f in features:
+            if isinstance(f, str):
+                h = self.hashfunc(f.encode("utf-8"))
+                w = 1
+            else:
+                assert isinstance(f, collections.Iterable)
+                h = self.hashfunc(f[0].encode("utf-8"))
+                w = f[1]
+            for i in range(self.hash_bit_number):
+                v[i] += w if h & masks[i] else -w
+
+        result = 0
+        for i in range(self.hash_bit_number):
+            if v[i] > 0:
+                result |= masks[i]
+
+        return result
+
+
+if __name__ == "__main__":
+    pass
