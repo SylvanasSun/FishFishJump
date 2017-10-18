@@ -66,12 +66,14 @@ class Simhash(object):
         self.hash_bit_number = hash_bit_number
         self.keyword_weight_pari = keyword_weight_pair
         if isinstance(data, Simhash):
-            self.content = data.content
+            self.hash = data.hash
+        elif isinstance(data, int):
+            self.hash = data
         else:
             self.simhash(data)
 
     def __str__(self):
-        return str(self.content)
+        return str(self.hash)
 
     def simhash(self, content):
         """
@@ -83,11 +85,11 @@ class Simhash(object):
 
         if isinstance(content, str):
             features = self.tokenizer_func(content, self.keyword_weight_pari)
-            self.content = self.build_by_features(features)
+            self.hash = self.build_by_features(features)
         elif isinstance(content, collections.Iterable):
-            self.content = self.build_by_features(content)
+            self.hash = self.build_by_features(content)
         elif isinstance(content, int):
-            self.content = content
+            self.hash = content
         else:
             raise Exception("Unsupported parameter type %s" % type(content))
 
@@ -125,11 +127,61 @@ class Simhash(object):
 
         return result
 
+    def is_equal(self, another, limit=3):
+        """
+
+        :param another:
+        :param limit:
+        :return:
+        """
+        if self.hash is None or another is None:
+            raise Exception("Simhash content is null or parameter: another is null")
+
+        if isinstance(another, int):
+            result = self.distance(another)
+        elif isinstance(another, Simhash):
+            assert self.hash_bit_number == another.hash_bit_number
+            result = self.distance(another.hash)
+        else:
+            raise Exception("Unsupported parameter type %s" % type(another))
+
+        if result > limit:
+            return True
+        return False
+
     def distance(self, another):
-        pass
+        """
+
+        :param another:
+        :return:
+        """
+        x = (self.hash ^ another) & ((1 << self.hash_bit_number) - 1)
+        result = 0
+        while x:
+            result += 1
+            x &= x - 1
+        return result
 
 
 if __name__ == "__main__":
-    string = "You know nothing,John Snow!"
-    simhash = Simhash(string)
-    print(simhash.content)
+    sentence_A = """
+                 明朝军制建立在军户制度上，军户即为中国古代世代从军、充当军差的人户。
+                 东晋南北朝时，士兵及家属的户籍隶于军府称为军户。军户子弟世袭为兵未经准许不得脱离军籍。
+                 北魏军户亦有用俘虏充当的。元朝实行军户制度，军户必须出成年男子到军队服役，父死子替，兄亡弟代，世代相袭。
+                 """
+    sentence_B = """
+                 明朝的军制是在元朝基础上改进，而没有采用唐宋时期的募兵制。
+                 元朝的军制是建立在游牧民族制度上发展而来，游牧民族在战争是全民征兵，实际上是军户制度。
+                 建立元朝以后，蒙古族还是全部军户，对于占领区招降的军队，也实行军户制度。
+                 """
+    sentence_C = "How are you i am fine.ablar ablar xyz blar blar blar blar blar blar blar thank"
+
+    simhash_A = Simhash(sentence_A)
+    simhash_B = Simhash(sentence_B)
+    simhash_C = Simhash(sentence_C)
+    print(simhash_A)
+    print(simhash_B)
+    print(simhash_C)
+
+    print(simhash_A.is_equal(simhash_B))
+    print(simhash_B.is_equal(simhash_C))
