@@ -2,21 +2,31 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
 import collections
-from hashlib import md5
 
 import jieba
 from jieba import analyse
 
 
 # TODO: Change default hash algorithms to the other algorithms of high-performance.
-def _default_hashfunc(content):
+def _default_hashfunc(content, hashbits):
     """
-    Default hash function which by MD5 algorithms then return a decimal number.
+    Default hash function is variable-length version of Python's builtin hash.
 
-    :param data: data that needs to hash.
-    :return: return a decimal number that after MD5 algorithms encode.
+    :param content: data that needs to hash.
+    :return: return a decimal number.
     """
-    return int(md5(content).hexdigest(), 16)
+    if content == "":
+        return 0
+
+    x = ord(content[0]) << 7
+    m = 1000003
+    mask = 2 ** hashbits - 1
+    for c in content:
+        x = ((x * m) ^ ord(c)) & mask
+    x ^= len(content)
+    if x == -1:
+        x = -2
+    return x
 
 
 # TODO: Change default toknizer to the c/c++ version or other tokenizer of high-performance.
@@ -47,7 +57,8 @@ class Simhash(object):
         :param data: data that needs to be encode.
         :param keyword_weight_pair: maximum pair number of the keyword-weight list.
         :param hash_bit_number: maximum bit number for hashcode.
-        :param hashfunc: hash function,its first parameter must be data that needs to be encode.
+        :param hashfunc: hash function,its first parameter must be data that needs to be encode
+                         and the second parameter must be hash bit number.
 
         :param tokenizer_func: tokenizer function,its first parameter must be content that
                                needs to be tokenizer and the second parameter must be
@@ -79,21 +90,21 @@ class Simhash(object):
         """
         Select policies for simhash on the different types of content.
         """
-        if content is None or content == "":
-            self.content = None
+        if content is None:
+            self.hash = -1
             return
 
         if isinstance(content, str):
             features = self.tokenizer_func(content, self.keyword_weight_pari)
-            self.hash = self.build_by_features(features)
+            self.hash = self.build_from_features(features)
         elif isinstance(content, collections.Iterable):
-            self.hash = self.build_by_features(content)
+            self.hash = self.build_from_features(content)
         elif isinstance(content, int):
             self.hash = content
         else:
             raise Exception("Unsupported parameter type %s" % type(content))
 
-    def build_by_features(self, features):
+    def build_from_features(self, features):
         """
         :param features: a list of (token,weight) tuples or a token -> weight dict,
                         if is a string so it need compute weight (a weight of 1 will be assumed).
@@ -101,59 +112,61 @@ class Simhash(object):
         :return: a decimal digit for the accumulative result of each after handled features-weight pair.
         """
         v = [0] * self.hash_bit_number
-        masks = [1 << i for i in range(self.hash_bit_number)]
         if isinstance(features, dict):
             features = features.items()
 
         # Starting longitudinal accumulation of bits, current bit add current weight
-        # when the position that & result of the hashcode and mask are 1
-        # else current bit minus the current weight.
+        # when the current bits equal 1 and else current bit minus the current weight.
         for f in features:
             if isinstance(f, str):
-                h = self.hashfunc(f.encode("utf-8"))
+                h = self.hashfunc(f, self.hash_bit_number)
                 w = 1
             else:
                 assert isinstance(f, collections.Iterable)
-                h = self.hashfunc(f[0].encode("utf-8"))
+                h = self.hashfunc(f[0], self.hash_bit_number)
                 w = f[1]
             for i in range(self.hash_bit_number):
-                v[i] += w if h & masks[i] else -w
+                bitmask = 1 << i
+                v[i] += w if h & bitmask else -w
 
         # Just record weight of the non-negative
-        result = 0
+        fingerprint = 0
         for i in range(self.hash_bit_number):
-            if v[i] > 0:
-                result |= masks[i]
+            if v[i] >= 0:
+                fingerprint += 1 << i
 
-        return result
+        return fingerprint
 
-    def is_equal(self, another, limit=3):
+    def is_equal(self, another, limit=0.8):
         """
+        Determine two simhash are similar or not similar.
 
-        :param another:
-        :param limit:
-        :return:
+        :param another: another simhash.
+        :param limit: a limit of the similarity.
+        :return: if similarity greater than limit return true and else return false.
         """
-        if self.hash is None or another is None:
-            raise Exception("Simhash content is null or parameter: another is null")
+        if another is None:
+            raise Exception("Parameter another is null")
 
         if isinstance(another, int):
-            result = self.distance(another)
+            distance = self.hamming_distance(another)
         elif isinstance(another, Simhash):
             assert self.hash_bit_number == another.hash_bit_number
-            result = self.distance(another.hash)
+            distance = self.hamming_distance(another.hash)
         else:
             raise Exception("Unsupported parameter type %s" % type(another))
 
-        if result > limit:
+        similarity = float(self.hash_bit_number - distance) / self.hash_bit_number
+        if similarity > limit:
             return True
         return False
 
-    def distance(self, another):
+    def hamming_distance(self, another):
         """
+        Compute hamming distance,hamming distance is a total number of different bits of two binary numbers.
 
-        :param another:
-        :return:
+        :param another: another simhash value.
+        :return: a hamming distance that current simhash and another simhash.
         """
         x = (self.hash ^ another) & ((1 << self.hash_bit_number) - 1)
         result = 0
@@ -174,14 +187,19 @@ if __name__ == "__main__":
                  元朝的军制是建立在游牧民族制度上发展而来，游牧民族在战争是全民征兵，实际上是军户制度。
                  建立元朝以后，蒙古族还是全部军户，对于占领区招降的军队，也实行军户制度。
                  """
-    sentence_C = "How are you i am fine.ablar ablar xyz blar blar blar blar blar blar blar thank"
+    sentence_C = "You know nothing Jon Snow!"
+    sentence_D = "Jon Snow: I konw nothing."
 
     simhash_A = Simhash(sentence_A)
     simhash_B = Simhash(sentence_B)
     simhash_C = Simhash(sentence_C)
+    simhash_D = Simhash(sentence_D)
+
     print(simhash_A)
     print(simhash_B)
     print(simhash_C)
+    print(simhash_D)
 
-    print(simhash_A.is_equal(simhash_B))
-    print(simhash_B.is_equal(simhash_C))
+    assert simhash_A.is_equal(simhash_B) is True
+    assert simhash_B.is_equal(simhash_C) is False
+    assert simhash_C.is_equal(simhash_D) is True
