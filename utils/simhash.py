@@ -8,8 +8,10 @@ import jieba
 from jieba import analyse
 
 
+# TODO: Change default hash algorithms to the other algorithms of high-performance.
 def _default_hashfunc(content):
-    """Default hash function which by MD5 algorithms then return a decimal number.
+    """
+    Default hash function which by MD5 algorithms then return a decimal number.
 
     :param data: data that needs to hash.
     :return: return a decimal number that after MD5 algorithms encode.
@@ -17,8 +19,10 @@ def _default_hashfunc(content):
     return int(md5(content).hexdigest(), 16)
 
 
+# TODO: Change default toknizer to the c/c++ version or other tokenizer of high-performance.
 def _default_tokenizer_func(content, keyword_weight_pair):
-    """Default tokenizer function that uses jieba tokenizer.
+    """
+    Default tokenizer function that uses jieba tokenizer.
 
     :param feature_weight_pair: maximum pair number of the keyword-weight list.
     :return: return keyword-weight list. Example: [('Example',0.4511233019962264),('Hello',0.25548051420382073),...].
@@ -30,12 +34,12 @@ def _default_tokenizer_func(content, keyword_weight_pair):
 
 
 class Simhash(object):
-    """Class Simhash implements simhash algorithms of the Google for filter duplicate content.
-
-       Simhash algorithms idea is will reduce the dimension of content and compares the
-       difference of the "Hamming Distance" implements filter duplicate content.
-       About simhash algorithms the more introduction: https://en.wikipedia.org/wiki/SimHash
-       Simhash default tokenizer is jieba (https://github.com/fxsjy/jieba).
+    """
+    Class Simhash implements simhash algorithms of the Google for filter duplicate content.
+    Simhash algorithms idea is will reduce the dimension of content and compares the
+    difference of the "Hamming Distance" implements filter duplicate content.
+    About simhash algorithms the more introduction: https://en.wikipedia.org/wiki/SimHash
+    Simhash default tokenizer is jieba (https://github.com/fxsjy/jieba).
     """
 
     def __init__(self, data, keyword_weight_pair=20, hash_bit_number=64, hashfunc=None, tokenizer_func=None):
@@ -70,7 +74,8 @@ class Simhash(object):
         return str(self.content)
 
     def simhash(self, content):
-        """Select policies for simhash on the different types of content.
+        """
+        Select policies for simhash on the different types of content.
         """
         if content is None or content == "":
             self.content = None
@@ -119,6 +124,9 @@ class Simhash(object):
                 result |= masks[i]
 
         return result
+
+    def distance(self, another):
+        pass
 
 
 if __name__ == "__main__":
