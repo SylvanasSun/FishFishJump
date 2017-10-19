@@ -9,6 +9,9 @@ import scrapy
 
 
 class FishCrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    title = scrapy.Field()
+    description = scrapy.Field()
+    keywords = scrapy.Field()
+    url = scrapy.Field()
+    links = scrapy.Field()
+    link_texts = scrapy.Field()  # Text content in each tag <a>
