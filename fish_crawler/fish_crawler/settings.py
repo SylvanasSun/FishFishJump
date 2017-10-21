@@ -24,16 +24,19 @@ ITEM_PIPELINES = {
     'fish_crawler.pipelines.MongodbPipeline': 300
 }
 
-# The item pipeline serializes and stores the items in this mongodb key.
-MONGODB_ITEMS_KEY = '%(spider)s:items'
+# The item pipeline serializes and stores the items in this mongodb collection.
+MONGODB_COLLECTION_NAME = '%(spider)s:items'
 
-# The items serializer is by default ScrapyJSONEncoder. You can use any
-# importable path to a callable object.
-MONGODB_ITEMS_SERIALIZER = 'json.dumps'
+# The database name of Mongodb.
+MONGODB_DB_NAME = '%(spider)s'
+
+# Specify the full Mongodb URL for connecting
+# Its priority greater than MONGODB_HOST and MONGODB_PORT
+MONGODB_URL = 'mongodb://localhost:27017/'
 
 # Specify the host and port to use when connecting to Mongodb.
-MONGODB_HOST = 'localhost'
-MONGODB_PORT = 27017
+# MONGODB_HOST = 'localhost'
+# MONGODB_PORT = 27017
 
 LOG_LEVEL = 'DEBUG'
 
