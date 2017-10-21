@@ -15,3 +15,4 @@ class FishCrawlerItem(scrapy.Item):
     url = scrapy.Field()
     links = scrapy.Field()
     link_texts = scrapy.Field()  # Text content in each tag <a>
+    simhash = scrapy.Field() # Simhash code,depend title,description,keywords and link_texts
