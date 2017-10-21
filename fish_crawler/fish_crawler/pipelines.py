@@ -5,7 +5,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
-
+from scrapy.exceptions import DropItem
+from fish_utils.simhash import Simhash
 from twisted.internet.threads import deferToThread
 
 # TODO: Will the default configuration variable into the independent module file
@@ -92,4 +93,26 @@ class MongodbPipeline(object):
 
     def _process_item_thread(self, item):
         self.db[self.collection_name].insert_one(dict(item))
+        return item
+
+
+class DuplicatesPipeline(object):
+    """
+    Validate item similarity by simhash and reject item that similarity greater than specify a limit.
+    """
+
+    def __init__(self):
+        self.simhash_set = set()
+
+    # TODO: Alter to be method for more efficient
+    def process_item(self, item, spider):
+        if item['simhash'] in self.simhash_set:
+            raise DropItem("Duplicate item found: %s" % item)
+        else:
+            simhash = Simhash(item['simhash'])
+            for other in self.simhash_set:
+                if simhash.is_equal(other):
+                    raise DropItem("Similarity high of the item: %s" % item)
+
+        self.simhash_set.add(item['simhash'])
         return item
