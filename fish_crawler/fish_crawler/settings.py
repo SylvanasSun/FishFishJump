@@ -83,6 +83,9 @@ REDIS_PORT = 6379
 # If set, this takes precedence over the REDIS_HOST and REDIS_PORT settings.
 # REDIS_URL = 'redis://user:pass@hostname:9001'
 
+# Specify the simhash list for DuplicatesPipeline.
+REDIS_SIMHASH_KEY = '%(spider)s:simhash_set'
+
 # Custom redis client parameters (i.e.: socket timeout, etc.)
 # REDIS_PARAMS  = {}
 # Use custom redis client class.
