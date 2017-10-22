@@ -6,14 +6,17 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 from scrapy.exceptions import DropItem
-from fish_utils.simhash import Simhash
 from twisted.internet.threads import deferToThread
+
+from fish_utils.simhash import Simhash
+from scrapy_redis import connection
 
 # TODO: Will the default configuration variable into the independent module file
 default_host = 'localhost'
 default_port = 27017
 default_db_name = '%(spider)s'
 default_collection_name = '%(spider)s:items'
+default_simhash_key = '%(spider)s:simhash_set'
 
 
 class MongodbPipeline(object):
@@ -99,20 +102,39 @@ class MongodbPipeline(object):
 class DuplicatesPipeline(object):
     """
     Validate item similarity by simhash and reject item that similarity greater than specify a limit.
+    Default use the same address as the redis queue.
     """
 
-    def __init__(self):
-        self.simhash_set = set()
+    def __init__(self, client, key=default_simhash_key):
+        self.client = client
+        self.key = key
+
+    @classmethod
+    def from_settings(cls, settings):
+        params = {
+            'client': connection.from_settings(settings),
+        }
+        if settings.get('REDIS_SIMHASH_KEY'):
+            params['key'] = settings['REDIS_SIMHASH_KEY']
+
+        return cls(**params)
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls.from_settings(crawler.settings)
 
     # TODO: Alter to be method for more efficient
     def process_item(self, item, spider):
-        if item['simhash'] in self.simhash_set:
+        self.key = self.key % {'spider': spider.name}
+        item_simhash = item['simhash']
+
+        if self.client.sismember(self.key, item_simhash):
             raise DropItem("Duplicate item found: %s" % item)
         else:
-            simhash = Simhash(item['simhash'])
-            for other in self.simhash_set:
+            simhash = Simhash(item_simhash)
+            for other in self.client.smembers(self.key):
                 if simhash.is_equal(other):
                     raise DropItem("Similarity high of the item: %s" % item)
 
-        self.simhash_set.add(item['simhash'])
+        self.client.sadd(self.key, item_simhash)
         return item
