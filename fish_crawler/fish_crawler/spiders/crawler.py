@@ -52,4 +52,4 @@ class SimpleCrawler(RedisCrawlSpider):
         list = item['title'] + item['description'] + item['keywords'] + item['p_texts']
         for link in item['links']:
             list.append(link[1])
-        return Simhash(','.join(list)).hash
+        return Simhash(','.join(list).strip()).hash
