@@ -15,6 +15,5 @@ class CommonItem(scrapy.Item):
     p_texts = scrapy.Field()  # Text content in each tag <p>
     url = scrapy.Field()
     crawled_timestamp = scrapy.Field()  # Timestamp of crawl the current page
-    links = scrapy.Field()
-    link_texts = scrapy.Field()  # Text content in each tag <a>
-    simhash = scrapy.Field()  # Simhash code,depend title,description,keywords,p_texts and link_texts
+    links = scrapy.Field()  # Link list which each element include URL and text [['example.com','example'],...]
+    simhash = scrapy.Field()  # Simhash code,depend title,description,keywords,p_texts and link text
