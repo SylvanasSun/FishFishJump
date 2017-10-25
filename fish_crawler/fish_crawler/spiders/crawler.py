@@ -24,6 +24,7 @@ class SimpleCrawler(RedisCrawlSpider):
         super(SimpleCrawler, self).__init__(*args, **kwargs)
 
     def parse_page(self, response):
+        self.logger.info('Parse function called on %s' % response.url)
         item = CommonItem()
         item['title'] = response.xpath('//title/text()').extract()
         item['description'] = response.xpath('//meta[contains(@name,"description")]/@content').extract()
