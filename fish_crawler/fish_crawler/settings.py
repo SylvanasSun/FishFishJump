@@ -20,6 +20,13 @@ NEWSPIDER_MODULE = 'fish_crawler.spiders'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
+# The maximum running time, the unit is second.
+# It is used with main() of in the 'run.py', 82800 second is 23 hours
+# and main() of in the 'run.py' every 24 hours will start once crawler 'fish_simple_crawler'.
+# You can choose not to set this configuration and no use run.py
+# but you can to implements self-defined schedule function of yourself.
+CLOSESPIDER_TIMEOUT = 82800
+
 ITEM_PIPELINES = {
     'fish_crawler.pipelines.DuplicatesPipeline': 200,
     'fish_crawler.pipelines.MongodbPipeline': 300
