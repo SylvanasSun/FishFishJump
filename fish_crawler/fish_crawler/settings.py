@@ -48,6 +48,8 @@ MONGODB_URL = 'mongodb://localhost:27017/'
 
 LOG_LEVEL = 'DEBUG'
 
+LOG_FILE = 'fish_crawler.log'
+
 # Introduce an artifical delay to make use of parallelism. to speed up the
 # crawl.
 DOWNLOAD_DELAY = 1
