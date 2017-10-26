@@ -27,9 +27,29 @@ ROBOTSTXT_OBEY = True
 # but you can to implements self-defined schedule function of yourself.
 CLOSESPIDER_TIMEOUT = 82800
 
+# The two configuration for enhance crawler efficiency on the below.
+# By the way you must reference your machines to set them for better efficiency.
+CONCURRENT_REQUESTS = 100
+REACTOR_THREADPOOL_MAXSIZE = 20
+
+# Cookies for Search Engine crawler is not important so ban it will be bring better efficiency.
+COOKIES_ENABLED = False
+
+# Retry HTTP request will bring worse efficiency
+# especially when sites causes are very slow (or fail) to respond.
+RETRY_ENABLED = False
+
+# Reduce the download timeout so that stuck requests are discarded
+# quickly and free up capacity to process the next ones.
+DOWNLOAD_TIMEOUT = 15
+
 ITEM_PIPELINES = {
     'fish_crawler.pipelines.DuplicatesPipeline': 200,
     'fish_crawler.pipelines.MongodbPipeline': 300
+}
+
+EXTENSIONS = {
+    'fish_crawler.extensions.SendEmailExtension': 400,
 }
 
 # The item pipeline serializes and stores the items in this mongodb collection.
@@ -46,9 +66,35 @@ MONGODB_URL = 'mongodb://localhost:27017/'
 # MONGODB_HOST = 'localhost'
 # MONGODB_PORT = 27017
 
-LOG_LEVEL = 'DEBUG'
-
+LOG_LEVEL = 'INFO'
 LOG_FILE = 'fish_crawler.log'
+
+# Sender email to use (From: header) for sending emails.
+# MAIL_FROM = 'your email'
+
+# MAIL_TO = ['receiver's email',]
+
+# SMTP host to use for sending emails.
+# If your email is proxy so you must write host of the proxy.
+# MAIL_HOST = 'localhost'
+
+# SMTP port to use for sending emails.
+# If your email is proxy so you must write port of the proxy.
+# MAIL_PORT = 25
+
+# User to use for SMTP authentication. If disabled no SMTP authentication will be performed.
+# MAIL_USER = ''
+
+# Password to use for SMTP authentication, along with MAIL_USER.
+# If your email is proxy so you must apply for the authentication code.
+# MAIL_PASS = ''
+
+# Enforce using STARTTLS. STARTTLS is a way to take an existing insecure connection,
+# and upgrade it to a secure connection using SSL/TLS.
+# MAIL_TLS = False
+
+# Enforce connecting using an SSL encrypted connection
+# MAIL_SSL = False
 
 # Introduce an artifical delay to make use of parallelism. to speed up the
 # crawl.
