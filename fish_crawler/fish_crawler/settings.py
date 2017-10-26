@@ -49,7 +49,7 @@ ITEM_PIPELINES = {
 }
 
 EXTENSIONS = {
-    'fish_crawler.extensions.SendEmailExtension': 400,
+    # 'fish_crawler.extensions.SendEmailExtension': 400,
 }
 
 # The item pipeline serializes and stores the items in this mongodb collection.
