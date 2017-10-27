@@ -101,10 +101,10 @@ LOG_FILE = 'fish_crawler.log'
 DOWNLOAD_DELAY = 1
 
 # Ensure all spiders share same duplicates filter through redis.
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+DUPEFILTER_CLASS = 'scrapy_redis.dupefilter.RFPDupeFilter'
 
 # Enables scheduling storing requests queue in redis.
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+SCHEDULER = 'scrapy_redis.scheduler.Scheduler'
 
 # Don't cleanup redis queues, allows to pause/resume crawls.
 SCHEDULER_PERSIST = True
