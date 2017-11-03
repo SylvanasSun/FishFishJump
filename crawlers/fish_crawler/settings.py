@@ -25,7 +25,7 @@ ROBOTSTXT_OBEY = True
 # and main() of in the 'run.py' every 24 hours will start once crawler 'fish_simple_crawler'.
 # You can choose not to set this configuration and no use run.py
 # but you can to implements self-defined schedule function of yourself.
-CLOSESPIDER_TIMEOUT = 82800
+# CLOSESPIDER_TIMEOUT = 82800
 
 # The two configuration for enhance crawler efficiency on the below.
 # By the way you must reference your machines to set them for better efficiency.
@@ -66,8 +66,9 @@ MONGODB_URL = 'mongodb://localhost:27017/'
 # MONGODB_HOST = 'localhost'
 # MONGODB_PORT = 27017
 
-LOG_LEVEL = 'INFO'
-LOG_FILE = 'fish_crawler.log'
+# LOG_LEVEL = 'INFO'
+# LOG_FILE = 'fish_crawler.log'
+# LOG_STDOUT = True
 
 # Sender email to use (From: header) for sending emails.
 # MAIL_FROM = 'your email'
