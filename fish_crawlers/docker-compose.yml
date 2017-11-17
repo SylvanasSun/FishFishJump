@@ -1,0 +1,25 @@
+redis:
+  image: redis
+  container_name: FishFishJump_redis
+  ports:
+    - "6379:6379"
+
+mongo:
+  image: mongo
+  container_name: FishFishJump_mongo
+  ports:
+    - "27017:27017"
+
+crawlers-manager:
+  container_name: FishFishJump_crawlers
+  build: .
+  ports:
+    - "6800:6800"
+  volumes:
+    - eggs:/etc/scrapyd/eggs
+    - logs:/etc/scrapyd/logs
+    - items:/etc/scrapyd/items
+    - dbs:/etc/scrapyd/dbs
+  links:
+    - redis
+    - mongo
