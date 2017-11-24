@@ -3,6 +3,7 @@ class Config(object):
     TESTING = False
     HOST = '0.0.0.0'
     PORT = 5000
+    SCRAPYD_URL = 'http://localhost:6800/'
     ADMIN_USERNAME = 'admin'
     ADMIN_PASSWORD = 123456
 
