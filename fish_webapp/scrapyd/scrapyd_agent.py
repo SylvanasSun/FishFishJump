@@ -1,0 +1,210 @@
+import json
+
+from flask import current_app
+
+from ..utils import http_utils
+
+DEFAULT_SCRAPYD_URL = current_app.config['SCRAPYD_URL']
+
+
+class ScrapydCommandSet(dict):
+    def __init__(self, *args, **kw):
+        super(ScrapydCommandSet, self).__init__(*args, **kw)
+        self.itemlist = list(super(ScrapydCommandSet, self).keys())
+
+    def __setitem__(self, key, value):
+        self.itemlist.append(key)
+        super(ScrapydCommandSet, self).__setitem__(key, value)
+
+    def __iter__(self):
+        return iter(self.itemlist)
+
+    def keys(self):
+        return self.itemlist
+
+    def values(self):
+        return [self[key] for key in self]
+
+    def itervalues(self):
+        return (self[key] for key in self)
+
+    def init_command_set(self, scrapyd_url=DEFAULT_SCRAPYD_URL):
+        """
+         Initialize command set by scrapyd_url,each element is a list such as ['command','supported http method type']
+        """
+
+        if scrapyd_url[-1:] != '/':
+            scrapyd_url = scrapyd_url + '/'
+        self['daemonstatus'] = [scrapyd_url + 'daemonstatus.json', http_utils.METHOD_GET]
+        self['addversion'] = [scrapyd_url + 'addversion.json', http_utils.METHOD_POST]
+        self['schedule'] = [scrapyd_url + 'schedule.json', http_utils.METHOD_POST]
+        self['cancel'] = [scrapyd_url + 'cancel.json', http_utils.METHOD_POST]
+        self['listprojects'] = [scrapyd_url + 'listprojects.json', http_utils.METHOD_GET]
+        self['listversions'] = [scrapyd_url + 'listversions.json', http_utils.METHOD_GET]
+        self['listspiders'] = [scrapyd_url + 'listspiders.json', http_utils.METHOD_GET]
+        self['listjobs'] = [scrapyd_url + 'listjobs.json', http_utils.METHOD_GET]
+        self['delversion'] = [scrapyd_url + 'delversion.json', http_utils.METHOD_POST]
+        self['delproject'] = [scrapyd_url + 'delproject.json', http_utils.METHOD_POST]
+
+
+class ScrapydAgent(object):
+    def __init__(self, scrapyd_url=DEFAULT_SCRAPYD_URL):
+        self.command_set = ScrapydCommandSet().init_command_set(scrapyd_url)
+
+    def get_load_status(self):
+        """
+        To check the load status of a service.
+        :return: a dictionary that include json data.
+                 example: { "status": "ok", "running": "0", "pending": "0", "finished": "0", "node_name": "node-name" }
+        """
+        url, method = self.command_set['daemonstatus'][0], self.command_set['daemonstatus'][1]
+        response = http_utils.request(url, method_type=method, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def add_version(self, project_name, version, egg):
+        """
+        Add a version to a project, creating the project if it doesn’t exist.
+        :param project_name: the project name
+        :param version:  the project version
+        :param egg:  a Python egg containing the project’s code
+        :return: a dictionary that status message
+                 example: {"status": "ok", "spiders": 3}
+        """
+        url, method = self.command_set['addversion'][0], self.command_set['addversion'][1]
+        data = {}
+        data['project'] = project_name
+        data['version'] = version
+        data['egg'] = egg
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def schedule(self,
+                 project_name,
+                 spider_name,
+                 setting=None,
+                 job_id=None,
+                 version=None,
+                 args={}):
+        """
+        Schedule a spider run (also known as a job), returning the job id.
+        :param project_name: the project name
+        :param spider_name: the spider name
+        :param setting: a Scrapy setting to use when running the spider
+        :param job_id: a job id used to identify the job, overrides the default generated UUID
+        :param version: the version of the project to use
+        :param args: passed as spider argument
+        :return: a dictionary that status message
+                 example: {"status": "ok", "jobid": "6487ec79947edab326d6db28a2d86511e8247444"}
+        """
+        url, method = self.command_set['schedule'][0], self.command_set['schedule'][1]
+        data = {}
+        data['project'] = project_name
+        data['spider'] = spider_name
+        if setting is not None:
+            data['setting'] = setting
+        if job_id is not None:
+            data['jobid'] = job_id
+        if version is not None:
+            data['_version'] = version
+        for k, v in args.items():
+            data[k] = v
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def cancel(self, project_name, job_id):
+        """
+        Cancel a spider run (aka. job). If the job is pending, it will be removed. If the job is running, it will be terminated.
+        :param project_name: the project name
+        :param job_id: the job id
+        :return: a dictionary that status message
+                 example: {"status": "ok", "prevstate": "running"}
+        """
+        url, method = self.command_set['cancel'][0], self.command_set['cancel'][1]
+        data = {}
+        data['project'] = project_name
+        data['job'] = job_id
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def get_project_list(self):
+        """
+        Get the list of projects uploaded to this Scrapy server.
+        :return: a dictionary that project name list
+                 example: {"status": "ok", "projects": ["myproject", "otherproject"]}
+        """
+        url, method = self.command_set['listprojects'][0], self.command_set['listprojects'][1]
+        response = http_utils.request(url, method_type=method, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def get_version_list(self, project_name):
+        """
+        Get the list of versions available for some project.
+        The versions are returned in order, the last one is the currently used version.
+        :param project_name: the project name
+        :return: a dictionary that version name list
+                 example: {"status": "ok", "versions": ["r99", "r156"]}
+        """
+        url, method = self.command_set['listversions'][0], self.command_set['listversions'][1]
+        data = {'project': project_name}
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def get_spider_list(self, project_name, version=None):
+        """
+        Get the list of spiders available in the last (unless overridden) version of some project.
+        :param project_name: the project name
+        :param version: the version of the project to examine
+        :return: a dictionary that spider name list
+                 example: {"status": "ok", "spiders": ["spider1", "spider2", "spider3"]}
+        """
+        url, method = self.command_set['listspiders'][0], self.command_set['listspiders'][1]
+        data = {}
+        data['project'] = project_name
+        if version is not None:
+            data['_version'] = version
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def get_job_list(self, project_name):
+        """
+        Get the list of pending, running and finished jobs of some project.
+        :param project_name: the project name
+        :return: a dictionary that list inculde job name and status
+                 example:
+                 {"status": "ok",
+                    "pending": [{"id": "78391cc0fcaf11e1b0090800272a6d06", "spider": "spider1"}],
+                    "running": [{"id": "422e608f9f28cef127b3d5ef93fe9399", "spider": "spider2",
+                    "start_time": "2012-09-12 10:14:03.594664"}],
+                    "finished": [{"id": "2f16646cfcaf11e1b0090800272a6d06", "spider": "spider3",
+                    "start_time": "2012-09-12 10:14:03.594664", "end_time": "2012-09-12 10:24:03.594664"}]}
+        """
+        url, method = self.command_set['listjobs'][0], self.command_set['listjobs'][1]
+        data = {'project': project_name}
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def delete_project_version(self, project_name, version):
+        """
+        Delete a project version.
+        If there are no more versions available for a given project, that project will be deleted too.
+        :param project_name: the project name
+        :param version: the project version
+        :return: a dictionary that status message
+                 example: {"status": "ok"}
+        """
+        url, method = self.command_set['delversion'][0], self.command_set['delversion'][1]
+        data = {'project': project_name, 'version': version}
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
+
+    def delete_project(self, project_name):
+        """
+        Delete a project and all its uploaded versions.
+        :param project_name: the project name
+        :return: a dictionary that status message
+                 example: {"status": "ok"}
+        """
+        url, method = self.command_set['delproject'][0], self.command_set['delproject'][1]
+        data = {'project': project_name}
+        response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        return json.loads(response)
