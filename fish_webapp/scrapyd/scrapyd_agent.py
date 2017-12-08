@@ -1,10 +1,12 @@
 import json
+import logging
+import sys
 
-from flask import current_app
+from scrapyd.model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, ProjectList, \
+    VersionList, SpiderList, JobList, DeleteProjectVersionResultSet, DeleteProjectResultSet
+from utils import http_utils
 
-from ..utils import http_utils
-
-DEFAULT_SCRAPYD_URL = current_app.config['SCRAPYD_URL']
+logging = logging.getLogger(__name__)
 
 
 class ScrapydCommandSet(dict):
@@ -28,7 +30,7 @@ class ScrapydCommandSet(dict):
     def itervalues(self):
         return (self[key] for key in self)
 
-    def init_command_set(self, scrapyd_url=DEFAULT_SCRAPYD_URL):
+    def init_command_set(self, scrapyd_url):
         """
          Initialize command set by scrapyd_url,each element is a list such as ['command','supported http method type']
         """
@@ -48,8 +50,10 @@ class ScrapydCommandSet(dict):
 
 
 class ScrapydAgent(object):
-    def __init__(self, scrapyd_url=DEFAULT_SCRAPYD_URL):
-        self.command_set = ScrapydCommandSet().init_command_set(scrapyd_url)
+    def __init__(self, scrapyd_url):
+        command_set = ScrapydCommandSet()
+        command_set.init_command_set(scrapyd_url)
+        self.command_set = command_set
 
     def get_load_status(self):
         """
@@ -59,6 +63,9 @@ class ScrapydAgent(object):
         """
         url, method = self.command_set['daemonstatus'][0], self.command_set['daemonstatus'][1]
         response = http_utils.request(url, method_type=method, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = DaemonStatus().to_json()
         return json.loads(response)
 
     def add_version(self, project_name, version, egg):
@@ -76,6 +83,9 @@ class ScrapydAgent(object):
         data['version'] = version
         data['egg'] = egg
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = AddVersionResultSet().to_json()
         return json.loads(response)
 
     def schedule(self,
@@ -109,6 +119,9 @@ class ScrapydAgent(object):
         for k, v in args.items():
             data[k] = v
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = ScheduleResultSet().to_json()
         return json.loads(response)
 
     def cancel(self, project_name, job_id):
@@ -124,6 +137,9 @@ class ScrapydAgent(object):
         data['project'] = project_name
         data['job'] = job_id
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = CancelResultSet().to_json()
         return json.loads(response)
 
     def get_project_list(self):
@@ -134,6 +150,9 @@ class ScrapydAgent(object):
         """
         url, method = self.command_set['listprojects'][0], self.command_set['listprojects'][1]
         response = http_utils.request(url, method_type=method, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = ProjectList().to_json()
         return json.loads(response)
 
     def get_version_list(self, project_name):
@@ -147,6 +166,9 @@ class ScrapydAgent(object):
         url, method = self.command_set['listversions'][0], self.command_set['listversions'][1]
         data = {'project': project_name}
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = VersionList().to_json()
         return json.loads(response)
 
     def get_spider_list(self, project_name, version=None):
@@ -163,6 +185,9 @@ class ScrapydAgent(object):
         if version is not None:
             data['_version'] = version
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = SpiderList().to_json()
         return json.loads(response)
 
     def get_job_list(self, project_name):
@@ -181,6 +206,9 @@ class ScrapydAgent(object):
         url, method = self.command_set['listjobs'][0], self.command_set['listjobs'][1]
         data = {'project': project_name}
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = JobList().to_json()
         return json.loads(response)
 
     def delete_project_version(self, project_name, version):
@@ -195,6 +223,9 @@ class ScrapydAgent(object):
         url, method = self.command_set['delversion'][0], self.command_set['delversion'][1]
         data = {'project': project_name, 'version': version}
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = DeleteProjectVersionResultSet().to_json()
         return json.loads(response)
 
     def delete_project(self, project_name):
@@ -207,4 +238,7 @@ class ScrapydAgent(object):
         url, method = self.command_set['delproject'][0], self.command_set['delproject'][1]
         data = {'project': project_name}
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
+        if response is None:
+            logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
+            response = DeleteProjectResultSet().to_json()
         return json.loads(response)

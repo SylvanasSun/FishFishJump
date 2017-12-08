@@ -10,6 +10,8 @@ RETURN_BINARY = 'BINARY'
 RETURN_JSON = 'JSON'
 RETURN_RAW = 'RAW'
 
+logging = logging.getLogger(__name__)
+
 
 def before_logging(func):
     def wrapper(*args, **kwargs):

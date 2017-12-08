@@ -1,14 +1,20 @@
-import settings
 import os
+
+import settings
 from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template
 from views.home import home
+from views.scrapyd import scrapyd, fetch_scrapyd_agent
 from views.user import user
 
 app = Flask(__name__)
 app.config.from_object(settings.DevelopmentConfig)
 app.secret_key = os.urandom(24)
-app.register_blueprint(home, url_prefix='/supervisor')
-app.register_blueprint(user, url_prefix='/supervisor')
+
+fetch_scrapyd_agent(app.config['SCRAPYD_URL'])
+
+app.register_blueprint(home, url_prefix='/supervisor/home')
+app.register_blueprint(user, url_prefix='/supervisor/user')
+app.register_blueprint(scrapyd, url_prefix='/supervisor/scrapyd')
 
 
 @app.route('/favicon.ico')
@@ -24,14 +30,19 @@ def index():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('error.html', error_code=404), 404
+
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('error.html', error_code=500), 500
 
 
 @app.before_request
 def login_interceptor():
     path = request.path
     if path.startswith('/supervisor'):
-        if path == '/supervisor/login.html' or path == '/supervisor/login':
+        if path == '/supervisor/user/login.html' or path == '/supervisor/user/login':
             return
         if not 'is_login' in session or not session['is_login']:
             return redirect(url_for('user.login'))
