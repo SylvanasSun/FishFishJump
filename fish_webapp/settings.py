@@ -6,6 +6,8 @@ class Config(object):
     SCRAPYD_URL = 'http://localhost:6800/'
     ADMIN_USERNAME = 'admin'
     ADMIN_PASSWORD = 123456
+    ENABLE_CACHE = True
+    CACHE_EXPIRE = 3 * 60  # second
 
 
 class ProductionConfig(Config):

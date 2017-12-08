@@ -10,6 +10,13 @@ app = Flask(__name__)
 app.config.from_object(settings.DevelopmentConfig)
 app.secret_key = os.urandom(24)
 
+# init global cache
+if app.config['ENABLE_CACHE']:
+    from werkzeug.contrib.cache import SimpleCache
+
+    app.config['GLOBAL_CACHE'] = SimpleCache()
+
+# register scrapyd agent
 fetch_scrapyd_agent(app.config['SCRAPYD_URL'])
 
 app.register_blueprint(home, url_prefix='/supervisor/home')
