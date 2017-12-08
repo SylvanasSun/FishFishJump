@@ -2,11 +2,26 @@ import json
 import logging
 import sys
 
-from scrapyd.model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, ProjectList, \
+from .model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, ProjectList, \
     VersionList, SpiderList, JobList, DeleteProjectVersionResultSet, DeleteProjectResultSet
 from utils import http_utils
+from html.parser import HTMLParser
 
 logging = logging.getLogger(__name__)
+
+
+class ScrapydLogsPageHTMLParser(HTMLParser):
+    result = []
+
+    def handle_data(self, data):
+        # Extract text of the tag a for get log file name
+        if self.lasttag == 'a':
+            self.result.append(data)
+
+    def clean_enter_sign(self):
+        for x in self.result:
+            if x.startswith('\n'):
+                self.result.remove(x)
 
 
 class ScrapydCommandSet(dict):
@@ -47,6 +62,7 @@ class ScrapydCommandSet(dict):
         self['listjobs'] = [scrapyd_url + 'listjobs.json', http_utils.METHOD_GET]
         self['delversion'] = [scrapyd_url + 'delversion.json', http_utils.METHOD_POST]
         self['delproject'] = [scrapyd_url + 'delproject.json', http_utils.METHOD_POST]
+        self['logs'] = [scrapyd_url + 'logs/', http_utils.METHOD_GET]
 
 
 class ScrapydAgent(object):
@@ -242,3 +258,17 @@ class ScrapydAgent(object):
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
             response = DeleteProjectResultSet().to_json()
         return json.loads(response)
+
+    def get_logs_urls(self, project_name, spider_name):
+        """
+        Get urls that scrapyd logs file by project name and spider name
+        :param project_name: the project name
+        :param spider_name: the spider name
+        :return: a list of the logs file url
+        """
+        url, method = self.command_set['logs'][0] + project_name + '/' + spider_name + '/', self.command_set['logs'][1]
+        response = http_utils.request(url, method_type=method)
+        html_parser = ScrapydLogsPageHTMLParser()
+        html_parser.feed(response)
+        html_parser.clean_enter_sign()
+        return [url + x for x in html_parser.result]
