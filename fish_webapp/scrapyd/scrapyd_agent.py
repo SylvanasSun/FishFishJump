@@ -107,6 +107,7 @@ class ScrapydAgent(object):
     def schedule(self,
                  project_name,
                  spider_name,
+                 priority=0,
                  setting=None,
                  job_id=None,
                  version=None,
@@ -115,6 +116,7 @@ class ScrapydAgent(object):
         Schedule a spider run (also known as a job), returning the job id.
         :param project_name: the project name
         :param spider_name: the spider name
+        :param priority: the run priority
         :param setting: a Scrapy setting to use when running the spider
         :param job_id: a job id used to identify the job, overrides the default generated UUID
         :param version: the version of the project to use
@@ -126,6 +128,7 @@ class ScrapydAgent(object):
         data = {}
         data['project'] = project_name
         data['spider'] = spider_name
+        data['priority'] = priority
         if setting is not None:
             data['setting'] = setting
         if job_id is not None:
