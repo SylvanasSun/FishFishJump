@@ -262,7 +262,7 @@ class ScrapydAgent(object):
             response = DeleteProjectResultSet().to_json()
         return json.loads(response)
 
-    def get_logs_urls(self, project_name, spider_name):
+    def get_logs(self, project_name, spider_name):
         """
         Get urls that scrapyd logs file by project name and spider name
         :param project_name: the project name
