@@ -10,13 +10,8 @@ def obj2json(obj):
     return json.dumps(obj.__dict__)
 
 
-class SpiderStatus():
+class JobStatus():
     PENDING, RUNNING, FINISHED, CANCELED = range(4)
-
-
-class JobRunType():
-    ONETIME = 'onetime'
-    PERIODIC = 'periodic'
 
 
 class JobPriority():
@@ -161,37 +156,48 @@ class DeleteProjectResultSet(BasicModel):
             self.status = status
 
 
-class JobVO(BasicModel):
+class JobListDO(BasicModel):
     def __init__(self,
-                 project_id=-1,
-                 spider_name='error',
-                 spider_status=SpiderStatus.PENDING,
+                 project_name='not found',
+                 project_version='not found',
+                 job_id='not found',
+                 spider_name='not found',
+                 args='empty',
+                 logs_name=[],
+                 logs_url=[],
                  creation_time=DEFAULT_TIME,
                  start_time=DEFAULT_TIME,
                  end_time=DEFAULT_TIME,
-                 job_run_type=JobRunType.ONETIME,
-                 job_priority=JobPriority.NORMAL,
+                 job_status=JobStatus.PENDING,
+                 priority=JobPriority.LOW,
                  json=None):
-
         if json is not None:
             obj = json2obj(json, self.__class__.__name__)
-            self.project_id = int(obj.project_id)
+            self.project_name = obj.project_name
+            self.project_version = obj.project_version
+            self.job_id = obj.job_id
             self.spider_name = obj.spider_name
-            self.spider_status = int(obj.spider_status)
+            self.args = obj.args
+            self.logs_name = obj.logs_name
+            self.logs_url = obj.logs_url
             self.creation_time = obj.creation_time
             self.start_time = obj.start_time
             self.end_time = obj.end_time
-            self.job_run_type = obj.job_run_type
-            self.job_priority = int(obj.job_priority)
+            self.job_status = obj.job_status
+            self.priority = obj.priority
         else:
-            self.project_id = project_id
+            self.project_name = project_name
+            self.project_version = project_version
+            self.job_id = job_id
             self.spider_name = spider_name
-            self.spider_status = spider_status
+            self.args = args
+            self.logs_name = logs_name
+            self.logs_url = logs_url
             self.creation_time = creation_time
             self.start_time = start_time
             self.end_time = end_time
-            self.job_run_type = job_run_type
-            self.job_priority = job_priority
+            self.job_status = job_status
+            self.priority = priority
 
 
 class ScrapydStatusVO(BasicModel):
@@ -201,10 +207,85 @@ class ScrapydStatusVO(BasicModel):
                  finished=0,
                  project_amount=0,
                  spider_amount=0,
-                 job_amount=0):
-        self.running = running
-        self.pending = pending
-        self.finished = finished
-        self.project_amount = project_amount
-        self.spider_amount = spider_amount
-        self.job_amount = job_amount
+                 job_amount=0,
+                 json=None):
+        if json is not None:
+            obj = json2obj(json, self.__class__.__name__)
+            self.running = obj.running
+            self.pending = obj.pending
+            self.finished = obj.finished
+            self.project_amount = obj.project_amount
+            self.spider_amount = obj.spider_amount
+            self.job_amount = obj.job_amount
+        else:
+            self.running = running
+            self.pending = pending
+            self.finished = finished
+            self.project_amount = project_amount
+            self.spider_amount = spider_amount
+            self.job_amount = job_amount
+
+
+class ProjectListVO(BasicModel):
+    def __init__(self,
+                 project_name='not found',
+                 project_versions='not found',
+                 latest_project_version='not found',
+                 spider_amount=0,
+                 spider_names='not found',
+                 pending_job_amount=0,
+                 running_job_amount=0,
+                 finished_job_amount=0,
+                 json=None):
+        if json is not None:
+            obj = json2obj(json, self.__class__.__name__)
+            self.project_name = obj.project_name
+            self.project_versions = obj.versions
+            self.latest_project_version = obj.latest_project_version
+            self.spider_amount = obj.spider_amount
+            self.spider_names = obj.spider_names
+            self.pending_job_amount = obj.pending_job_amount
+            self.running_job_amount = obj.running_job_amount
+            self.finished_job_amount = obj.finished_job_amount
+        else:
+            self.project_name = project_name
+            self.project_versions = project_versions
+            self.latest_project_version = latest_project_version
+            self.spider_amount = spider_amount
+            self.spider_names = spider_names
+            self.pending_job_amount = pending_job_amount
+            self.running_job_amount = running_job_amount
+            self.finished_job_amount = finished_job_amount
+
+
+class SpiderListVO(BasicModel):
+    def __init__(self,
+                 spider_name='not found',
+                 project_name='not found',
+                 latest_project_version='not found',
+                 logs_name=[],
+                 logs_url=[],
+                 pending_job_amount=0,
+                 running_job_amount=0,
+                 finished_job_amount=0,
+                 json=None
+                 ):
+        if json is not None:
+            obj = json2obj(json, self.__class__.__name__)
+            self.spider_name = obj.spider_name
+            self.project_name = obj.project_name
+            self.latest_project_version = obj.latest_project_version
+            self.logs_name = obj.logs_name
+            self.logs_url = obj.logs_url
+            self.pending_job_amount = obj.pending_job_amount
+            self.running_job_amount = obj.running_job_amount
+            self.finished_job_amount = obj.finished_job_amount
+        else:
+            self.spider_name = spider_name
+            self.project_name = project_name
+            self.latest_project_version = latest_project_version
+            self.logs_name = logs_name
+            self.logs_url = logs_url
+            self.pending_job_amount = pending_job_amount
+            self.running_job_amount = running_job_amount
+            self.finished_job_amount = finished_job_amount
