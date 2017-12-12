@@ -1,4 +1,4 @@
-from utils.common_utils import format_dict_to_str, get_current_date, list_to_str
+from utils.common_utils import format_dict_to_str, get_current_date, list_to_str, str_to_list
 
 from .model import ScrapydStatusVO, JobListDO, JobStatus, JobPriority, ProjectListVO, SpiderListVO
 from .scrapyd_db import SqlLite3Agent
@@ -42,6 +42,18 @@ def schedule_job(agent,
     logs_name, logs_url = agent.get_logs(project_name, spider_name)
     sqllite_agent.execute(ScrapydJobExtInfoSQLSet.INSERT,
                           (jobid, args_str, priority, current_date, list_to_str(logs_name), list_to_str(logs_url),))
+
+
+def packing_job_ext_info(job_lsit_DO, job_id):
+    """
+    Packing additional information of the job into the job_list_DO(JobListDO)
+    """
+    ext_info = sqllite_agent.execute(ScrapydJobExtInfoSQLSet.SELECT_BY_ID, (job_id,))[0]
+    job_lsit_DO.args = ext_info[1]
+    job_lsit_DO.priority = ext_info[2]
+    job_lsit_DO.creation_time = ext_info[3]
+    job_lsit_DO.logs_name = str_to_list(ext_info[4], ',')
+    job_lsit_DO.logs_url = str_to_list(ext_info[5], ',')
 
 
 def get_scrapyd_status(agent):
