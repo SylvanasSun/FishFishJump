@@ -6,3 +6,4 @@ Scrapy>=1.4.0
 scrapy-redis>=0.6.8
 six>=1.5.2
 Flask
+requests
