@@ -1,4 +1,27 @@
 from .model import ScrapydStatusVO, JobListDO, JobStatus, ProjectListVO, SpiderListVO
+from .scrapyd_db import SqlLite3Agent
+
+
+class ScrapydJobExtInfoSQLSet():
+    TABLE_NAME = 'scrapyd_job_ext_info'
+    DB_FILE_NAME = 'scrapyd.db'
+    CREATE_TABLE = """CREATE TABLE %s (job_id VARCHAR(32) PRIMARY KEY, 
+                    args VARCHAR(20), priority INT(1), 
+                    creation_time DATE, logs_name VARCHAR(128), logs_url VARCHAR(255))
+                 """ % TABLE_NAME
+    INSERT = 'INSERT INTO %s VALUES(?,?,?,?,?,?)' % TABLE_NAME
+    SELECT_BY_ID = 'SELECT * FROM %s WHERE job_id = ?' % TABLE_NAME
+    SELECT_ALL = 'SELECT * FROM %s' % TABLE_NAME
+    DELETE_BY_ID = 'DELETE FROM %s WHERE job_id = ?' % TABLE_NAME
+
+
+def open_sqllite(sql_set):
+    agent = SqlLite3Agent(sql_set.DB_FILE_NAME)
+    agent.create_table(sql_set.CREATE_TABLE)
+    return agent
+
+
+sqllite_agent = open_sqllite(ScrapydJobExtInfoSQLSet)
 
 
 def get_scrapyd_status(agent):
