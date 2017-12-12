@@ -9,12 +9,14 @@ class ScrapydJobExtInfoSQLSet():
     DB_FILE_NAME = 'scrapyd.db'
     CREATE_TABLE = """CREATE TABLE %s (job_id VARCHAR(32) PRIMARY KEY, 
                     args VARCHAR(20), priority INT(1), 
-                    creation_time DATE, logs_name VARCHAR(128), logs_url VARCHAR(255))
-                 """ % TABLE_NAME
-    INSERT = 'INSERT INTO %s VALUES(?,?,?,?,?,?)' % TABLE_NAME
+                    creation_time DATE, logs_name VARCHAR(128), logs_url VARCHAR(255), 
+                    project_name VARCHAR(32), project_version VARCHAR(20))""" % TABLE_NAME
+    INSERT = 'INSERT INTO %s VALUES(?,?,?,?,?,?,?,?)' % TABLE_NAME
     SELECT_BY_ID = 'SELECT * FROM %s WHERE job_id = ?' % TABLE_NAME
     SELECT_ALL = 'SELECT * FROM %s' % TABLE_NAME
     DELETE_BY_ID = 'DELETE FROM %s WHERE job_id = ?' % TABLE_NAME
+    DELETE_BY_PROJECT_NAME = 'DELETE FROM %s WHERE project_name = ?' % TABLE_NAME
+    DELETE_BY_PROJECT_VERSION = 'DELETE FROM %s WHERE project_name = ? AND project_version = ?' % TABLE_NAME
 
 
 def open_sqllite(sql_set):
@@ -36,12 +38,14 @@ def schedule_job(agent,
                  args={}
                  ):
     jobid = agent.schedule(project_name, spider_name, priority, setting, job_id, version, args)['jobid']
+    if version is None: version = agent.get_version_list(project_name)['versions'][-1:]
     # Save additional information that can't queried by scrapyd api into the database
     args_str = format_dict_to_str(args, '=')
     current_date = get_current_date()
     logs_name, logs_url = agent.get_logs(project_name, spider_name)
     sqllite_agent.execute(ScrapydJobExtInfoSQLSet.INSERT,
-                          (jobid, args_str, priority, current_date, list_to_str(logs_name), list_to_str(logs_url),))
+                          (jobid, args_str, priority, current_date, list_to_str(logs_name), list_to_str(logs_url),
+                           project_name, version))
 
 
 def packing_job_ext_info(job_lsit_DO, job_id):
