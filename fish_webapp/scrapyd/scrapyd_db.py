@@ -16,7 +16,7 @@ class SqlLite3Agent(object):
         self.db_file_name = db_file_name
 
     def create_table(self, sql):
-        table_name = sql[sql.find('table') + 5:sql.find('(')].strip()
+        table_name = sql[sql.find('TABLE') + 5:sql.find('(')].strip()
         is_existed = list(self.execute(__class__.SELECTION_TABLE_IS_EXISTED % table_name)[0])[0]
         if is_existed != 1:
             self.execute(sql)
