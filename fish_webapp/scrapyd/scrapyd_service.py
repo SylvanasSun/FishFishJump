@@ -96,6 +96,18 @@ def add_version(agent, project_name, version, egg):
     return agent.add_version(project_name, version, egg)['status']
 
 
+def delete_project(agent, project_name):
+    status = agent.delete_project(project_name)['status']
+    if status == 'ok':
+        sqllite_agent.execute(ScrapydJobExtInfoSQLSet.DELETE_BY_PROJECT_NAME, (project_name,))
+
+
+def delete_project_version(agent, project_name, version):
+    status = agent.delete_project_version(project_name, version)['status']
+    if status == 'ok':
+        sqllite_agent.execute(ScrapydJobExtInfoSQLSet.DELETE_BY_PROJECT_VERSION, (project_name, version,))
+
+
 def get_all_job_list(agent):
     """
     Get all job list by each project name then
