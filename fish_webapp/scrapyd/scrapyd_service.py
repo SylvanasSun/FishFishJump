@@ -45,7 +45,17 @@ def schedule_job(agent,
     logs_name, logs_url = agent.get_logs(project_name, spider_name)
     sqllite_agent.execute(ScrapydJobExtInfoSQLSet.INSERT,
                           (jobid, args_str, priority, current_date, list_to_str(logs_name), list_to_str(logs_url),
-                           project_name, version))
+                           project_name, version,))
+
+
+def cancel_job(agent, project_name, job_id):
+    """
+    cancel a job.
+    If the job is pending, it will be removed. If the job is running, it will be terminated.
+    """
+    prevstate = agent.cancel(project_name, job_id)['prevstate']
+    if prevstate == 'pending':
+        sqllite_agent.execute(ScrapydJobExtInfoSQLSet.DELETE_BY_ID, (job_id,))
 
 
 def packing_job_ext_info(job_lsit_DO, job_id):
