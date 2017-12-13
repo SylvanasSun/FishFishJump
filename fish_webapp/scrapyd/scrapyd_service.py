@@ -92,6 +92,10 @@ def get_scrapyd_status(agent):
     return scrapydStatusVO
 
 
+def add_version(agent, project_name, version, egg):
+    return agent.add_version(project_name, version, egg)['status']
+
+
 def get_all_job_list(agent):
     """
     Get all job list by each project name then
