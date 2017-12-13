@@ -2,7 +2,7 @@ import os
 
 import settings
 from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template
-from views.home import home
+from views.dashboard import dashboard
 from views.scrapyd import scrapyd, fetch_scrapyd_agent
 from views.user import user
 
@@ -19,7 +19,7 @@ if app.config['ENABLE_CACHE']:
 # register scrapyd agent
 fetch_scrapyd_agent(app.config['SCRAPYD_URL'])
 
-app.register_blueprint(home, url_prefix='/supervisor/home')
+app.register_blueprint(dashboard, url_prefix='/supervisor/dashboard')
 app.register_blueprint(user, url_prefix='/supervisor/user')
 app.register_blueprint(scrapyd, url_prefix='/supervisor/scrapyd')
 

@@ -14,7 +14,7 @@ def login():
         else:
             session['is_login'] = True
             session['username'] = request.form['username']
-            return redirect(url_for('home.home_page'))
+            return redirect(url_for('dashboard.home_page'))
     return render_template('login.html', error=error)
 
 
@@ -22,4 +22,4 @@ def login():
 def logout():
     session.pop('is_login', None)
     session.pop('username', None)
-    return redirect(url_for('home.home_page'))
+    return redirect(url_for('dashboard.home_page'))
