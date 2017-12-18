@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, current_app, request
 from scrapyd.scrapyd_agent import ScrapydAgent
-from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, get_logs_info
+from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, get_logs_info, \
+    cancel_job
 
 scrapyd = Blueprint('scrapyd', __name__)
 
@@ -46,6 +47,11 @@ def logs_info():
         result = get_logs_info(agent, request.args.get('project_name'), request.args.get('spider_name'))
         set_cached(current_app, CacheKeys.SCRAPYD_LOGS_INFO, result)
         return jsonify(result)
+
+
+@scrapyd.route('/job/cancel', methods=['POST'])
+def cancel_job():
+    cancel_job(agent, request.form['project_name'], request.form['job_id'])
 
 
 def generate_job_list_for_jsonify():
