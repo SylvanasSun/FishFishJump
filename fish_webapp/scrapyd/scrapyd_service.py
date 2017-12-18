@@ -211,3 +211,8 @@ def get_job_amounts(agent, project_name, spider_name=None):
         job_amounts['finished'] = len([j for j in finished_job_list if j['spider'] == spider_name])
 
     return job_amounts
+
+
+def get_logs_info(agent, project_name, spider_name):
+    logs_name, logs_url = agent.get_logs(project_name, spider_name)
+    return {'logs_name': logs_name, 'logs_url': logs_url}
