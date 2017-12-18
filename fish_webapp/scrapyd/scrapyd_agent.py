@@ -1,11 +1,12 @@
-import json
+import logging
 import logging
 import sys
+from html.parser import HTMLParser
+
+from utils import http_utils
 
 from .model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, ProjectList, \
     VersionList, SpiderList, JobList, DeleteProjectVersionResultSet, DeleteProjectResultSet
-from utils import http_utils
-from html.parser import HTMLParser
 
 logging = logging.getLogger(__name__)
 
@@ -81,8 +82,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = DaemonStatus().to_json()
-        return json.loads(response)
+            response = DaemonStatus().__dict__
+        return response
 
     def add_version(self, project_name, version, egg):
         """
@@ -101,8 +102,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = AddVersionResultSet().to_json()
-        return json.loads(response)
+            response = AddVersionResultSet().__dict__
+        return response
 
     def schedule(self,
                  project_name,
@@ -140,8 +141,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = ScheduleResultSet().to_json()
-        return json.loads(response)
+            response = ScheduleResultSet().__dict__
+        return response
 
     def cancel(self, project_name, job_id):
         """
@@ -158,8 +159,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = CancelResultSet().to_json()
-        return json.loads(response)
+            response = CancelResultSet().__dict__
+        return response
 
     def get_project_list(self):
         """
@@ -171,8 +172,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = ProjectList().to_json()
-        return json.loads(response)
+            response = ProjectList().__dict__
+        return response
 
     def get_version_list(self, project_name):
         """
@@ -187,8 +188,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = VersionList().to_json()
-        return json.loads(response)
+            response = VersionList().__dict__
+        return response
 
     def get_spider_list(self, project_name, version=None):
         """
@@ -206,8 +207,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = SpiderList().to_json()
-        return json.loads(response)
+            response = SpiderList().__dict__
+        return response
 
     def get_job_list(self, project_name):
         """
@@ -227,8 +228,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = JobList().to_json()
-        return json.loads(response)
+            response = JobList().__dict__
+        return response
 
     def delete_project_version(self, project_name, version):
         """
@@ -244,8 +245,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = DeleteProjectVersionResultSet().to_json()
-        return json.loads(response)
+            response = DeleteProjectVersionResultSet().__dict__
+        return response
 
     def delete_project(self, project_name):
         """
@@ -259,8 +260,8 @@ class ScrapydAgent(object):
         response = http_utils.request(url, method_type=method, data=data, return_type=http_utils.RETURN_JSON)
         if response is None:
             logging.warning('%s failure: not found or connection fail' % sys._getframe().f_code.co_name)
-            response = DeleteProjectResultSet().to_json()
-        return json.loads(response)
+            response = DeleteProjectResultSet().__dict__
+        return response
 
     def get_logs(self, project_name, spider_name):
         """
