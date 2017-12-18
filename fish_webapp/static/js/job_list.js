@@ -4,6 +4,17 @@ function bindJobInfoToModal(job_id, project_name, spider_name) {
     $("#hidden_modal_spider_name").val(spider_name);
 }
 
+function cancelJob(project_name, job_id) {
+    $.ajax({
+        url: "/supervisor/scrapyd/job/cancel",
+        type: "POST",
+        data: {
+            "project_name": project_name,
+            "job_id": job_id
+        }
+    });
+}
+
 function generatePendingJobList(list) {
     tableBody = $("#pendingJobListDataTableBody");
     for (var p in list) {
@@ -18,6 +29,8 @@ function generatePendingJobList(list) {
         tr.append($("<td><button class='btn btn-primary btn-lg' data-toggle='modal' " +
             "onclick='bindJobInfoToModal(" + p.job_id + "," + p.project_name + "," + p.spider_name + ")' " +
             "data-target='#logModal'>Log</button></td>"));
+        tr.append($("<td><button type='button' onclick='cancelJob(" + p.project_name + "," + p.job_id + ")' " +
+            "class='btn btn-danger'>Cancel</button></td>"));
         tableBody.append(tr);
     }
 }
@@ -37,6 +50,8 @@ function generateRunningJobList(list) {
         tr.append($("<td><button class='btn btn-primary btn-lg' data-toggle='modal' " +
             "onclick='bindJobInfoToModal(" + p.job_id + "," + p.project_name + "," + p.spider_name + ")' " +
             "data-target='#logModal'>Log</button></td>"));
+        tr.append($("<td><button type='button' onclick='cancelJob(" + p.project_name + "," + p.job_id + ")' " +
+            "class='btn btn-danger'>Cancel</button></td>"));
         tableBody.append(tr);
     }
 }
@@ -57,6 +72,8 @@ function generateFinishedJobList(list) {
         tr.append($("<td><button class='btn btn-primary btn-lg' data-toggle='modal' " +
             "onclick='bindJobInfoToModal(" + p.job_id + "," + p.project_name + "," + p.spider_name + ")' " +
             "data-target='#logModal'>Log</button></td>"));
+        tr.append($("<td><button type='button' onclick='cancelJob(" + p.project_name + "," + p.job_id + ")' " +
+            "class='btn btn-danger'>Cancel</button></td>"));
         tableBody.append(tr);
     }
 }
