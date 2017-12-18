@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, current_app, request
 from scrapyd.scrapyd_agent import ScrapydAgent
 from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, get_logs_info, \
-    cancel_job, add_version
+    cancel_job, add_version, get_all_project_list
 
 scrapyd = Blueprint('scrapyd', __name__)
 
@@ -12,6 +12,7 @@ class CacheKeys():
     SCRAPYD_STATUS_KEY = 'scrapyd_status'
     SCRAPYD_JOB_LIST = 'scrapyd_job_list'
     SCRAPYD_LOGS_INFO = 'scrapyd_logs_info'
+    SCRAPYD_PROJECT_LIST = 'scrapyd_project_list'
 
 
 def fetch_scrapyd_agent(scrapyd_url):
@@ -57,6 +58,17 @@ def cancel_job():
 @scrapyd.route('/project/add/version', methods=['POST'])
 def add_version():
     add_version(agent, request.form['project_name'], request.form['version_name'], request.files['project_egg'])
+
+
+@scrapyd.route('/project/list', methods=['GET'])
+def project_list():
+    if is_cacheable(current_app, CacheKeys.SCRAPYD_PROJECT_LIST):
+        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_PROJECT_LIST))
+    else:
+        result = get_all_project_list(agent)
+        result = [r.__dict__ for r in result]
+        set_cached(current_app, CacheKeys.SCRAPYD_PROJECT_LIST, result)
+        return jsonify(result)
 
 
 def generate_job_list_for_jsonify():
