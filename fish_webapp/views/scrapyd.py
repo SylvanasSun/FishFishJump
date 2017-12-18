@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, request
 from scrapyd.scrapyd_agent import ScrapydAgent
-from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list
+from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, get_logs_info
 
 scrapyd = Blueprint('scrapyd', __name__)
 
@@ -10,6 +10,7 @@ agent = None
 class CacheKeys():
     SCRAPYD_STATUS_KEY = 'scrapyd_status'
     SCRAPYD_JOB_LIST = 'scrapyd_job_list'
+    SCRAPYD_LOGS_INFO = 'scrapyd_logs_info'
 
 
 def fetch_scrapyd_agent(scrapyd_url):
@@ -37,12 +38,22 @@ def job_list():
         return jsonify(result)
 
 
+@scrapyd.route('/job/logs', methods=['GET'])
+def logs_info():
+    if is_cacheable(current_app, CacheKeys.SCRAPYD_LOGS_INFO):
+        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_LOGS_INFO))
+    else:
+        result = get_logs_info(agent, request.args.get('project_name'), request.args.get('spider_name'))
+        set_cached(current_app, CacheKeys.SCRAPYD_LOGS_INFO, result)
+        return jsonify(result)
+
+
 def generate_job_list_for_jsonify():
     pending, running, finished = get_all_job_list(agent)
     result = {}
-    result['pending'] = [p.__dict__ for p in pending]
-    result['running'] = [r.__dict__ for r in running]
-    result['finished'] = [f.__dict__ for f in finished]
+    result['pending'] = [packing_job_ext_info(p).__dict__ for p in pending]
+    result['running'] = [packing_job_ext_info(r).__dict__ for r in running]
+    result['finished'] = [packing_job_ext_info(f).__dict__ for f in finished]
     return result
 
 
