@@ -1,9 +1,3 @@
-function bindJobInfoToModal(job_id, project_name, spider_name) {
-    $("#hidden_modal_job_id").val(job_id);
-    $("#hidden_modal_project_name").val(project_name);
-    $("#hidden_modal_spider_name").val(spider_name);
-}
-
 function cancelJob(project_name, job_id) {
     $.ajax({
         url: "/supervisor/scrapyd/job/cancel",
@@ -16,9 +10,9 @@ function cancelJob(project_name, job_id) {
 }
 
 function generatePendingJobList(list) {
-    tableBody = $("#pendingJobListDataTableBody");
+    var tableBody = $("#pendingJobListDataTableBody");
     for (var p in list) {
-        tr = $("<tr></tr>");
+        var tr = $("<tr></tr>");
         tr.append($("<td>" + p.job_id + "</td>"));
         tr.append($("<td>" + p.project_name + "</td>"));
         tr.append($("<td>" + p.project_version + "</td>"));
@@ -27,8 +21,8 @@ function generatePendingJobList(list) {
         tr.append($("<td>" + p.priority + "</td>"));
         tr.append($("<td>" + p.creation_time + "</td>"));
         tr.append($("<td><button class='btn btn-primary btn-lg' data-toggle='modal' " +
-            "onclick='bindJobInfoToModal(" + p.job_id + "," + p.project_name + "," + p.spider_name + ")' " +
-            "data-target='#logModal'>Log</button></td>"));
+            "onclick='bindInfoToLogModal(" + p.logs_name + "," + p.logs_url + ")' data-target='#logModal'>" +
+            "Log</button></td>"));
         tr.append($("<td><button type='button' onclick='cancelJob(" + p.project_name + "," + p.job_id + ")' " +
             "class='btn btn-danger'>Cancel</button></td>"));
         tableBody.append(tr);
@@ -36,43 +30,43 @@ function generatePendingJobList(list) {
 }
 
 function generateRunningJobList(list) {
-    tableBody = $("#runningJobListDataTableBody");
+    var tableBody = $("#runningJobListDataTableBody");
     for (var r in list) {
-        tr = $("<tr></tr>");
-        tr.append($("<td>" + p.job_id + "</td>"));
-        tr.append($("<td>" + p.project_name + "</td>"));
-        tr.append($("<td>" + p.project_version + "</td>"));
-        tr.append($("<td>" + p.spider_name + "</td>"));
-        tr.append($("<td>" + p.args + "</td>"));
-        tr.append($("<td>" + p.priority + "</td>"));
-        tr.append($("<td>" + p.creation_time + "</td>"));
-        tr.append($("<td>" + p.start_time + "</td>"));
+        var tr = $("<tr></tr>");
+        tr.append($("<td>" + r.job_id + "</td>"));
+        tr.append($("<td>" + r.project_name + "</td>"));
+        tr.append($("<td>" + r.project_version + "</td>"));
+        tr.append($("<td>" + r.spider_name + "</td>"));
+        tr.append($("<td>" + r.args + "</td>"));
+        tr.append($("<td>" + r.priority + "</td>"));
+        tr.append($("<td>" + r.creation_time + "</td>"));
+        tr.append($("<td>" + r.start_time + "</td>"));
         tr.append($("<td><button class='btn btn-primary btn-lg' data-toggle='modal' " +
-            "onclick='bindJobInfoToModal(" + p.job_id + "," + p.project_name + "," + p.spider_name + ")' " +
-            "data-target='#logModal'>Log</button></td>"));
-        tr.append($("<td><button type='button' onclick='cancelJob(" + p.project_name + "," + p.job_id + ")' " +
+            "onclick='bindInfoToLogModal(" + r.logs_name + "," + r.logs_url + ")' data-target='#logModal'>" +
+            "Log</button></td>"));
+        tr.append($("<td><button type='button' onclick='cancelJob(" + r.project_name + "," + r.job_id + ")' " +
             "class='btn btn-danger'>Cancel</button></td>"));
         tableBody.append(tr);
     }
 }
 
 function generateFinishedJobList(list) {
-    tableBody = $("#finishedJobListDataTableBody");
+    var tableBody = $("#finishedJobListDataTableBody");
     for (var r in list) {
-        tr = $("<tr></tr>");
-        tr.append($("<td>" + p.job_id + "</td>"));
-        tr.append($("<td>" + p.project_name + "</td>"));
-        tr.append($("<td>" + p.project_version + "</td>"));
-        tr.append($("<td>" + p.spider_name + "</td>"));
-        tr.append($("<td>" + p.args + "</td>"));
-        tr.append($("<td>" + p.priority + "</td>"));
-        tr.append($("<td>" + p.creation_time + "</td>"));
-        tr.append($("<td>" + p.start_time + "</td>"));
-        tr.append($("<td>" + p.end_time + "</td>"));
+        var tr = $("<tr></tr>");
+        tr.append($("<td>" + r.job_id + "</td>"));
+        tr.append($("<td>" + r.project_name + "</td>"));
+        tr.append($("<td>" + r.project_version + "</td>"));
+        tr.append($("<td>" + r.spider_name + "</td>"));
+        tr.append($("<td>" + r.args + "</td>"));
+        tr.append($("<td>" + r.priority + "</td>"));
+        tr.append($("<td>" + r.creation_time + "</td>"));
+        tr.append($("<td>" + r.start_time + "</td>"));
+        tr.append($("<td>" + r.end_time + "</td>"));
         tr.append($("<td><button class='btn btn-primary btn-lg' data-toggle='modal' " +
-            "onclick='bindJobInfoToModal(" + p.job_id + "," + p.project_name + "," + p.spider_name + ")' " +
-            "data-target='#logModal'>Log</button></td>"));
-        tr.append($("<td><button type='button' onclick='cancelJob(" + p.project_name + "," + p.job_id + ")' " +
+            "onclick='bindInfoToLogModal(" + r.logs_name + "," + r.logs_url + ")' data-target='#logModal'>" +
+            "Log</button></td>"));
+        tr.append($("<td><button type='button' onclick='cancelJob(" + r.project_name + "," + r.job_id + ")' " +
             "class='btn btn-danger'>Cancel</button></td>"));
         tableBody.append(tr);
     }
@@ -88,23 +82,6 @@ $.ajax({
     }
 });
 
-$('#logModal').on('shown.bs.modal', function () {
-    $.ajax({
-        url: "/supervisor/scrapyd/job/logs",
-        type: "GET",
-        data: {
-            "project_name": $("#hidden_modal_project_name").val(),
-            "spider_name": $("#hidden_modal_spider_name").val()
-        },
-        success: function (data) {
-            $("#logmodallabel").text("Job Logs(" + $("#hidden_modal_job_id").val() + ")");
-            logModalContent = $("#logModalContent");
-            for (var i = 0; i < data.logs_url.length; i++) {
-                logModalContent.append($("<a href='" + data.logs_url[i] + "'>" + data.logs_name[i] + "</a>"));
-            }
-        }
-    });
-});
 
 $("#pendingJobListDataTable").DataTable();
 $("#runningJobListDataTable").DataTable();

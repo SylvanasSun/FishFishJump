@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Spider List{% endblock %}
+<link href="/static/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/supervisor/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Spider List</li>
+</ol>
+
+<!-- Project List Data Table -->
+<div class="card mb-3">
+    <div class="card-header"><i class="fa fa-table"></i>Spider List Table</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="spiderListDataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Spider Name</th>
+                    <th>Project Name</th>
+                    <th>Latest Project Version</th>
+                    <th>Pending Job Amount</th>
+                    <th>Running Job Amount</th>
+                    <th>Finished Job Amount</th>
+                    <td>Log</td>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>Spider Name</th>
+                    <th>Project Name</th>
+                    <th>Latest Project Version</th>
+                    <th>Pending Job Amount</th>
+                    <th>Running Job Amount</th>
+                    <th>Finished Job Amount</th>
+                    <td>Log</td>
+                </tr>
+                </tfoot>
+                <tbody id="spiderListDataTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<div class="modal fade" id="logModal" tabindex="-1" role="dialog" aria-labelledby="logModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <input type="hidden" id="hidden_modal_log_names" value="">
+            <input type="hidden" id="hidden_modal_log_urls" value="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="logModalLabel">Logs Info</h4>
+            </div>
+            <div class="modal-body" id="logModalContent"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+{% block script %}
+{{ super() }}
+<script src="/static/datatables/jquery.dataTables.js"></script>
+<script src="/static/datatables/dataTables.bootstrap4.js"></script>
+<script src="/static/js/log_modal.js"></script>
+<script src="/static/js/spider_list.js"></script>
+{% endblock %}

@@ -1,7 +1,7 @@
 function generateProjectList(list) {
-    tableBody = $("#projectListDataTableBody");
+    var tableBody = $("#projectListDataTableBody");
     for (var p in list) {
-        tr = $("<tr></tr>");
+        var tr = $("<tr></tr>");
         tr.append($("<td>" + p.project_name + "</td>"));
         tr.append($("<td>" + p.project_versions.join() + "</td>"));
         tr.append($("<td>" + p.latest_project_version + "</td>"));

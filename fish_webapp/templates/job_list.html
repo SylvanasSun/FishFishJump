@@ -140,12 +140,11 @@
 <div class="modal fade" id="logModal" tabindex="-1" role="dialog" aria-labelledby="logModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <input type="hidden" id="hidden_modal_job_id" value="">
-            <input type="hidden" id="hidden_modal_project_name" value="">
-            <input type="hidden" id="hidden_modal_spider_name" value="">
+            <input type="hidden" id="hidden_modal_log_names" value="">
+            <input type="hidden" id="hidden_modal_log_urls" value="">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="logModalLabel"></h4>
+                <h4 class="modal-title" id="logModalLabel">Logs Info</h4>
             </div>
             <div class="modal-body" id="logModalContent"></div>
             <div class="modal-footer">
@@ -159,5 +158,6 @@
 {{ super() }}
 <script src="/static/datatables/jquery.dataTables.js"></script>
 <script src="/static/datatables/dataTables.bootstrap4.js"></script>
+<script src="/static/js/log_modal.js"></script>
 <script src="/static/js/job_list.js"></script>
 {% endblock %}
