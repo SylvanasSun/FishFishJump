@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, current_app, request
 from scrapyd.scrapyd_agent import ScrapydAgent
 from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, get_logs_info, \
-    cancel_job, add_version, get_all_project_list
+    cancel_job, add_version, get_all_project_list, get_all_spider_list
 
 scrapyd = Blueprint('scrapyd', __name__)
 
@@ -13,6 +13,7 @@ class CacheKeys():
     SCRAPYD_JOB_LIST = 'scrapyd_job_list'
     SCRAPYD_LOGS_INFO = 'scrapyd_logs_info'
     SCRAPYD_PROJECT_LIST = 'scrapyd_project_list'
+    SCRAPYD_SPIDER_LIST = 'scrapyd_spider_list'
 
 
 def fetch_scrapyd_agent(scrapyd_url):
@@ -68,6 +69,17 @@ def project_list():
         result = get_all_project_list(agent)
         result = [r.__dict__ for r in result]
         set_cached(current_app, CacheKeys.SCRAPYD_PROJECT_LIST, result)
+        return jsonify(result)
+
+
+@scrapyd.route('/spider/list', methods=['GET'])
+def spider_list():
+    if is_cacheable(current_app, CacheKeys.SCRAPYD_SPIDER_LIST):
+        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_SPIDER_LIST))
+    else:
+        result = get_all_spider_list(agent)
+        result = [r.__dict__ for r in result]
+        set_cached(current_app, CacheKeys.SCRAPYD_SPIDER_LIST, result)
         return jsonify(result)
 
 
