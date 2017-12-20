@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Schedule{% endblock %}
+<link href="https://cdn.bootcss.com/bootstrap-validator/0.5.3/css/bootstrapValidator.css" rel="stylesheet">
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/supervisor/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Schedule</li>
+</ol>
+
+<div class="card mb-3">
+    <div class="card-header"><i class="fa fa-table"></i>Schedule</div>
+    <div class="card-body">
+        <form method="post" action="/supervisor/scrapyd/job/schedule" id="schedule_form">
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-md-6">
+                        <label for="project_name">Project Name</label>
+                        <input class="form-control" type="text" id="project_name" name="project_name"
+                               placeholder="Enter Project Name">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="spider_name">Spider Name</label>
+                        <input class="form-control" type="text" id="spider_name" name="spider_name"
+                               placeholder="Enter Spider Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="job_id">Job Id (Optional)</label>
+                    <input class="form-control" type="text" id="job_id" name="job_d"
+                           placeholder="Enter Job Id">
+                </div>
+                <div class="form-group">
+                    <label for="setting">Scrpay Setting (Optional)</label>
+                    <input class="form-control" type="text" id="setting" name="setting"
+                           placeholder="Enter Setting">
+                </div>
+                <div class="form-group">
+                    <label for="project_version">Project Version (Optional)</label>
+                    <input class="form-control" type="text" id="project_version" name="project_version"
+                           placeholder="Enter Project Version">
+                </div>
+                <div class="form-group">
+                    <label for="args">Scrapy Args (Optional)</label>
+                    <input class="form-control" type="text" id="args" name="args"
+                           placeholder="Enter Scrapy Args, Such as aaa=aaa,bbb=bbb">
+                </div>
+                <div class="form-group">
+                    <label>Priority (Optional)</label>
+                    <label class="radio-inline">
+                        <input type="radio" name="priority" id="priority_low" value="0"> Low
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="priority" id="priority_normal" value="1"> Normal
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="priority" id="priority_high" value="2"> High
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="priority" id="priority_highest" value="3"> Highest
+                    </label>
+                </div>
+                <div class="form-row">
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                    <div class="col-6">
+                        <button type="reset" class="btn btn-info">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+<script src="https://cdn.bootcss.com/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+<script src="/static/js/schedule.js"></script>
+{% endblock %}
