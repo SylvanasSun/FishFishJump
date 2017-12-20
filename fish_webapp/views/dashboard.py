@@ -24,3 +24,8 @@ def project_list_page():
 @dashboard.route('/spider/list')
 def spider_list_page():
     return render_template('spider_list.html')
+
+
+@dashboard.route('/job/schedule')
+def schedule_page():
+    return render_template('schedule.html')
