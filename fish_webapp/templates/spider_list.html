@@ -15,9 +15,9 @@
     <li class="breadcrumb-item active">Spider List</li>
 </ol>
 
-<!-- Project List Data Table -->
+<!-- Spider List Data Table -->
 <div class="card mb-3">
-    <div class="card-header"><i class="fa fa-table"></i>Spider List Table</div>
+    <div class="card-header"><i class="fa fa-table"></i> Spider List Table</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="spiderListDataTable" width="100%" cellspacing="0">
@@ -29,44 +29,35 @@
                     <th>Pending Job Amount</th>
                     <th>Running Job Amount</th>
                     <th>Finished Job Amount</th>
-                    <td>Log</td>
+                    <th>Log</th>
                 </tr>
                 </thead>
-                <tfoot>
-                <tr>
-                    <th>Spider Name</th>
-                    <th>Project Name</th>
-                    <th>Latest Project Version</th>
-                    <th>Pending Job Amount</th>
-                    <th>Running Job Amount</th>
-                    <th>Finished Job Amount</th>
-                    <td>Log</td>
-                </tr>
-                </tfoot>
                 <tbody id="spiderListDataTableBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-<div class="modal fade" id="logModal" tabindex="-1" role="dialog" aria-labelledby="logModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Logs Info Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="logModal">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <input type="hidden" id="hidden_modal_log_names" value="">
-            <input type="hidden" id="hidden_modal_log_urls" value="">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="logModalLabel">Logs Info</h4>
+                <h4 class="modal-title" id="logsInfoModalTitle">Logs Info</h4>
             </div>
-            <div class="modal-body" id="logModalContent"></div>
+            <div class="modal-body" id="logsInfoModalBody">
+                <input type="hidden" id="logsInfoModalHiddenProjectName" value="">
+                <input type="hidden" id="logsInfoModalHiddenSpiderName" value="">
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
+
 
 {% block script %}
 {{ super() }}

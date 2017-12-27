@@ -17,7 +17,7 @@
 
 <!-- Project List Data Table -->
 <div class="card mb-3">
-    <div class="card-header"><i class="fa fa-table"></i>Project List Table</div>
+    <div class="card-header"><i class="fa fa-table"></i> Project List Table</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="projectListDataTable" width="100%" cellspacing="0">
@@ -33,18 +33,6 @@
                     <th>Finished Job Amount</th>
                 </tr>
                 </thead>
-                <tfoot>
-                <tr>
-                    <th>Project Name</th>
-                    <th>Project Versions</th>
-                    <th>Latest Project Version</th>
-                    <th>Spider Amount</th>
-                    <th>Spider Names</th>
-                    <th>Pending Job Amount</th>
-                    <th>Running Job Amount</th>
-                    <th>Finished Job Amount</th>
-                </tr>
-                </tfoot>
                 <tbody id="projectListDataTableBody"></tbody>
             </table>
         </div>
@@ -56,14 +44,11 @@
     </div>
 </div>
 
-{% endblock %}
-
 <div class="modal fade" id="addNewVersionModal" tabindex="-1" role="dialog" aria-labelledby="addNewVersionModalLabel"
      aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="addNewVersionModalLabel">Add New Project Version</h4>
             </div>
             <div class="modal-body">
@@ -91,6 +76,9 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
+
+{% endblock %}
+
 
 {% block script %}
 {{ super() }}

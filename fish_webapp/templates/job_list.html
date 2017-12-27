@@ -17,7 +17,7 @@
 
 <!-- Pending Job List Data Table -->
 <div class="card mb-3">
-    <div class="card-header"><i class="fa fa-table"></i>Pending Job List Table</div>
+    <div class="card-header"><i class="fa fa-table"></i> Pending Job List Table</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="pendingJobListDataTable" width="100%" cellspacing="0">
@@ -34,19 +34,6 @@
                     <th>Cancel</th>
                 </tr>
                 </thead>
-                <tfoot>
-                <tr>
-                    <th>Job Id</th>
-                    <th>Project Name</th>
-                    <th>Project Version</th>
-                    <th>Spider Name</th>
-                    <th>Args</th>
-                    <th>Priority</th>
-                    <th>Creation Time</th>
-                    <th>Log</th>
-                    <th>Cancel</th>
-                </tr>
-                </tfoot>
                 <tbody id="pendingJobListDataTableBody"></tbody>
             </table>
         </div>
@@ -55,7 +42,7 @@
 
 <!-- Running Job List Data Table -->
 <div class="card mb-3">
-    <div class="card-header"><i class="fa fa-table"></i>Running Job List Table</div>
+    <div class="card-header"><i class="fa fa-table"></i> Running Job List Table</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="runningJobListDataTable" width="100%" cellspacing="0">
@@ -73,20 +60,6 @@
                     <th>Cancel</th>
                 </tr>
                 </thead>
-                <tfoot>
-                <tr>
-                    <th>Job Id</th>
-                    <th>Project Name</th>
-                    <th>Project Version</th>
-                    <th>Spider Name</th>
-                    <th>Args</th>
-                    <th>Priority</th>
-                    <th>Creation Time</th>
-                    <th>Start Time</th>
-                    <th>Log</th>
-                    <th>Cancel</th>
-                </tr>
-                </tfoot>
                 <tbody id="runningJobListDataTableBody"></tbody>
             </table>
         </div>
@@ -95,7 +68,7 @@
 
 <!-- Finished Job List Data Table -->
 <div class="card mb-3">
-    <div class="card-header"><i class="fa fa-table"></i>Finished Job List Table</div>
+    <div class="card-header"><i class="fa fa-table"></i> Finished Job List Table</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="finishedJobListDataTable" width="100%" cellspacing="0">
@@ -114,45 +87,31 @@
                     <th>Cancel</th>
                 </tr>
                 </thead>
-                <tfoot>
-                <tr>
-                    <th>Job Id</th>
-                    <th>Project Name</th>
-                    <th>Project Version</th>
-                    <th>Spider Name</th>
-                    <th>Args</th>
-                    <th>Priority</th>
-                    <th>Creation Time</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Log</th>
-                    <th>Cancel</th>
-                </tr>
-                </tfoot>
                 <tbody id="finishedJobListDataTableBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-<div class="modal fade" id="logModal" tabindex="-1" role="dialog" aria-labelledby="logModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Logs Info Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="logModal">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <input type="hidden" id="hidden_modal_log_names" value="">
-            <input type="hidden" id="hidden_modal_log_urls" value="">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="logModalLabel">Logs Info</h4>
+                <h4 class="modal-title" id="logsInfoModalTitle">Logs Info</h4>
             </div>
-            <div class="modal-body" id="logModalContent"></div>
+            <div class="modal-body" id="logsInfoModalBody">
+                <input type="hidden" id="logsInfoModalHiddenProjectName" value="">
+                <input type="hidden" id="logsInfoModalHiddenSpiderName" value="">
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
 
 {% block script %}
 {{ super() }}
