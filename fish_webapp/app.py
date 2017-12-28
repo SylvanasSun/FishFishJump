@@ -47,7 +47,7 @@ def parse_opts(config):
                       dest='TESTING',
                       default=config.get('TESTING'))
     parser.add_option('--uncached',
-                      help='disable cache of the flask, default: %s' % config.get('ENABLE_CACHE'),
+                      help='disable cache of the flask, default: enable',
                       action='store_false',
                       dest='ENABLE_CACHE',
                       default=config.get('ENABLE_CACHE'))
