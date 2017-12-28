@@ -6,4 +6,4 @@ MAINTAINER SylvanasSun sylvanas.sun@gmail.com
 
 RUN pip install -r requirements.txt
 
-CMD ["python app.py"]
+RUN python app.py
