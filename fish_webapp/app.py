@@ -152,5 +152,9 @@ def login_interceptor():
             return redirect(url_for('user.login'))
 
 
-if __name__ == '__main__':
+def main():
     app.run(host=app.config['HOST'], port=int(app.config['PORT']))
+
+
+if __name__ == '__main__':
+    main()
