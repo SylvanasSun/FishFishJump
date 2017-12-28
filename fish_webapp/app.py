@@ -4,11 +4,11 @@ import sys
 from logging import FileHandler
 from optparse import OptionParser
 
-import settings
+from fish_webapp import settings
+from fish_webapp.views.dashboard import dashboard
+from fish_webapp.views.scrapyd import scrapyd, fetch_scrapyd_agent
+from fish_webapp.views.user import user
 from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template
-from views.dashboard import dashboard
-from views.scrapyd import scrapyd, fetch_scrapyd_agent
-from views.user import user
 from werkzeug.contrib.cache import SimpleCache
 
 

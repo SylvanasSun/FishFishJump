@@ -1,10 +1,11 @@
+import logging
 import sys
 from html.parser import HTMLParser
-import logging
-from utils import http_utils
 
-from .model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, ProjectList, \
+from fish_webapp.scrapyd.model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, \
+    ProjectList, \
     VersionList, SpiderList, JobList, DeleteProjectVersionResultSet, DeleteProjectResultSet
+from fish_webapp.utils import http_utils
 
 logging = logging.getLogger(__name__)
 

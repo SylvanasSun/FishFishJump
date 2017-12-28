@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, current_app, request
-from scrapyd.scrapyd_agent import ScrapydAgent
-from scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, get_logs_info, \
+from fish_webapp.scrapyd.scrapyd_agent import ScrapydAgent
+from fish_webapp.scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, \
+    get_logs_info, \
     cancel_job, add_version, get_all_project_list, get_all_spider_list, schedule_job
 
 scrapyd = Blueprint('scrapyd', __name__)

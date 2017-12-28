@@ -1,7 +1,6 @@
-from utils.common_utils import format_dict_to_str, get_current_date, list_to_str, str_to_list
-
-from .model import ScrapydStatusVO, JobListDO, JobStatus, JobPriority, ProjectListVO, SpiderListVO
-from .scrapyd_db import SqlLite3Agent
+from fish_webapp.scrapyd.model import ScrapydStatusVO, JobListDO, JobStatus, JobPriority, ProjectListVO, SpiderListVO
+from fish_webapp.scrapyd.scrapyd_db import SqlLite3Agent
+from fish_webapp.utils.common_utils import format_dict_to_str, get_current_date, list_to_str, str_to_list
 
 
 class ScrapydJobExtInfoSQLSet():
