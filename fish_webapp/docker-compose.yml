@@ -1,0 +1,5 @@
+fish-webapp:
+  container_name: FishFishJump_webapp
+  build: .
+  ports:
+    - "5000:5000"
