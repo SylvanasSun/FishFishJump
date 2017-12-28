@@ -1,8 +1,6 @@
-import logging
-import logging
 import sys
 from html.parser import HTMLParser
-
+import logging
 from utils import http_utils
 
 from .model import DaemonStatus, AddVersionResultSet, ScheduleResultSet, CancelResultSet, ProjectList, \

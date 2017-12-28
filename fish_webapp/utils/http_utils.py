@@ -1,6 +1,5 @@
-import logging
-
 import requests
+import logging
 
 METHOD_GET = 'GET'
 METHOD_POST = 'POST'

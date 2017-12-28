@@ -1,13 +1,14 @@
-import logging
 import sqlite3
+import logging
 
 """
 The module for save persistent data that cannot be queried by scrapyd api. 
 """
 
+logging = logging.getLogger(__name__)
+
 
 class SqlLite3Agent(object):
-    logging = logging.getLogger(__name__)
     SELECTION_TABLE_IS_EXISTED = 'SELECT count(*) FROM sqlite_master WHERE type=\'table\' AND name=\'%s\''
     SELECTION_ALL_TABLE_NAME = 'SELECT name FROM sqlite_master WHERE type=\'table\' ORDER BY name'
     SELECTION_ALL_TABLE = 'SELECT * FROM sqlite_master WHERE type=\'table\''

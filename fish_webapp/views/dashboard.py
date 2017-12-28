@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, session, url_for
-from utils.http_utils import request, RETURN_JSON
+from flask import Blueprint, render_template, session
 
 dashboard = Blueprint('dashboard', __name__)
 

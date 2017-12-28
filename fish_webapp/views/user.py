@@ -9,7 +9,7 @@ def login():
     if request.method == 'POST':
         if request.form['username'] != current_app.config['ADMIN_USERNAME']:
             error = 'Invalid username.'
-        elif int(request.form['password']) != current_app.config['ADMIN_PASSWORD']:
+        elif request.form['password'] != current_app.config['ADMIN_PASSWORD']:
             error = 'Invalid password.'
         else:
             session['is_login'] = True
