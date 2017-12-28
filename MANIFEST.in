@@ -2,6 +2,7 @@ graft docs
 graft tests
 graft fish_crawlers
 graft fish_core
+graft fish_webapp
 
 include *.in
 include *.ini
