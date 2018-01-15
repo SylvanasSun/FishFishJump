@@ -5,7 +5,7 @@ from scrapy.contrib.linkextractors.lxmlhtml import LxmlLinkExtractor
 from scrapy.spiders import Rule
 from scrapy_redis.spiders import RedisCrawlSpider
 
-from fish_core.items import CommonItem
+from fish_core.scrapy.items import CommonItem
 from fish_core.simhash import Simhash
 
 

@@ -40,12 +40,12 @@ RETRY_ENABLED = False
 DOWNLOAD_TIMEOUT = 15
 
 ITEM_PIPELINES = {
-    'fish_core.pipelines.DuplicatesPipeline': 300,
-    'fish_core.pipelines.MongodbPipeline': 400,
+    'fish_core.scrapy.pipelines.DuplicatesPipeline': 300,
+    'fish_core.scrapy.pipelines.MongodbPipeline': 400,
 }
 
 EXTENSIONS = {
-    # 'fish_core.extensions.SendEmailExtension': 400,
+    # 'fish_core.scrapy.extensions.SendEmailExtension': 400,
 }
 
 # The item pipeline serializes and stores the items in this mongodb collection.
