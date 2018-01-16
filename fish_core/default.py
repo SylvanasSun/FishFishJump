@@ -7,3 +7,5 @@ REDIS_START_URLS_KEY = "%(name)s:start_urls"
 REDIS_START_URLS_AS_SET = False
 
 SIMHASH_KEY = '%(spider)s:simhash_set'
+
+ELASTICSEARCH_HOSTS = [{"host": "localhost", "port": 9200}]
