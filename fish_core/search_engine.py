@@ -1,9 +1,12 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from elasticsearch import Elasticsearch
-from fish_core import default
 import logging
+
+from elasticsearch import Elasticsearch, helpers as es_helpers
+from pymongo import MongoClient
+
+from fish_core import default
 
 
 class ElasticsearchClient(object):
@@ -30,7 +33,7 @@ class ElasticsearchClient(object):
         :return: void
         """
         self.client = Elasticsearch(hosts=hosts)
-        self.logger.debug("Initialize normal Elasticsearch Client by %s." % hosts)
+        self.logger.debug('Initialize normal Elasticsearch Client: %s.' % self.client)
 
     def from_sniffing(self,
                       active_nodes,
@@ -54,7 +57,7 @@ class ElasticsearchClient(object):
                                     sniff_on_start=sniff_on_start,
                                     sniff_on_connection_fail=sniff_on_connection_fail,
                                     sniffer_timeout=sniffer_timeout)
-        self.logger.debug("Initialize sniffing Elasticsearch Client by %s." % active_nodes)
+        self.logger.debug('Initialize sniffing Elasticsearch Client: %s.' % self.client)
 
     def from_ssl(self,
                  ca_certs,
@@ -83,4 +86,51 @@ class ElasticsearchClient(object):
                                     ca_certs=ca_certs,
                                     client_cert=client_cert,
                                     client_key=client_key)
-        self.logger.debug("Initialize SSL Elasticsearch Client by %s." % hosts)
+        self.logger.debug('Initialize SSL Elasticsearch Client: %s.' % self.client)
+
+    def transfer_data_from_mongo(self,
+                                 index,
+                                 doc_type,
+                                 use_mongo_id=False,
+                                 mongo_params=None,
+                                 mongo_host=default.MONGO_HOST,
+                                 mongo_port=default.MONGO_PORT,
+                                 mongo_db=default.MONGO_DB,
+                                 mongo_collection=default.MONGO_COLLECTION):
+        """
+        Transfer data from MongoDB into the Elasticsearch, the hostname, port, database and
+        collection name in MongoDB default from load in default.py
+
+        :param index: The name of the index
+        :param doc_type: The type of the document
+        :param use_mongo_id: Use id of MongoDB in the Elasticsearch if is true otherwise automatic generation
+        :param mongo_params: The dictionary for query params of MongoDB
+        :param mongo_host: The name of the hostname from MongoDB
+        :param mongo_port: The number of the port from MongoDB
+        :param mongo_db: The name of the database from MongoDB
+        :param mongo_collection: The name of the collection from MongoDB
+        :return: void
+        """
+        mongo_client = MongoClient(host=mongo_host, port=mongo_port)
+        collection = mongo_client[mongo_db][mongo_collection]
+        if use_mongo_id:
+            mongo_docs = collection.find(mongo_params)
+        else:
+            mongo_docs = collection.find(mongo_params, projection={'_id': False})
+        # Joint actions of Elasticsearch for execute bulk api
+        actions = []
+        for doc in mongo_docs:
+            action = {
+                '_op_type': 'index',
+                '_index': index,
+                '_type': doc_type
+            }
+            if '_id' in doc:
+                action['_id'] = doc['_id']
+                doc.pop('_id')
+            action['_source'] = doc
+            actions.append(action)
+        es_helpers.bulk(self.client, actions)
+        mongo_client.close()
+        self.logger.debug(
+            'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s)' % (mongo_host, mongo_port, self.client))
