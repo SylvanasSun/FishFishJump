@@ -92,7 +92,8 @@ class ElasticsearchClient(object):
                                  index,
                                  doc_type,
                                  use_mongo_id=False,
-                                 mongo_params=None,
+                                 mongo_client_params=None,
+                                 mongo_query_params=None,
                                  mongo_host=default.MONGO_HOST,
                                  mongo_port=default.MONGO_PORT,
                                  mongo_db=default.MONGO_DB,
@@ -104,19 +105,20 @@ class ElasticsearchClient(object):
         :param index: The name of the index
         :param doc_type: The type of the document
         :param use_mongo_id: Use id of MongoDB in the Elasticsearch if is true otherwise automatic generation
-        :param mongo_params: The dictionary for query params of MongoDB
+        :param mongo_client_params: The dictionary for client params of MongoDB
+        :param mongo_query_params: The dictionary for query params of MongoDB
         :param mongo_host: The name of the hostname from MongoDB
         :param mongo_port: The number of the port from MongoDB
         :param mongo_db: The name of the database from MongoDB
         :param mongo_collection: The name of the collection from MongoDB
         :return: void
         """
-        mongo_client = MongoClient(host=mongo_host, port=mongo_port)
+        mongo_client = MongoClient(mongo_client_params, host=mongo_host, port=mongo_port)
         collection = mongo_client[mongo_db][mongo_collection]
         if use_mongo_id:
-            mongo_docs = collection.find(mongo_params)
+            mongo_docs = collection.find(mongo_query_params)
         else:
-            mongo_docs = collection.find(mongo_params, projection={'_id': False})
+            mongo_docs = collection.find(mongo_query_params, projection={'_id': False})
         # Joint actions of Elasticsearch for execute bulk api
         actions = []
         for doc in mongo_docs:
