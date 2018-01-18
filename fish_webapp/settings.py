@@ -1,3 +1,6 @@
+import os
+
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -9,6 +12,9 @@ class Config(object):
     ENABLE_CACHE = True
     CACHE_EXPIRE = 3 * 60  # second
     VERBOSE = False
+    LOG_FILE_DIR = os.path.join(os.path.abspath('.'), 'log') + os.sep
+    LOG_FILE_BASIS_NAME = 'fish_fish_jump_webapp.log'
+    LOG_FORMAT = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
 
 
 class ProductionConfig(Config):

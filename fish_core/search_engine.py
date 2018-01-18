@@ -17,7 +17,7 @@ class ElasticsearchClient(object):
 
     def __init__(self):
         self.client = None
-        self.logger = logging.getLogger(__class__.__name__)
+        self.logger = logging.getLogger(__name__)
 
     def from_normal(self, hosts=default.ELASTICSEARCH_HOSTS):
         """
@@ -33,7 +33,7 @@ class ElasticsearchClient(object):
         :return: void
         """
         self.client = Elasticsearch(hosts=hosts)
-        self.logger.debug('Initialize normal Elasticsearch Client: %s.' % self.client)
+        self.logger.info('Initialize normal Elasticsearch Client: %s.' % self.client)
 
     def from_sniffing(self,
                       active_nodes,
@@ -57,7 +57,7 @@ class ElasticsearchClient(object):
                                     sniff_on_start=sniff_on_start,
                                     sniff_on_connection_fail=sniff_on_connection_fail,
                                     sniffer_timeout=sniffer_timeout)
-        self.logger.debug('Initialize sniffing Elasticsearch Client: %s.' % self.client)
+        self.logger.info('Initialize sniffing Elasticsearch Client: %s.' % self.client)
 
     def from_ssl(self,
                  ca_certs,
@@ -86,7 +86,7 @@ class ElasticsearchClient(object):
                                     ca_certs=ca_certs,
                                     client_cert=client_cert,
                                     client_key=client_key)
-        self.logger.debug('Initialize SSL Elasticsearch Client: %s.' % self.client)
+        self.logger.info('Initialize SSL Elasticsearch Client: %s.' % self.client)
 
     def transfer_data_from_mongo(self,
                                  index,
@@ -132,5 +132,5 @@ class ElasticsearchClient(object):
             actions.append(action)
         es_helpers.bulk(self.client, actions)
         mongo_client.close()
-        self.logger.debug(
+        self.logger.info(
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s)' % (mongo_host, mongo_port, self.client))

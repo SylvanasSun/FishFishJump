@@ -21,9 +21,9 @@ class SqlLite3Agent(object):
         is_existed = list(self.execute(__class__.SELECTION_TABLE_IS_EXISTED % table_name)[0])[0]
         if is_existed != 1:
             self.execute(sql)
-            logging.debug('Creating table %s sql[%s] ' % (table_name, sql))
+            logging.info('Creating table %s sql[%s] ' % (table_name, sql))
         else:
-            logging.debug('Table %s is already exist so does not execute this sql' % table_name)
+            logging.info('Table %s is already exist so does not execute this sql' % table_name)
 
     def select_all_table_name(self):
         return [list(name)[0] for name in self.execute(__class__.SELECTION_ALL_TABLE_NAME)]
@@ -38,7 +38,7 @@ class SqlLite3Agent(object):
             connection = sqlite3.connect(self.db_file_name)
             cursor = connection.cursor()
             cursor.execute(sql, args)
-            logging.debug('SQL completed [%s] ' % sql)
+            logging.info('SQL completed [%s] ' % sql)
             return cursor.fetchall()
         finally:
             self.release(connection, cursor)

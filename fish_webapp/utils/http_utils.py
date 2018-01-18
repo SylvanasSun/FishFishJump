@@ -17,7 +17,7 @@ def before_logging(func):
         func_name = func.__name__
         separator_idx = func_name.find('_')
         func_type = func_name[separator_idx + 1:]
-        logging.debug('request[%s]: %s ....' % (func_type, args[0]))
+        logging.info('request[%s]: %s ....' % (func_type, args[0]))
         return func(*args, **kwargs)
 
     return wrapper

@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import sys
-from logging import FileHandler
+from logging.handlers import TimedRotatingFileHandler
 from optparse import OptionParser
 
 from fish_webapp import settings
@@ -69,6 +68,21 @@ def parse_opts(config):
                       action='store_true',
                       dest='VERBOSE',
                       default=config.get('VERBOSE'))
+    parser.add_option('--log-file-dir',
+                      help='the dir path of the where store log file, default: %s' % config.get('LOG_FILE_DIR'),
+                      type='string',
+                      dest='LOG_FILE_DIR',
+                      default=config.get('LOG_FILE_DIR'))
+    parser.add_option('--log-file-name',
+                      help='the name of the what log file, default: %s ' % config.get('LOG_FILE_BASIS_NAME'),
+                      type='string',
+                      dest='LOG_FILE_BASIS_NAME',
+                      default=config.get('LOG_FILE_BASIS_NAME'))
+    parser.add_option('--log-format',
+                      help='the string of the log format, default: %s ' % config.get('LOG_FORMAT'),
+                      type='string',
+                      dest='LOG_FORMAT',
+                      default=config.get('LOG_FORMAT'))
     return parser.parse_args()
 
 
@@ -84,26 +98,34 @@ def enable_opts(config):
         ADMIN_PASSWORD=opts.ADMIN_PASSWORD,
         ENABLE_CACHE=opts.ENABLE_CACHE,
         CACHE_EXPIRE=opts.CACHE_EXPIRE,
-        VERBOSE=opts.VERBOSE
+        VERBOSE=opts.VERBOSE,
+        LOG_FILE_DIR=opts.LOG_FILE_DIR,
+        LOG_FILE_BASIS_NAME=opts.LOG_FILE_BASIS_NAME,
+        LOG_FORMAT=opts.LOG_FORMAT
     )
 
 
-def setting_logger(app, out_file_name='ffj_web.log'):
-    handler = FileHandler(out_file_name)
+def initialize_logging(app):
+    log_file_dir = app.config.get('LOG_FILE_DIR')
+    if not os.path.exists(log_file_dir):
+        os.makedirs(log_file_dir)
+    log_file_name = log_file_dir + app.config.get('LOG_FILE_BASIS_NAME')
+    timed_file_handler = TimedRotatingFileHandler(log_file_name, 'D', 1, 90)
+    timed_file_handler.suffix = '%Y-%m-%d.log'
     root = logging.getLogger()
-    if app.config.get('VERBOSE') is True:
-        app.logger.setLevel(logging.DEBUG)
-        handler.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
+    if app.config.get('VERBOSE') is True or app.config.get('DEBUG') is True:
+        timed_file_handler.setLevel(logging.DEBUG)
         root.setLevel(logging.DEBUG)
-    root.addHandler(logging.StreamHandler(sys.stdout))
-    root.addHandler(handler)
-    app.logger.addHandler(handler)
+        app.logger.setLevel(logging.DEBUG)
+    root.addHandler(timed_file_handler)
+    app.logger.addHandler(timed_file_handler)
 
 
 app = Flask(__name__)
 app.config.from_object(settings.DevelopmentConfig)
 enable_opts(app.config)
-setting_logger(app)
+initialize_logging(app)
 app.logger.info('FishFishJump(webapp) started on %s:%s username=%s password=%s'
                 % (app.config['HOST'], str(app.config['PORT']), app.config['ADMIN_USERNAME'],
                    app.config['ADMIN_PASSWORD']))
