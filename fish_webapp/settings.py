@@ -14,7 +14,6 @@ class Config(object):
     VERBOSE = False
     LOG_FILE_DIR = os.path.join(os.path.abspath('.'), 'log') + os.sep
     LOG_FILE_BASIS_NAME = 'fish_fish_jump_webapp.log'
-    LOG_FORMAT = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
 
 
 class ProductionConfig(Config):

@@ -78,11 +78,6 @@ def parse_opts(config):
                       type='string',
                       dest='LOG_FILE_BASIS_NAME',
                       default=config.get('LOG_FILE_BASIS_NAME'))
-    parser.add_option('--log-format',
-                      help='the string of the log format, default: %s ' % config.get('LOG_FORMAT'),
-                      type='string',
-                      dest='LOG_FORMAT',
-                      default=config.get('LOG_FORMAT'))
     return parser.parse_args()
 
 
@@ -101,7 +96,6 @@ def enable_opts(config):
         VERBOSE=opts.VERBOSE,
         LOG_FILE_DIR=opts.LOG_FILE_DIR,
         LOG_FILE_BASIS_NAME=opts.LOG_FILE_BASIS_NAME,
-        LOG_FORMAT=opts.LOG_FORMAT
     )
 
 
