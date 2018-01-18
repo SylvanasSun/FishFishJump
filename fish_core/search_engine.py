@@ -132,7 +132,8 @@ class ElasticsearchClient(object):
                 doc.pop('_id')
             action['_source'] = doc
             actions.append(action)
-        es_helpers.bulk(self.client, actions)
+        success, failed = es_helpers.bulk(self.client, actions)
         mongo_client.close()
         self.logger.info(
-            'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s)' % (mongo_host, mongo_port, self.client))
+            'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
+                mongo_host, mongo_port, self.client, success, failed))
