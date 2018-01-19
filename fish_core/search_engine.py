@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import threading
+import time
 
 from elasticsearch import Elasticsearch, helpers as es_helpers
 from pymongo import MongoClient
 
 from fish_core import default
+
+lock = threading.Lock()
 
 
 class ElasticsearchClient(object):
@@ -14,6 +18,9 @@ class ElasticsearchClient(object):
     Class ElasticsearchClient represent a Elasticsearch client,
     it implement something feature base on elasticsearch.Elasticsearch.
     """
+
+    automatic_syn_data_flag = {}
+    automatic_thread_name_counter = 0
 
     def __init__(self):
         self.client = None
@@ -137,3 +144,88 @@ class ElasticsearchClient(object):
         self.logger.info(
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
+
+    # TODO: Use more effective solution
+    def automatic_syn_data_from_mongo(self,
+                                      index,
+                                      doc_type,
+                                      indexed_flag_field_name,
+                                      thread_name='automatic_syn_data_thread',
+                                      interval=60,
+                                      use_mongo_id=False,
+                                      mongo_client_params=None,
+                                      mongo_query_params=None,
+                                      mongo_host=default.MONGO_HOST,
+                                      mongo_port=default.MONGO_PORT,
+                                      mongo_db=default.MONGO_DB,
+                                      mongo_collection=default.MONGO_COLLECTION):
+        """
+        Automatic synchronize data that from MongoDB into the Elasticsearch by schedule task,
+        it will synchronize this data if the indexed_flag_field_name of the field of the document is False.
+        Noteworthy that the function may be no good please you caution use it.
+
+        :param indexed_flag_field_name: the name of the field of the document,
+                    if associated value is False will synchronize data for it
+        :param thread_name: the name of the schedule task thread
+        :param interval: the time that executes interval of the scheduled task every time (unit second)
+        :return: the thread id, you can use this id to cancel associated task
+        """
+        thread_id = self._generate_thread_id(thread_name)
+        if thread_id in ElasticsearchClient.automatic_syn_data_flag:
+            lock.acquire()
+            try:
+                thread_name = thread_name + '-%s' % ElasticsearchClient.automatic_thread_name_counter
+                ElasticsearchClient.automatic_thread_name_counter += 1
+                thread_id = self._generate_thread_id(thread_name)
+            finally:
+                lock.release()
+        ElasticsearchClient.automatic_syn_data_flag[thread_id] = True
+
+        t = threading.Thread(target=ElasticsearchClient._automatic_syn_data_from_mongo_worker,
+                             args=(self, thread_id, index, doc_type,
+                                   indexed_flag_field_name, interval, use_mongo_id,
+                                   mongo_client_params, mongo_query_params,
+                                   mongo_host, mongo_port,
+                                   mongo_db, mongo_collection),
+                             name=thread_name)
+
+        t.start()
+        return thread_id
+
+    def _generate_thread_id(self, thread_name):
+        return str(hash(thread_name))
+
+    def stop_automatic_syn_data(self, thread_id):
+        lock.acquire()
+        try:
+            ElasticsearchClient.automatic_syn_data_flag[thread_id] = False
+        finally:
+            lock.release()
+
+    def _automatic_syn_data_from_mongo_worker(self,
+                                              thread_id,
+                                              index,
+                                              doc_type,
+                                              indexed_flag_field_name,
+                                              interval=60,
+                                              use_mongo_id=False,
+                                              mongo_client_params=None,
+                                              mongo_query_params=None,
+                                              mongo_host=default.MONGO_HOST,
+                                              mongo_port=default.MONGO_PORT,
+                                              mongo_db=default.MONGO_DB,
+                                              mongo_collection=default.MONGO_COLLECTION):
+        current_thread__name = threading.current_thread().name
+        while ElasticsearchClient.automatic_syn_data_flag[thread_id]:
+            self.logger.info('[%s]: synchronize data work start %s:%s -----> %s' % (
+                current_thread__name, mongo_host, mongo_port, self.client))
+            self.transfer_data_from_mongo(index, doc_type,
+                                          use_mongo_id, mongo_client_params,
+                                          mongo_query_params=mongo_query_params.update(
+                                              {indexed_flag_field_name: False}),
+                                          mongo_host=mongo_host, mongo_port=mongo_port,
+                                          mongo_db=mongo_db, mongo_collection=mongo_collection)
+            self.logger.info('[%s]: synchronize data work done %s:%s -----> %s' % (
+                current_thread__name, mongo_host, mongo_port, self.client))
+            time.sleep(interval)
+        self.logger.info('[%s]: synchronize data work is shutdown ' % current_thread__name)
