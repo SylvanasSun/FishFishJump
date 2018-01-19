@@ -145,6 +145,58 @@ class ElasticsearchClient(object):
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
 
+    def create_index(self, index, doc_type, id, body, params=None):
+        result = self.client.create(index, doc_type, id, body, params)
+        self.logger.info(
+            'Create index[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
+        return result
+
+    def delete(self, index, doc_type, id, params=None):
+        result = self.client.delete(index, doc_type, id, params)
+        self.logger.info(
+            'Delete[index: %s, doc type: %s, id: %s] is done' % (index, doc_type, id))
+        return result
+
+    def search(self, index=None, doc_type=None, body=None, params=None):
+        result = self.client.search(index, doc_type, body, params)
+        if index is None and doc_type is None and body is None:
+            self.logger.info('Search[all mode] is done')
+            return result
+        self.logger.info(
+            'Search[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
+        return result
+
+    def update(self, index, doc_type, id, body=None, params=None):
+        result = self.client.update(index, doc_type, id, body, params)
+        self.logger.info(
+            'Update[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
+        return result
+
+    def bulk(self, actions, stats_only=False, **kwargs):
+        """
+        Executes bulk api by elasticsearch.helpers.bulk.
+
+        :param actions: iterator containing the actions
+        :param stats_only:if `True` only report number of successful/failed
+        operations instead of just number of successful and a list of error responses
+        Any additional keyword arguments will be passed to
+        :func:`~elasticsearch.helpers.streaming_bulk` which is used to execute
+        the operation, see :func:`~elasticsearch.helpers.streaming_bulk` for more
+        accepted parameters.
+        """
+        success, failed = es_helpers.bulk(self.client, actions, stats_only, **kwargs)
+        self.logger.info('Bulk is done success %s failed %s actions: \n %s' % (success, failed, actions))
+
+    def mget(self, body, index=None, doc_type=None, params=None):
+        result = self.client.mget(body, index, doc_type, params)
+        self.logger.info('Mget[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
+        return result
+
+    def get_client(self):
+        if self.client is None:
+            self.logger.warning('Elasticsearch Client is None')
+        return self.client
+
     # TODO: Use more effective solution
     def automatic_syn_data_from_mongo(self,
                                       index,
