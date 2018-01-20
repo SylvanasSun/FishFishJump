@@ -145,16 +145,32 @@ class ElasticsearchClient(object):
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
 
-    def create_index(self, index, doc_type, id, body, params=None):
+    def create(self, index, doc_type, id, body, params=None):
         result = self.client.create(index, doc_type, id, body, params)
         self.logger.info(
-            'Create index[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
+            'Create[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
+        self.logger.debug('<Verbose message> operation: %s, version: %s shards: %s' % (
+            result['result'], result['_version'], result['_shards']))
+        return result
+
+    def index(self, index, doc_type, body, id=None, params=None):
+        result = self.client.index(index, doc_type, body, id, params)
+        if id is None:
+            id_message = 'Automatic Generation'
+        else:
+            id_message = id
+        self.logger.info(
+            'Index[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id_message, body))
+        self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
+            result['result'], result['_version'], result['_shards']))
         return result
 
     def delete(self, index, doc_type, id, params=None):
         result = self.client.delete(index, doc_type, id, params)
         self.logger.info(
             'Delete[index: %s, doc type: %s, id: %s] is done' % (index, doc_type, id))
+        self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
+            result['result'], result['_version'], result['_shards']))
         return result
 
     def search(self, index=None, doc_type=None, body=None, params=None):
@@ -164,12 +180,17 @@ class ElasticsearchClient(object):
             return result
         self.logger.info(
             'Search[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
+        self.logger.debug(
+            '<Verbose message> took: %s shards: %s hits: %s' % (
+                result['took'], result['_shards'], result['hits']['total']))
         return result
 
     def update(self, index, doc_type, id, body=None, params=None):
         result = self.client.update(index, doc_type, id, body, params)
         self.logger.info(
             'Update[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
+        self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
+            result['result'], result['_version'], result['_shards']))
         return result
 
     def bulk(self, actions, stats_only=False, **kwargs):
