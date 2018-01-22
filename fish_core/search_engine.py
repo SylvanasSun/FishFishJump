@@ -302,3 +302,55 @@ class ElasticsearchClient(object):
                 current_thread__name, mongo_host, mongo_port, self.client))
             time.sleep(interval)
         self.logger.info('[%s]: synchronize data work is shutdown ' % current_thread__name)
+
+    def open_index(self, index, params=None):
+        result = self.client.indices.open(index, params)
+        self.logger.info('Index %s is opened' % index)
+        return result
+
+    def close_index(self, index, params=None):
+        result = self.client.indices.close(index, params)
+        self.logger.info('Index %s is closed' % index)
+        return result
+
+    def get_simple_info_for_index(self, index=None, params=None):
+        """
+        Return a list of simple info by specified index (default all), each elements is a dictionary
+        such as
+        {
+            'health' : 'green', 'status' : 'open',
+            'index' : 'xxxx', 'uuid' : 'xxxx',
+            'pri' : 1, 'rep' : 1,
+            `docs_count` : 4, 'docs_deleted' : 0,
+            'store_size' : 10kb, 'pri_store_size' : 10kb
+        }
+        """
+        raw = self.client.cat.indices(index, params).split('\n')
+        list = []
+        for r in raw:
+            alter = r.split(' ')
+            dict = {
+                'health': alter[0],
+                'status': alter[1],
+                'index': alter[2],
+            }
+            if len(alter) == 11:
+                # May appear split fail (alter[3] is a empty string)
+                dict['uuid'] = alter[4]
+                i = 5
+            else:
+                dict['uuid'] = alter[3]
+                i = 4
+            dict['pri'] = alter[i]
+            i += 1
+            dict['rep'] = alter[i]
+            i += 1
+            dict['docs_count'] = alter[i]
+            i += 1
+            dict['docs_deleted'] = alter[i]
+            i += 1
+            dict['store_size'] = alter[i]
+            i += 1
+            dict['pri_store_size'] = alter[i]
+            list.append(dict)
+        self.logger.info('Acquire simple infomation of the index is done succeeded: %s' % len(list))
