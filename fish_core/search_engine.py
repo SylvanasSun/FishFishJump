@@ -99,8 +99,8 @@ class ElasticsearchClient(object):
                                  index,
                                  doc_type,
                                  use_mongo_id=False,
-                                 mongo_client_params=None,
-                                 mongo_query_params=None,
+                                 mongo_client_params={},
+                                 mongo_query_params={},
                                  mongo_host=default.MONGO_HOST,
                                  mongo_port=default.MONGO_PORT,
                                  mongo_db=default.MONGO_DB,
@@ -145,16 +145,16 @@ class ElasticsearchClient(object):
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
 
-    def create(self, index, doc_type, id, body, params=None):
-        result = self.client.create(index, doc_type, id, body, params)
+    def create(self, index, doc_type, id, body, params={}):
+        result = self.client.create(index, doc_type, id, body, params=params)
         self.logger.info(
             'Create[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
         self.logger.debug('<Verbose message> operation: %s, version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
-    def index(self, index, doc_type, body, id=None, params=None):
-        result = self.client.index(index, doc_type, body, id, params)
+    def index(self, index, doc_type, body, id=None, params={}):
+        result = self.client.index(index, doc_type, body, id, params=params)
         if id is None:
             id_message = 'Automatic Generation'
         else:
@@ -165,16 +165,16 @@ class ElasticsearchClient(object):
             result['result'], result['_version'], result['_shards']))
         return result
 
-    def delete(self, index, doc_type, id, params=None):
-        result = self.client.delete(index, doc_type, id, params)
+    def delete(self, index, doc_type, id, params={}):
+        result = self.client.delete(index, doc_type, id, params=params)
         self.logger.info(
             'Delete[index: %s, doc type: %s, id: %s] is done' % (index, doc_type, id))
         self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
-    def search(self, index=None, doc_type=None, body=None, params=None):
-        result = self.client.search(index, doc_type, body, params)
+    def search(self, index=None, doc_type=None, body=None, params={}):
+        result = self.client.search(index, doc_type, body, params=params)
         if index is None and doc_type is None and body is None:
             self.logger.info('Search[all mode] is done')
             return result
@@ -185,8 +185,8 @@ class ElasticsearchClient(object):
                 result['took'], result['_shards'], result['hits']['total']))
         return result
 
-    def update(self, index, doc_type, id, body=None, params=None):
-        result = self.client.update(index, doc_type, id, body, params)
+    def update(self, index, doc_type, id, body=None, params={}):
+        result = self.client.update(index, doc_type, id, body, params=params)
         self.logger.info(
             'Update[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
         self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
@@ -208,8 +208,8 @@ class ElasticsearchClient(object):
         success, failed = es_helpers.bulk(self.client, actions, stats_only, **kwargs)
         self.logger.info('Bulk is done success %s failed %s actions: \n %s' % (success, failed, actions))
 
-    def mget(self, body, index=None, doc_type=None, params=None):
-        result = self.client.mget(body, index, doc_type, params)
+    def mget(self, body, index=None, doc_type=None, params={}):
+        result = self.client.mget(body, index, doc_type, params=params)
         self.logger.info('Mget[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
         return result
 
@@ -226,8 +226,8 @@ class ElasticsearchClient(object):
                                       thread_name='automatic_syn_data_thread',
                                       interval=60,
                                       use_mongo_id=False,
-                                      mongo_client_params=None,
-                                      mongo_query_params=None,
+                                      mongo_client_params={},
+                                      mongo_query_params={},
                                       mongo_host=default.MONGO_HOST,
                                       mongo_port=default.MONGO_PORT,
                                       mongo_db=default.MONGO_DB,
@@ -282,8 +282,8 @@ class ElasticsearchClient(object):
                                               indexed_flag_field_name,
                                               interval=60,
                                               use_mongo_id=False,
-                                              mongo_client_params=None,
-                                              mongo_query_params=None,
+                                              mongo_client_params={},
+                                              mongo_query_params={},
                                               mongo_host=default.MONGO_HOST,
                                               mongo_port=default.MONGO_PORT,
                                               mongo_db=default.MONGO_DB,
@@ -303,17 +303,17 @@ class ElasticsearchClient(object):
             time.sleep(interval)
         self.logger.info('[%s]: synchronize data work is shutdown ' % current_thread__name)
 
-    def open_index(self, index, params=None):
-        result = self.client.indices.open(index, params)
+    def open_index(self, index, params={}):
+        result = self.client.indices.open(index, params=params)
         self.logger.info('Index %s is opened' % index)
         return result
 
-    def close_index(self, index, params=None):
-        result = self.client.indices.close(index, params)
+    def close_index(self, index, params={}):
+        result = self.client.indices.close(index, params=params)
         self.logger.info('Index %s is closed' % index)
         return result
 
-    def get_simple_info_for_index(self, index=None, params=None):
+    def get_simple_info_for_index(self, index=None, params={}):
         """
         Return a list of simple info by specified index (default all), each elements is a dictionary
         such as
@@ -325,10 +325,11 @@ class ElasticsearchClient(object):
             'store_size' : 10kb, 'pri_store_size' : 10kb
         }
         """
-        raw = self.client.cat.indices(index, params).split('\n')
+        raw = self.client.cat.indices(index, params=params).split('\n')
         list = []
         for r in raw:
             alter = r.split(' ')
+            if len(alter) < 10: continue
             dict = {
                 'health': alter[0],
                 'status': alter[1],
@@ -354,3 +355,55 @@ class ElasticsearchClient(object):
             dict['pri_store_size'] = alter[i]
             list.append(dict)
         self.logger.info('Acquire simple infomation of the index is done succeeded: %s' % len(list))
+        return list
+
+    def cluster_health(self, index=None, params={}):
+        result = self.client.cluster.health(index, params=params)
+        message = 'Acquire cluster health infomation is done index: %s'
+        if index is None:
+            message = message % 'all'
+        else:
+            message = message % index
+        self.logger.info(message)
+        return result
+
+    def cluster_health_for_indices(self, index=None, params={}):
+        """
+        Return a list of cluster health of specified indices(default all),
+        the first element is a dictionary represent a global information of the cluster
+        such as "cluster_name", "number_of_nodes"...
+        the second element represent a indices information list that each element is a dictionary for one index
+        such as [{'index' : 'a', 'status' : 'yellow', ...} , {'index' : 'b', 'status' : 'yellow', ...}, ....]
+        """
+        params['level'] = 'indices'
+        result = self.cluster_health(index, params)
+        return self._process_cluster_health_info(result)
+
+    def cluster_health_for_shards(self, index=None, params={}):
+        """
+        Return a list of cluster health of specified indices(default all) and
+        append shards information of each index
+        the first element is a dictionary represent a global information of the cluster
+        the second element represent a information of indices and its shards and each element is a dictionary
+        such as [{'index' : 'a', 'status' : 'yellow', ..., 'shards' : {'0' : {...}, '1' : {...}, ...}, ...]
+        """
+        params['level'] = 'shards'
+        result = self.cluster_health(index, params)
+        return self._process_cluster_health_info(result)
+
+    def _process_cluster_health_info(self, info):
+        list = []
+        first = {}
+        second = []
+        for k, v in info.items():
+            if k == 'indices':
+                for k2, v2 in v.items():
+                    index = {}
+                    index['index'] = k2
+                    index.update(v2)
+                    second.append(index)
+            else:
+                first[k] = v
+        list.append(first)
+        list.append(second)
+        return list
