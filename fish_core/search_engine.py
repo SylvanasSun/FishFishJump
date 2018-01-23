@@ -313,6 +313,11 @@ class ElasticsearchClient(object):
         self.logger.info('Index %s is closed' % index)
         return result
 
+    def indices_status_info(self, index=None, metric=None, params=None):
+        result = self.client.indices.stats(index=index, metric=metric, params=params)
+        self.logger.info('Acquire indices status information is done')
+        return result
+
     def get_simple_info_for_index(self, index=None, params={}):
         """
         Return a list of simple info by specified index (default all), each elements is a dictionary
@@ -354,12 +359,12 @@ class ElasticsearchClient(object):
             i += 1
             dict['pri_store_size'] = alter[i]
             list.append(dict)
-        self.logger.info('Acquire simple infomation of the index is done succeeded: %s' % len(list))
+        self.logger.info('Acquire simple information of the index is done succeeded: %s' % len(list))
         return list
 
     def cluster_health(self, index=None, params={}):
         result = self.client.cluster.health(index, params=params)
-        message = 'Acquire cluster health infomation is done index: %s'
+        message = 'Acquire cluster health information is done index: %s'
         if index is None:
             message = message % 'all'
         else:
@@ -391,6 +396,11 @@ class ElasticsearchClient(object):
         result = self.cluster_health(index, params)
         return self._process_cluster_health_info(result)
 
+    def cluster_status_info(self, node_id=None, params={}):
+        result = self.client.cluster.stats(node_id=node_id, params=params)
+        self.logger.info('Acquire cluster status information is done')
+        return result
+
     def _process_cluster_health_info(self, info):
         list = []
         first = {}
@@ -407,3 +417,8 @@ class ElasticsearchClient(object):
         list.append(first)
         list.append(second)
         return list
+
+    def nodes_status_info(self, node_id=None, metric=None, index_metric=None, params={}):
+        result = self.client.nodes.stats(node_id=node_id, metric=metric, index_metric=index_metric, params=params)
+        self.logger.info('Acquire nodes status information is done')
+        return result
