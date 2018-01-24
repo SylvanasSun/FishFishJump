@@ -4,7 +4,7 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 from optparse import OptionParser
-
+from fish_webapp.cache import initialize_cache
 from fish_webapp import settings
 from fish_webapp.views.dashboard import dashboard
 from fish_webapp.views.scrapyd import scrapyd, fetch_scrapyd_agent
@@ -127,8 +127,7 @@ app.logger.info('FishFishJump(webapp) started on %s:%s username=%s password=%s'
 app.secret_key = os.urandom(24)
 
 # init global cache
-if app.config['ENABLE_CACHE']:
-    app.config['GLOBAL_CACHE'] = SimpleCache()
+initialize_cache(app)
 
 # register scrapyd agent
 fetch_scrapyd_agent(app.config['SCRAPYD_URL'])
