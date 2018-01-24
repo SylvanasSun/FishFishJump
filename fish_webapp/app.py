@@ -4,13 +4,14 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 from optparse import OptionParser
-from fish_webapp.cache import initialize_cache
+
 from fish_webapp import settings
+from fish_webapp.cache import initialize_cache
 from fish_webapp.views.dashboard import dashboard
-from fish_webapp.views.scrapyd import scrapyd, fetch_scrapyd_agent
+from fish_webapp.views.elasticsearch import elasticsearch, init_elasticsearch_client
+from fish_webapp.views.scrapyd import scrapyd, init_scrapyd_agent
 from fish_webapp.views.user import user
 from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template
-from werkzeug.contrib.cache import SimpleCache
 
 
 def parse_opts(config):
@@ -78,6 +79,13 @@ def parse_opts(config):
                       type='string',
                       dest='LOG_FILE_BASIS_NAME',
                       default=config.get('LOG_FILE_BASIS_NAME'))
+    parser.add_option('--elasticsearch-hosts',
+                      help='the string represent a host address for Elasticsearch, format: hostname:port ' +
+                           'and able to write multiple address by comma separated default: %s ' % config.get(
+                               'ELASTICSEARCH_HOSTS'),
+                      type='string',
+                      dest='ELASTICSEARCH_HOSTS',
+                      default=config.get('ELASTICSEARCH_HOSTS'))
     return parser.parse_args()
 
 
@@ -96,7 +104,24 @@ def enable_opts(config):
         VERBOSE=opts.VERBOSE,
         LOG_FILE_DIR=opts.LOG_FILE_DIR,
         LOG_FILE_BASIS_NAME=opts.LOG_FILE_BASIS_NAME,
+        ELASTICSEARCH_HOSTS=opts.ELASTICSEARCH_HOSTS
     )
+
+
+def init_client(app):
+    # initialize scrapyd agent
+    init_scrapyd_agent(app.config['SCRAPYD_URL'])
+    # initialize elasticsearch client
+    hosts = app.config['ELASTICSEARCH_HOSTS'].split(',')
+    address_list = []
+    for host in hosts:
+        host = host.strip()
+        temp = host.split(':')
+        address_list.append({
+            'host': temp[0].strip(),
+            'port': int(temp[1].strip())
+        })
+    init_elasticsearch_client(address_list)
 
 
 def initialize_logging(app):
@@ -129,13 +154,13 @@ app.secret_key = os.urandom(24)
 # init global cache
 initialize_cache(app)
 
-# register scrapyd agent
-fetch_scrapyd_agent(app.config['SCRAPYD_URL'])
+init_client(app)
 
 # register blueprint
 app.register_blueprint(dashboard, url_prefix='/supervisor/dashboard')
 app.register_blueprint(user, url_prefix='/supervisor/user')
 app.register_blueprint(scrapyd, url_prefix='/supervisor/scrapyd')
+app.register_blueprint(elasticsearch, url_prefix='/supervisor/elasticsearch')
 
 
 @app.route('/favicon.ico')

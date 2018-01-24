@@ -10,7 +10,7 @@ scrapyd = Blueprint('scrapyd', __name__)
 agent = None
 
 
-def fetch_scrapyd_agent(scrapyd_url):
+def init_scrapyd_agent(scrapyd_url):
     global agent
     agent = ScrapydAgent(scrapyd_url)
 

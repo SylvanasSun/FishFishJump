@@ -14,6 +14,7 @@ class Config(object):
     VERBOSE = False
     LOG_FILE_DIR = os.path.join(os.path.abspath('.'), 'log') + os.sep
     LOG_FILE_BASIS_NAME = 'fish_fish_jump_webapp.log'
+    ELASTICSEARCH_HOSTS = 'localhost:9200'
 
 
 class ProductionConfig(Config):
