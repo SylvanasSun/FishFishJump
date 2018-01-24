@@ -12,19 +12,19 @@ def home_page():
 
 @dashboard.route('/job/list')
 def job_list_page():
-    return render_template('job_list.html')
+    return render_template('scrapy/job_list.html')
 
 
 @dashboard.route('/project/list')
 def project_list_page():
-    return render_template('project_list.html')
+    return render_template('scrapy/project_list.html')
 
 
 @dashboard.route('/spider/list')
 def spider_list_page():
-    return render_template('spider_list.html')
+    return render_template('scrapy/spider_list.html')
 
 
 @dashboard.route('/job/schedule')
 def schedule_page():
-    return render_template('schedule.html')
+    return render_template('scrapy/schedule.html')
