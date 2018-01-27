@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Elasticsearch Cluster Health{% endblock %}
+<link href="/static/css/percentage-cyclic.css" rel="stylesheet">
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/supervisor/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Elasticsearch Cluster Health</li>
+</ol>
+
+<div class="row">
+    <!-- Cluster Info Panel -->
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">Cluster Info</div>
+            <ul class="list-group">
+                <li id="cluster_name"
+                    class="list-group-item active d-flex justify-content-between align-items-conter"></li>
+                <li id="status" class="list-group-item d-flex justify-content-between align-items-center"></li>
+                <li id="timed_out" class="list-group-item d-flex justify-content-between align-items-center"></li>
+                <li id="number_of_nodes" class="list-group-item d-flex justify-content-between align-items-center">
+                    Nodes
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="number_of_data_nodes" class="list-group-item d-flex justify-content-between align-items-center">
+                    Data Nodes
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="number_of_pending_task"
+                    class="list-group-item d-flex justify-content-between align-items-center">
+                    Pending Task
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="number_of_in_flight_fetch"
+                    class="list-group-item d-flex justify-content-between align-items-center">
+                    In Flight Fetch
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="task_max_waiting_in_queue_millis"
+                    class="list-group-item d-flex justify-content-between align-items-center">
+                    Task Max Waiting In Queue Millis
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- Transfer data Panel -->
+    <div class="col-6">
+        <div class="card">
+            <div class="col-12">
+                <div class="row bg-primary text-center text-white">
+                    <div class="col-4 bg-success py-5">
+                        <h1><i class="fa fa-lg fa-tree"></i></h1>
+                    </div>
+                    <div class="col-4 bg-danger py-5">
+                        <h1><i class="fa fa-lg fa-bullseye"></i></h1>
+                    </div>
+                    <div class="col-4 bg-primary py-5">
+                        <h1><i class="fa fa-lg fa-flask"></i></h1>
+                    </div>
+                </div>
+                <div id="transfer_data_card_body" class="card-body">
+                    <h5>Transfer Data</h5>
+                    <hr>
+                    <p id="transfer_data_card_text"></p>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <!-- Shards Info Panel -->
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">Shards Info</div>
+            <ul class="list-group">
+                <li id="active_primary_shards"
+                    class="list-group-item d-flex justify-content-between align-items-center">
+                    Active Primary Shards
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="active_shards" class="list-group-item d-flex justify-content-between align-items-center">
+                    Active Shards
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="relocating_shards" class="list-group-item d-flex justify-content-between align-items-center">
+                    Relocating Shards
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="initializing_shards" class="list-group-item d-flex justify-content-between align-items-center">
+                    Initializing Shards
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="unassigned_shards" class="list-group-item d-flex justify-content-between align-items-center">
+                    Unassigned Shards
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+                <li id="delayed_unassigned_shards"
+                    class="list-group-item d-flex justify-content-between align-items-center">
+                    Delayed Unassigned Shards
+                    <span class="badge badge-primary badge-pill"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- Active Shards Percentage -->
+    <div class="col-6">
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">Active Shards Percentage</div>
+                    <div class="inner-content text-center">
+                        <div class="c100 p25 big center">
+                            <span id="active_shards_percentage">0%</span>
+                            <div class="slice">
+                                <div class="bar"></div>
+                                <div class="fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+
+<!-- Progress bar Modal -->
+<div id="progressBarModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="progressBarModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="progressBarModalLabel" class="modal-header">
+                <h5 class="modal-title">Transfer Data Progress</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="progressBarModalBody" class="modal-body">
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-primary">Run</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+{{ super() }}
+<script src="/static/js/elasticsearch/cluster_health.js"></script>
+{% endblock %}

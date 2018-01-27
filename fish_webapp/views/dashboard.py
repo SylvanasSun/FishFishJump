@@ -10,21 +10,26 @@ def home_page():
     return render_template('home.html')
 
 
-@dashboard.route('/job/list')
+@dashboard.route('/scrapy/job/list')
 def job_list_page():
     return render_template('scrapy/job_list.html')
 
 
-@dashboard.route('/project/list')
+@dashboard.route('/scrapy/project/list')
 def project_list_page():
     return render_template('scrapy/project_list.html')
 
 
-@dashboard.route('/spider/list')
+@dashboard.route('/scrapy/spider/list')
 def spider_list_page():
     return render_template('scrapy/spider_list.html')
 
 
-@dashboard.route('/job/schedule')
+@dashboard.route('/scrapy/job/schedule')
 def schedule_page():
     return render_template('scrapy/schedule.html')
+
+
+@dashboard.route('/elasticsearch/cluster/health')
+def cluster_health():
+    return render_template('elasticsearch/cluster_health.html')

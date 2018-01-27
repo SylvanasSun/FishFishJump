@@ -144,6 +144,7 @@ class ElasticsearchClient(object):
         self.logger.info(
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
+        return success, failed
 
     def create(self, index, doc_type, id, body, params={}):
         result = self.client.create(index, doc_type, id, body, params=params)
