@@ -23,6 +23,151 @@ function handle_cluster_status(status_tag, status) {
     }
 }
 
+function enable_transfer() {
+    var host = $("#mongo_host").val();
+    var port = $("#mongo_port").val();
+    var db = $("#mongo_db").val();
+    var collection = $("#mongo_collection").val();
+    var filter_field = $("#mongo_filter_field").val();
+    var index = $("#elasticsearch_index").val();
+    var doc_type = $("#elasticsearch_doc_type").val();
+    var use_mongo_id = $("#use_mongo_id").prop("checked");
+    var success_count = 0;
+    var fail_count = 0;
+    var success_flag = false;
+    var request_flag = true;
+    var eventSource = null;
+    var percentage = 0;
+
+    if (host === "" || port === "" || db === "" || collection === "" || index === "" || doc_type === "") {
+        return;
+    }
+
+    // Listen event from server then dynamic modify progress bar
+    if (typeof (EventSource) !== "undefined") {
+        eventSource = new EventSource("/supervisor/elasticsearch/transfer/progress");
+        eventSource.onerror = function (event) {
+            eventSource.close();
+            console.log('Acquire progress data failure because SSE connection have is interrupted.');
+            if (success_flag) {
+                swal("Good job!", "Transfer data have complete! Success: " + success_count + " Failure: " + fail_count, "success");
+            } else {
+                swal("Oops!", "An exception occurred in inside of the server!", "error");
+            }
+        };
+        eventSource.onmessage = function (event) {
+            if (event.data === "error") {
+                eventSource.close();
+            } else {
+                percentage = event.data;
+                $("#progress_bar").css("width", percentage + "%").text(percentage + "%");
+            }
+        };
+    } else {
+        swal("Oops!", "Sorry, your browser do not supply this function.", "error");
+        console.log("Your browser do not supply Server-Sent-Event.");
+    }
+
+    // Send asynchronous request for enable data transfer
+    $.ajax({
+        url: "/supervisor/elasticsearch/enable/transfer",
+        type: "POST",
+        data: {
+            "mongo_host": host,
+            "mongo_port": port,
+            "mongo_db": db,
+            "mongo_collection": collection,
+            "filter_field": filter_field,
+            "elasticsearch_index": index,
+            "elasticsearch_doc_type": doc_type,
+            "use_mongo_id": use_mongo_id
+        },
+        success: function (data) {
+            success_count = data.success_count;
+            fail_count = data.fail_count;
+            success_flag = true;
+        },
+        error: function (xhr, message, throwable) {
+            swal("Oops!", "Sorry, request is the failure then connection interrupt.", "error");
+            console.log(message);
+            console.log(throwable);
+            request_flag = false;
+        }
+    });
+
+    if (!request_flag && eventSource !== null) {
+        eventSource.close();
+    }
+}
+
+function enable_auto_transfer() {
+    var host = $("#auto_mongo_host").val();
+    var port = $("#auto_mongo_port").val();
+    var db = $("#auto_mongo_db").val();
+    var collection = $("#auto_mongo_collection").val();
+    var filter_field = $("#auto_mongo_filter_field").val();
+    var index = $("#auto_elasticsearch_index").val();
+    var doc_type = $("#auto_elasticsearch_doc_type").val();
+    var use_mongo_id = $("#auto_use_mongo_id").prop("checked");
+    var interval = parseInt($("#interval_time").val());
+
+    if (host === "" || port === "" || db === "" || collection === "" ||
+        index === "" || doc_type === "" || filter_field === "") {
+        return;
+    }
+
+    $.ajax({
+        url: "/supervisor/elasticsearch/enable/auto/transfer",
+        type: "POST",
+        data: {
+            "mongo_host": host,
+            "mongo_port": port,
+            "mongo_db": db,
+            "mongo_collection": collection,
+            "filter_field": filter_field,
+            "elasticsearch_index": index,
+            "elasticsearch_doc_type": doc_type,
+            "use_mongo_id": use_mongo_id,
+            "interval": interval
+        },
+        success: function (data) {
+            if (data.status === "success") {
+                swal("Good job!", "Enable automatic data transfer is success!", "success");
+            } else {
+                swal("Oops!", "Enable automatic data transfer is failed!", "error");
+            }
+        },
+        error: function (xhr, message, throwable) {
+            console.log(message);
+            console.log(throwable);
+            swal("Oops!", "Enable automatic data transfer is failed!", "error");
+        }
+    });
+
+    location.reload();
+}
+
+function cancel_auto_transfer() {
+    $.ajax({
+        url: "/supervisor/elasticsearch/cancel/auto/transfer",
+        type: "POST",
+        success: function (data) {
+            if (data.status === "success") {
+                swal("Good job!", "Cancel automatic data transfer is success!", "success");
+            } else {
+                swal("Oops!", "Cancel automatic data transfer is failed!", "error");
+            }
+        },
+        error: function (xhr, message, throwable) {
+            console.log(message);
+            console.log(throwable);
+            swal("Oops!", "Cancel automatic data transfer is failed!", "error");
+        }
+    });
+
+    location.reload();
+}
+
 $.ajax({
     url: "/supervisor/elasticsearch/cluster/health/",
     type: "GET",
@@ -56,9 +201,10 @@ $.ajax({
         var transfer_data_card_text = $("#transfer_data_card_text");
         if (!is_auto_transfer) {
             var manual_transfer_button = $("<button type='button' data-toggle='modal' " +
-                "data-target='#progressBarModal'  class='btn btn-outline-primary'>" +
+                "data-target='#transfer_data_modal'  class='btn btn-outline-primary'>" +
                 "<i class='fa fa-magic mr-1'></i>Manual Transfer</button>");
-            var auto_transfer_button = $("<button type='button' class='btn btn-outline-info'>" +
+            var auto_transfer_button = $("<button type='button' data-toggle='modal' " +
+                "data-target='#auto_transfer_data_modal' class='btn btn-outline-info'>" +
                 "<i class='fa fa-magic mr-1'></i>Enable Auto Transfer</button>");
             var row = $("<div class='row'></div>");
             var left_col = $("<div class='col-6'></div>");
@@ -69,12 +215,141 @@ $.ajax({
             right_col.append(auto_transfer_button);
             transfer_data_card_body.append(row);
             transfer_data_card_text.text("The current status is non-automatic, " +
-                "you can choose means for transfer data from MongoDB into the Elasticsearch.");
+                "you can choose means for transfer data from MongoDB into the Elasticsearch." +
+                "There is a optional option for filter data in the form that is a text " +
+                "of the field name(must existence in MongoDB document) and this type must " +
+                "is a boolean this will not transfer into the Elasticsearch if it's false.");
         } else {
             transfer_data_card_text.text("The current status is automatically transmitted data " +
                 "with synchronized from MongoDB.");
-            transfer_data_card_body.append($("<button type='button' class='btn btn-outline-danger'>" +
-                "<i class='fa fa-magic mr-1'></i>Cancel</button>"));
+            transfer_data_card_body.append($("<button onclick='cancel_auto_transfer()' type='button' " +
+                "class='btn btn-outline-danger'><i class='fa fa-magic mr-1'></i>Cancel</button>"));
+        }
+    }
+});
+
+$("#transfer_data_modal_form").bootstrapValidator({
+    message: "This value is not valid.",
+    feedbackIcons: {
+        valid: 'glyphicon glyphicon-ok',
+        invalid: 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields: {
+        mongo_host: {
+            message: "The MongoDB host validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB host must is not empty!"
+                }
+            }
+        },
+        mongo_port: {
+            message: "The MongoDB port validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB port must is not empty!"
+                }
+            }
+        },
+        mongo_db: {
+            message: "The MongoDB database validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB database must is not empty!"
+                }
+            }
+        },
+        mongo_collection: {
+            message: "The MongoDB collection validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB collection must is not empty!"
+                }
+            }
+        },
+        elasticsearch_index: {
+            message: "The Elasticsearch index validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The Elasticsearch index must is not empty!"
+                }
+            }
+        },
+        elasticsearch_doc_type: {
+            message: "The Elasticsearch document type validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The Elasticsearch document type must is not empty!"
+                }
+            }
+        }
+    }
+});
+
+$("#auto_transfer_data_modal_form").bootstrapValidator({
+    message: "This value is not valid.",
+    feedbackIcons: {
+        valid: 'glyphicon glyphicon-ok',
+        invalid: 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+    },
+    fields: {
+        auto_mongo_host: {
+            message: "The MongoDB host validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB host must is not empty!"
+                }
+            }
+        },
+        auto_mongo_port: {
+            message: "The MongoDB port validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB port must is not empty!"
+                }
+            }
+        },
+        auto_mongo_db: {
+            message: "The MongoDB database validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB database must is not empty!"
+                }
+            }
+        },
+        auto_mongo_collection: {
+            message: "The MongoDB collection validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB collection must is not empty!"
+                }
+            }
+        },
+        auto_elasticsearch_index: {
+            message: "The Elasticsearch index validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The Elasticsearch index must is not empty!"
+                }
+            }
+        },
+        auto_elasticsearch_doc_type: {
+            message: "The Elasticsearch document type validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The Elasticsearch document type must is not empty!"
+                }
+            }
+        },
+        auto_mongo_filter_field: {
+            message: "The MongoDB filter field name validate failure!",
+            validators: {
+                notEmpty: {
+                    message: "The MongoDB filter field name must is not empty!"
+                }
+            }
         }
     }
 });

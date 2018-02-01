@@ -4,6 +4,8 @@
 {{ super() }}
 {% block title %}Elasticsearch Cluster Health{% endblock %}
 <link href="/static/css/percentage-cyclic.css" rel="stylesheet">
+<link href="/static/css/switch_button.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/bootstrap-validator/0.5.3/css/bootstrapValidator.css" rel="stylesheet">
 {% endblock %}
 
 {% block content_body %}
@@ -136,34 +138,153 @@
 </div>
 <hr>
 
-<!-- Progress bar Modal -->
-<div id="progressBarModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="progressBarModalLabel"
+<!-- Transfer Data Modal -->
+<div id="transfer_data_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="transfer_data_modal_label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div id="progressBarModalLabel" class="modal-header">
-                <h5 class="modal-title">Transfer Data Progress</h5>
+        <div id="transfer_data_modal_content" class="modal-content">
+            <div id="transfer_data_modal_label" class="modal-header">
+                <h5 id="transfer_data_modal_title" class="modal-title">Transfer Data Progress</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div id="progressBarModalBody" class="modal-body">
-                <div class="progress">
-                    <div id="progressBar" class="progress-bar" role="progressbar" aria-valuenow="0"
-                         aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-outline-primary">Run</button>
+            <div id="transfer_data_modal_body" class="modal-body">
+                <form id="transfer_data_modal_form">
+                    <p class="h5 text-center mb-4">Transfer Data Form</p>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Host" id="mongo_host" name="mongo_host"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Port" id="mongo_port" name="mongo_port"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Database name" id="mongo_db" name="mongo_db"
+                               class="form-control"
+                               value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Collection name" id="mongo_collection"
+                               name="mongo_collection"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Filter field name (Optional)" id="mongo_filter_field"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Elasticsearch Index name" id="elasticsearch_index"
+                               name="elasticsearch_index"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Elasticsearch Document type" id="elasticsearch_doc_type"
+                               name="elasticsearch_doc_type"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-check">
+                        <p>Use id of the MongoDB for transfer data into the Elasticsearch</p>
+                        <label class="switch">
+                            <input type="checkbox" id="use_mongo_id" value="">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="text-center">
+                        <button onclick="enable_transfer()" class="btn btn-outline-primary">Run <i
+                                class="fa fa-paper-plane-o ml-1"></i>
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="progress">
+                        <div id="progress_bar" class="progress-bar" style="width: 0" role="progressbar"
+                             aria-valuenow="0"
+                             aria-valuemin="0"
+                             aria-valuemax="100"></div>
+                    </div>
+                    <hr>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Auto Transfer Data Modal -->
+<div id="auto_transfer_data_modal" class="modal fade" tabindex="-1" role="dialog"
+     aria-labelledby="auto_transfer_data_modal_label"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div id="auto_transfer_data_modal_content" class="modal-content">
+            <div id="auto_transfer_data_modal_label" class="modal-header">
+                <h5 id="auto_transfer_data_modal_title" class="modal-title">Auto Transfer Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="auto_transfer_data_modal_body" class="modal-body">
+                <form id="auto_transfer_data_modal_form">
+                    <p class="h5 text-center mb-4">Form</p>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Host" id="auto_mongo_host" name="auto_mongo_host"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Port" id="auto_mongo_port" name="auto_mongo_port"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Database name" id="auto_mongo_db" name="auto_mongo_db"
+                               class="form-control"
+                               value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Collection name" id="auto_mongo_collection"
+                               name="auto_mongo_collection"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="MongoDB Filter field name" id="auto_mongo_filter_field"
+                               name="auto_mongo_filter_field" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Elasticsearch Index name" id="auto_elasticsearch_index"
+                               name="auto_elasticsearch_index"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Elasticsearch Document type" id="auto_elasticsearch_doc_type"
+                               name="auto_elasticsearch_doc_type"
+                               class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Auto Transfer Interval Time (Optional, default 60s)"
+                               id="interval_time" class="form-control" value="">
+                    </div>
+                    <div class="form-check">
+                        <p>Use id of the MongoDB for transfer data into the Elasticsearch</p>
+                        <label class="switch">
+                            <input type="checkbox" id="auto_use_mongo_id" value="">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" onclick="enable_auto_transfer()" class="btn btn-outline-primary">Run <i
+                                class="fa fa-paper-plane-o ml-1"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 
 {% block script %}
 {{ super() }}
+<script src="/static/js/sweetalert.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
 <script src="/static/js/elasticsearch/cluster_health.js"></script>
 {% endblock %}
