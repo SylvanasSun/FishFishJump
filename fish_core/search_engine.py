@@ -12,6 +12,8 @@ from fish_core import default
 
 lock = threading.Lock()
 
+logger = logging.getLogger(__name__)
+
 
 class ElasticsearchClient(object):
     """
@@ -24,7 +26,6 @@ class ElasticsearchClient(object):
 
     def __init__(self):
         self.client = None
-        self.logger = logging.getLogger(__name__)
 
     def from_normal(self, hosts=default.ELASTICSEARCH_HOSTS):
         """
@@ -40,7 +41,7 @@ class ElasticsearchClient(object):
         :return: void
         """
         self.client = Elasticsearch(hosts=hosts)
-        self.logger.info('Initialize normal Elasticsearch Client: %s.' % self.client)
+        logger.info('Initialize normal Elasticsearch Client: %s.' % self.client)
 
     def from_sniffing(self,
                       active_nodes,
@@ -64,7 +65,7 @@ class ElasticsearchClient(object):
                                     sniff_on_start=sniff_on_start,
                                     sniff_on_connection_fail=sniff_on_connection_fail,
                                     sniffer_timeout=sniffer_timeout)
-        self.logger.info('Initialize sniffing Elasticsearch Client: %s.' % self.client)
+        logger.info('Initialize sniffing Elasticsearch Client: %s.' % self.client)
 
     def from_ssl(self,
                  ca_certs,
@@ -93,12 +94,13 @@ class ElasticsearchClient(object):
                                     ca_certs=ca_certs,
                                     client_cert=client_cert,
                                     client_key=client_key)
-        self.logger.info('Initialize SSL Elasticsearch Client: %s.' % self.client)
+        logger.info('Initialize SSL Elasticsearch Client: %s.' % self.client)
 
     def transfer_data_from_mongo(self,
                                  index,
                                  doc_type,
                                  use_mongo_id=False,
+                                 indexed_flag_field_name='',
                                  mongo_client_params={},
                                  mongo_query_params={},
                                  mongo_host=default.MONGO_HOST,
@@ -112,6 +114,8 @@ class ElasticsearchClient(object):
         :param index: The name of the index
         :param doc_type: The type of the document
         :param use_mongo_id: Use id of MongoDB in the Elasticsearch if is true otherwise automatic generation
+        :param indexed_flag_field_name: the name of the field of the document,
+                    if associated value is False will synchronize data for it
         :param mongo_client_params: The dictionary for client params of MongoDB
         :param mongo_query_params: The dictionary for query params of MongoDB
         :param mongo_host: The name of the hostname from MongoDB
@@ -122,35 +126,53 @@ class ElasticsearchClient(object):
         """
         mongo_client = MongoClient(mongo_client_params, host=mongo_host, port=mongo_port)
         collection = mongo_client[mongo_db][mongo_collection]
-        if use_mongo_id:
-            mongo_docs = collection.find(mongo_query_params)
-        else:
-            mongo_docs = collection.find(mongo_query_params, projection={'_id': False})
+        if indexed_flag_field_name != '':
+            mongo_query_params.update({indexed_flag_field_name: False})
+        mongo_docs = collection.find(mongo_query_params)
         # Joint actions of Elasticsearch for execute bulk api
         actions = []
+        id_array = []
         for doc in mongo_docs:
             action = {
                 '_op_type': 'index',
                 '_index': index,
                 '_type': doc_type
             }
-            if '_id' in doc:
-                action['_id'] = doc['_id']
+            id_array.append(doc['_id'])
+            if not use_mongo_id:
                 doc.pop('_id')
             action['_source'] = doc
             actions.append(action)
         success, failed = es_helpers.bulk(self.client, actions)
         mongo_client.close()
-        self.logger.info(
+        logger.info(
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
+
+        # Back update flag
+        if indexed_flag_field_name != '':
+            t = threading.Thread(target=ElasticsearchClient._back_update_mongo,
+                                 args=(self, mongo_host, mongo_port, mongo_db, mongo_collection, id_array,
+                                       {indexed_flag_field_name: True}),
+                                 name='mongodb_back_update')
+            t.start()
         return success, failed
+
+    def _back_update_mongo(self,
+                           mongo_host, mongo_port,
+                           mongo_db,
+                           mongo_collection,
+                           id_array, update):
+        client = MongoClient(host=mongo_host, port=mongo_port)
+        collection = client[mongo_db][mongo_collection]
+        for id in id_array:
+            collection.update({'_id': id}, {'$set': update})
 
     def create(self, index, doc_type, id, body, params={}):
         result = self.client.create(index, doc_type, id, body, params=params)
-        self.logger.info(
+        logger.info(
             'Create[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
-        self.logger.debug('<Verbose message> operation: %s, version: %s shards: %s' % (
+        logger.debug('<Verbose message> operation: %s, version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
@@ -160,37 +182,46 @@ class ElasticsearchClient(object):
             id_message = 'Automatic Generation'
         else:
             id_message = id
-        self.logger.info(
+        logger.info(
             'Index[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id_message, body))
-        self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
+        logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
     def delete(self, index, doc_type, id, params={}):
         result = self.client.delete(index, doc_type, id, params=params)
-        self.logger.info(
+        logger.info(
             'Delete[index: %s, doc type: %s, id: %s] is done' % (index, doc_type, id))
-        self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
+        logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
     def search(self, index=None, doc_type=None, body=None, params={}):
         result = self.client.search(index, doc_type, body, params=params)
         if index is None and doc_type is None and body is None:
-            self.logger.info('Search[all mode] is done')
+            logger.info('Search[all mode] is done')
             return result
-        self.logger.info(
+        logger.info(
             'Search[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
-        self.logger.debug(
+        logger.debug(
             '<Verbose message> took: %s shards: %s hits: %s' % (
                 result['took'], result['_shards'], result['hits']['total']))
         return result
 
+    def count(self, index=None, doc_type=None, body=None, params={}):
+        result = self.client.count(index, doc_type, body, params=params)
+        if index is None and doc_type is None and body is None:
+            logger.info('Count[all mode] is done')
+            return result
+        logger.info('Count[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
+        logger.debug('<Verbose message> count: %s shards: %s' % (result['count'], result['_shards']))
+        return result
+
     def update(self, index, doc_type, id, body=None, params={}):
         result = self.client.update(index, doc_type, id, body, params=params)
-        self.logger.info(
+        logger.info(
             'Update[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
-        self.logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
+        logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
@@ -207,16 +238,16 @@ class ElasticsearchClient(object):
         accepted parameters.
         """
         success, failed = es_helpers.bulk(self.client, actions, stats_only, **kwargs)
-        self.logger.info('Bulk is done success %s failed %s actions: \n %s' % (success, failed, actions))
+        logger.info('Bulk is done success %s failed %s actions: \n %s' % (success, failed, actions))
 
     def mget(self, body, index=None, doc_type=None, params={}):
         result = self.client.mget(body, index, doc_type, params=params)
-        self.logger.info('Mget[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
+        logger.info('Mget[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
         return result
 
     def get_client(self):
         if self.client is None:
-            self.logger.warning('Elasticsearch Client is None')
+            logger.warning('Elasticsearch Client is None')
         return self.client
 
     # TODO: Use more effective solution
@@ -291,32 +322,33 @@ class ElasticsearchClient(object):
                                               mongo_collection=default.MONGO_COLLECTION):
         current_thread__name = threading.current_thread().name
         while ElasticsearchClient.automatic_syn_data_flag[thread_id]:
-            self.logger.info('[%s]: synchronize data work start %s:%s -----> %s' % (
+            logger.info('[%s]: synchronize data work start %s:%s -----> %s' % (
                 current_thread__name, mongo_host, mongo_port, self.client))
-            self.transfer_data_from_mongo(index, doc_type,
-                                          use_mongo_id, mongo_client_params,
-                                          mongo_query_params=mongo_query_params.update(
-                                              {indexed_flag_field_name: False}),
-                                          mongo_host=mongo_host, mongo_port=mongo_port,
-                                          mongo_db=mongo_db, mongo_collection=mongo_collection)
-            self.logger.info('[%s]: synchronize data work done %s:%s -----> %s' % (
-                current_thread__name, mongo_host, mongo_port, self.client))
+            success, failed = self.transfer_data_from_mongo(index=index, doc_type=doc_type,
+                                                            use_mongo_id=use_mongo_id,
+                                                            mongo_client_params=mongo_client_params,
+                                                            indexed_flag_field_name=indexed_flag_field_name,
+                                                            mongo_query_params=mongo_query_params,
+                                                            mongo_host=mongo_host, mongo_port=mongo_port,
+                                                            mongo_db=mongo_db, mongo_collection=mongo_collection)
+            logger.info('[%s]: synchronize data work done %s:%s -----> %s [success=%s, failed=%s]' % (
+                current_thread__name, mongo_host, mongo_port, self.client, success, failed))
             time.sleep(interval)
-        self.logger.info('[%s]: synchronize data work is shutdown ' % current_thread__name)
+        logger.info('[%s]: synchronize data work is shutdown ' % current_thread__name)
 
     def open_index(self, index, params={}):
         result = self.client.indices.open(index, params=params)
-        self.logger.info('Index %s is opened' % index)
+        logger.info('Index %s is opened' % index)
         return result
 
     def close_index(self, index, params={}):
         result = self.client.indices.close(index, params=params)
-        self.logger.info('Index %s is closed' % index)
+        logger.info('Index %s is closed' % index)
         return result
 
     def indices_status_info(self, index=None, metric=None, params=None):
         result = self.client.indices.stats(index=index, metric=metric, params=params)
-        self.logger.info('Acquire indices status information is done')
+        logger.info('Acquire indices status information is done')
         return result
 
     def get_simple_info_for_index(self, index=None, params={}):
@@ -360,7 +392,7 @@ class ElasticsearchClient(object):
             i += 1
             dict['pri_store_size'] = alter[i]
             list.append(dict)
-        self.logger.info('Acquire simple information of the index is done succeeded: %s' % len(list))
+        logger.info('Acquire simple information of the index is done succeeded: %s' % len(list))
         return list
 
     def cluster_health(self, index=None, params={}):
@@ -370,7 +402,7 @@ class ElasticsearchClient(object):
             message = message % 'all'
         else:
             message = message % index
-        self.logger.info(message)
+        logger.info(message)
         return result
 
     def cluster_health_for_indices(self, index=None, params={}):
@@ -399,7 +431,7 @@ class ElasticsearchClient(object):
 
     def cluster_status_info(self, node_id=None, params={}):
         result = self.client.cluster.stats(node_id=node_id, params=params)
-        self.logger.info('Acquire cluster status information is done')
+        logger.info('Acquire cluster status information is done')
         return result
 
     def _process_cluster_health_info(self, info):
@@ -421,5 +453,16 @@ class ElasticsearchClient(object):
 
     def nodes_status_info(self, node_id=None, metric=None, index_metric=None, params={}):
         result = self.client.nodes.stats(node_id=node_id, metric=metric, index_metric=index_metric, params=params)
-        self.logger.info('Acquire nodes status information is done')
+        logger.info('Acquire nodes status information is done')
         return result
+
+
+def get_documents_count_from_mongo(db,
+                                   collection,
+                                   query_params={},
+                                   mongo_host=default.MONGO_HOST,
+                                   mongo_port=default.MONGO_PORT):
+    client = MongoClient(host=mongo_host, port=mongo_port)
+    result = client[db][collection].count(query_params)
+    logger.info('Acquire documents count from MongoDB is done, result: %s' % result)
+    return result
