@@ -4,7 +4,7 @@
 {% block navigation %}
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="/supervisor/dashboard">FishFishJump</a>
+    <a class="navbar-brand" href="/dashboard">FishFishJump</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
             data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -13,7 +13,7 @@
     <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-                <a class="nav-link" href="/supervisor/dashboard">
+                <a class="nav-link" href="/dashboard">
                     <i class="fa fa-fw fa-dashboard"></i>
                     <span class="nav-link-text">Dashboard</span>
                 </a>
@@ -26,16 +26,16 @@
                 </a>
                 <ul class="sidenav-second-level collapse" id="scrapyPages">
                     <li>
-                        <a href="/supervisor/dashboard/scrapy/job/list">Job List</a>
+                        <a href="/dashboard/scrapy/job/list">Job List</a>
                     </li>
                     <li>
-                        <a href="/supervisor/dashboard/scrapy/project/list">Project List</a>
+                        <a href="/dashboard/scrapy/project/list">Project List</a>
                     </li>
                     <li>
-                        <a href="/supervisor/dashboard/scrapy/spider/list">Spider List</a>
+                        <a href="/dashboard/scrapy/spider/list">Spider List</a>
                     </li>
                     <li>
-                        <a href="/supervisor/dashboard/scrapy/job/schedule">Schedule</a>
+                        <a href="/dashboard/scrapy/job/schedule">Schedule</a>
                     </li>
                 </ul>
             </li>
@@ -47,7 +47,7 @@
                 </a>
                 <ul class="sidenav-second-level collapse" id="elasticsearchPages">
                     <li>
-                        <a href="/supervisor/dashboard/elasticsearch/cluster/health">Cluster Health</a>
+                        <a href="/dashboard/elasticsearch/cluster/health">Cluster Health</a>
                     </li>
                 </ul>
             </li>
@@ -195,7 +195,7 @@
                     <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-primary" href="/supervisor/login" onclick="logout()"
+                        <a class="btn btn-primary" href="/login" onclick="logout()"
                            id="logout-btn">Logout
                         </a>
                     </div>

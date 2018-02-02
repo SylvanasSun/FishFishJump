@@ -1,7 +1,7 @@
 import threading
 import time
 
-from fish_webapp.cache import is_cacheable, get_cached, set_cached, CacheKeys
+from fish_dashboard.cache import is_cacheable, get_cached, set_cached, CacheKeys
 from flask import Blueprint, current_app, jsonify, request, Response, session
 
 from fish_core.search_engine import ElasticsearchClient, get_documents_count_from_mongo

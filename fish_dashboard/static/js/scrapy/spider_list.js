@@ -16,7 +16,7 @@ function generateSpiderList(list) {
 }
 
 $.ajax({
-    url: "/supervisor/scrapyd/spider/list",
+    url: "/scrapyd/spider/list",
     type: "GET",
     success: function (data) {
         generateSpiderList(data);

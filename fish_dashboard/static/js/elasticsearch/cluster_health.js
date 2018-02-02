@@ -45,7 +45,7 @@ function enable_transfer() {
 
     // Listen event from server then dynamic modify progress bar
     if (typeof (EventSource) !== "undefined") {
-        eventSource = new EventSource("/supervisor/elasticsearch/transfer/progress");
+        eventSource = new EventSource("/elasticsearch/transfer/progress");
         eventSource.onerror = function (event) {
             eventSource.close();
             console.log('Acquire progress data failure because SSE connection have is interrupted.');
@@ -70,7 +70,7 @@ function enable_transfer() {
 
     // Send asynchronous request for enable data transfer
     $.ajax({
-        url: "/supervisor/elasticsearch/enable/transfer",
+        url: "/elasticsearch/enable/transfer",
         type: "POST",
         data: {
             "mongo_host": host,
@@ -117,7 +117,7 @@ function enable_auto_transfer() {
     }
 
     $.ajax({
-        url: "/supervisor/elasticsearch/enable/auto/transfer",
+        url: "/elasticsearch/enable/auto/transfer",
         type: "POST",
         data: {
             "mongo_host": host,
@@ -149,7 +149,7 @@ function enable_auto_transfer() {
 
 function cancel_auto_transfer() {
     $.ajax({
-        url: "/supervisor/elasticsearch/cancel/auto/transfer",
+        url: "/elasticsearch/cancel/auto/transfer",
         type: "POST",
         success: function (data) {
             if (data.status === "success") {
@@ -169,7 +169,7 @@ function cancel_auto_transfer() {
 }
 
 $.ajax({
-    url: "/supervisor/elasticsearch/cluster/health/",
+    url: "/elasticsearch/cluster/health/",
     type: "GET",
     success: function (data) {
         $("#cluster_name").text("Cluster Name: " + data.cluster_name);
@@ -193,7 +193,7 @@ $.ajax({
 });
 
 $.ajax({
-    url: "/supervisor/elasticsearch/auto/transfer/status",
+    url: "/elasticsearch/auto/transfer/status",
     type: "GET",
     success: function (data) {
         var is_auto_transfer = data.is_auto_transfer;

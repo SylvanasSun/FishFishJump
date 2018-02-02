@@ -22,7 +22,7 @@ def read_requirements(filename):
             if not line.startswith('#')]
 
 
-packages = ['fish_core', 'fish_crawlers', 'fish_webapp']
+packages = ['fish_core', 'fish_crawlers', 'fish_dashboard']
 
 setup(
     name='FishFishJump',
@@ -39,7 +39,7 @@ setup(
     keywords='FishFishJump python scrapy scrapy-redis',
     entry_points={
         'console_scripts': [
-            'fishweb=fish_webapp.app:main'
+            'fish_dashboard=fish_dashboard.app:main'
         ]
     },
     classifiers=[

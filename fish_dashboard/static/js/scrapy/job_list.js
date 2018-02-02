@@ -1,6 +1,6 @@
 function cancelJob(project_name, job_id) {
     $.ajax({
-        url: "/supervisor/scrapyd/job/cancel",
+        url: "/scrapyd/job/cancel",
         type: "POST",
         data: {
             "project_name": project_name,
@@ -73,7 +73,7 @@ function generateFinishedJobList(list) {
 }
 
 $.ajax({
-    url: "/supervisor/scrapyd/job/list",
+    url: "/scrapyd/job/list",
     type: "GET",
     success: function (data) {
         generatePendingJobList(data.pending);

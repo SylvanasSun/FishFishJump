@@ -4,13 +4,13 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from fish_webapp import settings
-from fish_webapp.cache import initialize_cache
-from fish_webapp.cli import enable_opts
-from fish_webapp.views.dashboard import dashboard
-from fish_webapp.views.elasticsearch import elasticsearch, init_elasticsearch_client
-from fish_webapp.views.scrapyd import scrapyd, init_scrapyd_agent
-from fish_webapp.views.user import user
+from fish_dashboard import settings
+from fish_dashboard.cache import initialize_cache
+from fish_dashboard.cli import enable_opts
+from fish_dashboard.views.dashboard import dashboard
+from fish_dashboard.views.elasticsearch import elasticsearch, init_elasticsearch_client
+from fish_dashboard.views.scrapyd import scrapyd, init_scrapyd_agent
+from fish_dashboard.views.user import user
 from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template
 
 
@@ -64,10 +64,10 @@ initialize_cache(app)
 init_client(app)
 
 # register blueprint
-app.register_blueprint(dashboard, url_prefix='/supervisor/dashboard')
-app.register_blueprint(user, url_prefix='/supervisor/user')
-app.register_blueprint(scrapyd, url_prefix='/supervisor/scrapyd')
-app.register_blueprint(elasticsearch, url_prefix='/supervisor/elasticsearch')
+app.register_blueprint(dashboard, url_prefix='/dashboard')
+app.register_blueprint(user, url_prefix='/user')
+app.register_blueprint(scrapyd, url_prefix='/scrapyd')
+app.register_blueprint(elasticsearch, url_prefix='/elasticsearch')
 
 
 @app.route('/favicon.ico')
@@ -78,7 +78,7 @@ def favicon():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('dashboard.home_page'))
 
 
 @app.errorhandler(404)
@@ -94,8 +94,8 @@ def server_error(e):
 @app.before_request
 def login_interceptor():
     path = request.path
-    if path.startswith('/supervisor'):
-        if path == '/supervisor/user/login.html' or path == '/supervisor/user/login':
+    if path.startswith('/dashboard'):
+        if path == '/user/login.html' or path == '/user/login':
             return
         if not 'is_login' in session or not session['is_login']:
             return redirect(url_for('user.login'))

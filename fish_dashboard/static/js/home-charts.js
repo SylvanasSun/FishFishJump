@@ -57,7 +57,7 @@ var myPieChart = new Chart(ctx, {
 
 function get_scrapyd_status() {
     $.ajax({
-        url: "/supervisor/scrapyd/status/chart",
+        url: "/scrapyd/status/chart",
         type: "GET",
         async: false,
         success: function (data) {

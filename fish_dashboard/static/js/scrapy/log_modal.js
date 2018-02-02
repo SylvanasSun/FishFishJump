@@ -8,7 +8,7 @@ $('#logModal').on('shown.bs.modal', function () {
     var spiderName = $("#logsInfoModalHiddenSpiderName").val();
     $("#logsInfoModalTitle").text("Logs Info(" + projectName + "-" + spiderName + ")");
     $.ajax({
-        url: "/supervisor/scrapyd/job/logs",
+        url: "/scrapyd/job/logs",
         type: "GET",
         data: {
             "project_name": projectName,

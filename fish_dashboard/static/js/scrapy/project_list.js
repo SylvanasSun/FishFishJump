@@ -15,7 +15,7 @@ function generateProjectList(list) {
 }
 
 $.ajax({
-    url: "/supervisor/scrapyd/project/list",
+    url: "/scrapyd/project/list",
     type: "GET",
     success: function (data) {
         generateProjectList(data);
