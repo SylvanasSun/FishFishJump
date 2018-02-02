@@ -125,10 +125,13 @@ class ElasticsearchClient(object):
         :return: void
         """
         mongo_client = MongoClient(mongo_client_params, host=mongo_host, port=mongo_port)
-        collection = mongo_client[mongo_db][mongo_collection]
-        if indexed_flag_field_name != '':
-            mongo_query_params.update({indexed_flag_field_name: False})
-        mongo_docs = collection.find(mongo_query_params)
+        try:
+            collection = mongo_client[mongo_db][mongo_collection]
+            if indexed_flag_field_name != '':
+                mongo_query_params.update({indexed_flag_field_name: False})
+            mongo_docs = collection.find(mongo_query_params)
+        finally:
+            mongo_client.close()
         # Joint actions of Elasticsearch for execute bulk api
         actions = []
         id_array = []
@@ -144,7 +147,6 @@ class ElasticsearchClient(object):
             action['_source'] = doc
             actions.append(action)
         success, failed = es_helpers.bulk(self.client, actions)
-        mongo_client.close()
         logger.info(
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
@@ -164,9 +166,12 @@ class ElasticsearchClient(object):
                            mongo_collection,
                            id_array, update):
         client = MongoClient(host=mongo_host, port=mongo_port)
-        collection = client[mongo_db][mongo_collection]
-        for id in id_array:
-            collection.update({'_id': id}, {'$set': update})
+        try:
+            collection = client[mongo_db][mongo_collection]
+            for id in id_array:
+                collection.update({'_id': id}, {'$set': update})
+        finally:
+            client.close()
 
     def create(self, index, doc_type, id, body, params={}):
         result = self.client.create(index, doc_type, id, body, params=params)
@@ -463,6 +468,9 @@ def get_documents_count_from_mongo(db,
                                    mongo_host=default.MONGO_HOST,
                                    mongo_port=default.MONGO_PORT):
     client = MongoClient(host=mongo_host, port=mongo_port)
-    result = client[db][collection].count(query_params)
-    logger.info('Acquire documents count from MongoDB is done, result: %s' % result)
+    try:
+        result = client[db][collection].count(query_params)
+        logger.info('Acquire documents count from MongoDB is done, result: %s' % result)
+    finally:
+        client.close()
     return result
