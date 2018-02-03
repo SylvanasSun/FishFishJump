@@ -1,7 +1,13 @@
-from werkzeug.contrib.cache import SimpleCache
 import logging
+import json
+import functools
+from werkzeug.contrib.cache import SimpleCache
 
 logger = logging.getLogger(__name__)
+
+GLOBAL_CACHE = 'GLOBAL_CACHE'
+
+CACHE_EXPIRE = 'CACHE_EXPIRE'
 
 
 class CacheKeys():
@@ -18,23 +24,35 @@ class CacheStrategy():
 
 
 def is_cacheable(current_app, cache_key):
-    return current_app.config['ENABLE_CACHE'] and current_app.config['GLOBAL_CACHE'].get(cache_key) is not None
+    return current_app.config[GLOBAL_CACHE].get(cache_key) is not None
 
 
 def set_cached(current_app, cache_key, data):
-    if current_app.config['ENABLE_CACHE']:
-        current_app.config['GLOBAL_CACHE'].set(cache_key, data,
-                                               timeout=current_app.config['CACHE_EXPIRE'])
+    current_app.config[GLOBAL_CACHE].set(cache_key, data,
+                                         timeout=current_app.config[CACHE_EXPIRE])
 
 
 def get_cached(current_app, cache_key):
-    return current_app.config['GLOBAL_CACHE'].get(cache_key)
+    return current_app.config[GLOBAL_CACHE].get(cache_key)
 
 
 def initialize_cache(app, strategy=CacheStrategy.SIMPLE):
-    if app.config['ENABLE_CACHE']:
-        if strategy == CacheStrategy.SIMPLE:
-            app.config['GLOBAL_CACHE'] = SimpleCache()
-        logger.info('Initialize global cache completion strategy: %s' % strategy)
-    else:
-        logger.info('Initialize global cache failure, current configuration does not support cache')
+    if strategy == CacheStrategy.SIMPLE:
+        app.config[GLOBAL_CACHE] = SimpleCache()
+    logger.info('Initialize global cache completion strategy: %s' % strategy)
+
+
+def cache(flask_app, key, serializable_func=json.dumps):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            if is_cacheable(flask_app, key):
+                logger.info('Hit the cache %s and return data in the cache' % key)
+                return serializable_func(get_cached(flask_app, key))
+            result = func(*args, **kw)
+            set_cached(flask_app, key, result)
+            return serializable_func(result)
+
+        return wrapper
+
+    return decorator
