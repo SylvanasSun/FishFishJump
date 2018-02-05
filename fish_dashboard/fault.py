@@ -5,6 +5,7 @@ import logging
 import threading
 import time
 
+from fish_dashboard.utils.common_utils import unite_dict
 from fish_dashboard.cache import set_cached, get_cached
 
 lock = threading.Lock()
@@ -21,7 +22,7 @@ MAX_FAILURE_TIMES = 'MAX_FAILURE_TIMES'
 
 MAX_FAILURE_MESSAGE_KEY = 'MAX_FAILURE_MESSAGE_KEY'
 
-MAX_FAILURE_MESSAGE = 'The number of the failure retry reach the upper limit'
+MAX_FAILURE_MESSAGE = '<SERVER KEY %s> The number of the failure retry reach the upper limit'
 
 FAILURE_SLEEP_TIME = 'FAILURE_SLEEP_TIME'
 
@@ -35,11 +36,12 @@ def use_backup_if_fail(app, key):
     try:
         if key not in backup:
             backup[key] = {}
-        if key in fail_times and fail_times[key] > app.config[MAX_FAILURE_TIMES]:
+        if key in fail_times and fail_times[key] % app.config[MAX_FAILURE_TIMES] == 0:
             logger.error(
                 '<SERVER KEY %s> At present already reaching the upper limit of the max failure times, failure times: %s' % (
                     key, fail_times[key]))
-            return backup[key].update({app.config[MAX_FAILURE_MESSAGE_KEY]: MAX_FAILURE_MESSAGE})
+            message = {app.config[MAX_FAILURE_MESSAGE_KEY]: MAX_FAILURE_MESSAGE % key}
+            return unite_dict(backup[key], message)
         else:
             logger.info('<SERVER KEY %s> Request fail or in a status of sleep time window and return backup data %s' % (
                 key, backup[key]))

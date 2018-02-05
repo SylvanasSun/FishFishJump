@@ -14,12 +14,20 @@ function generateProjectList(list) {
     }
 }
 
-$.ajax({
-    url: "/scrapyd/project/list",
-    type: "GET",
-    success: function (data) {
-        generateProjectList(data);
-    }
-});
+function ajax_project_list() {
+    $.ajax({
+        url: "/scrapyd/project/list",
+        type: "GET",
+        success: function (data) {
+            timeout_alert(data[polling_info.failure_message_key]);
+            generateProjectList(data);
+        },
+        error: function (xhr, message, throwable) {
+            ajax_error_alert(xhr.status, message);
+        }
+    });
+}
+
+invoke_polling(ajax_project_list);
 
 $("#projectListDataTable").DataTable();

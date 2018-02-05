@@ -35,11 +35,6 @@ def parse_opts(config):
                       action='store_true',
                       dest='TESTING',
                       default=config.get('TESTING'))
-    parser.add_option('--uncached',
-                      help='disable cache of the flask, default: enable',
-                      action='store_false',
-                      dest='ENABLE_CACHE',
-                      default=config.get('ENABLE_CACHE'))
     parser.add_option('--cached-expire',
                       help='expire of the flask cache, default: %s' % config.get('CACHE_EXPIRE'),
                       type='int',
@@ -73,6 +68,31 @@ def parse_opts(config):
                       type='string',
                       dest='ELASTICSEARCH_HOSTS',
                       default=config.get('ELASTICSEARCH_HOSTS'))
+    parser.add_option('--polling-interval',
+                      help='the time of the interval time for real-time dynamic update, units second default: %s ' % config.get(
+                          'POLLING_INTERVAL_TIME'),
+                      type='int',
+                      dest='POLLING_INTERVAL_TIME',
+                      default=config.get('POLLING_INTERVAL_TIME'))
+    parser.add_option('--failure-sleep-time',
+                      help='if connected fail will turn to this time window and return backup data in this time window, units second default: %s ' % config.get(
+                          'FAILURE_SLEEP_TIME'),
+                      type='int',
+                      dest='FAILURE_SLEEP_TIME',
+                      default=config.get('FAILURE_SLEEP_TIME'))
+    parser.add_option('--max-failure-times',
+                      help='the number of the max failure times if occurred fail reaching the upper limit will sent message into the front-end, default: %s ' % config.get(
+                          'MAX_FAILURE_TIMES'),
+                      type='int',
+                      dest='MAX_FAILURE_TIMES',
+                      default=config.get('MAX_FAILURE_TIMES'))
+    parser.add_option('--max-failure-message-key',
+                      help='the string of the key for message sent after reaching the upper limit, default: %s ' % config.get(
+                          'MAX_FAILURE_MESSAGE_KEY'),
+                      type='string',
+                      dest='MAX_FAILURE_MESSAGE_KEY',
+                      default=config.get('MAX_FAILURE_MESSAGE_KEY'))
+
     return parser.parse_args()
 
 
@@ -86,10 +106,13 @@ def enable_opts(config):
         SCRAPYD_URL=opts.SCRAPYD_URL,
         ADMIN_USERNAME=opts.ADMIN_USERNAME,
         ADMIN_PASSWORD=opts.ADMIN_PASSWORD,
-        ENABLE_CACHE=opts.ENABLE_CACHE,
         CACHE_EXPIRE=opts.CACHE_EXPIRE,
         VERBOSE=opts.VERBOSE,
         LOG_FILE_DIR=opts.LOG_FILE_DIR,
         LOG_FILE_BASIS_NAME=opts.LOG_FILE_BASIS_NAME,
-        ELASTICSEARCH_HOSTS=opts.ELASTICSEARCH_HOSTS
+        ELASTICSEARCH_HOSTS=opts.ELASTICSEARCH_HOSTS,
+        POLLING_INTERVAL_TIME=opts.POLLING_INTERVAL_TIME,
+        FAILURE_SLEEP_TIME=opts.FAILURE_SLEEP_TIME,
+        MAX_FAILURE_TIMES=opts.MAX_FAILURE_TIMES,
+        MAX_FAILURE_MESSAGE_KEY=opts.MAX_FAILURE_MESSAGE_KEY
     )

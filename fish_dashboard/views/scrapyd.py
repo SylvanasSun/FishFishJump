@@ -1,9 +1,10 @@
-from fish_dashboard.cache import CacheKeys, is_cacheable, get_cached, set_cached
+from flask import Blueprint, jsonify, current_app, request
+
+from fish_dashboard.cache import CacheKeys
+from fish_dashboard.fault import fault_tolerant_by_backup
 from fish_dashboard.scrapyd.scrapyd_agent import ScrapydAgent
 from fish_dashboard.scrapyd.scrapyd_service import get_scrapyd_status, get_all_job_list, packing_job_ext_info, \
-    get_logs_info, \
-    cancel_job, add_version, get_all_project_list, get_all_spider_list, schedule_job
-from flask import Blueprint, jsonify, current_app, request
+    get_logs_info, cancel_job, add_version, get_all_project_list, get_all_spider_list, schedule_job
 
 scrapyd = Blueprint('scrapyd', __name__)
 
@@ -16,33 +17,27 @@ def init_scrapyd_agent(scrapyd_url):
 
 
 @scrapyd.route('/status/chart', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.SCRAPYD_STATUS_KEY,
+                          serializable_func=jsonify)
 def scrapyd_status():
-    if is_cacheable(current_app, CacheKeys.SCRAPYD_STATUS_KEY):
-        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_STATUS_KEY))
-    else:
-        result = get_scrapyd_status(agent).__dict__
-        set_cached(current_app, CacheKeys.SCRAPYD_STATUS_KEY, result)
-        return jsonify(result)
+    return get_scrapyd_status(agent).__dict__
 
 
 @scrapyd.route('/job/list', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.SCRAPYD_JOB_LIST,
+                          serializable_func=jsonify)
 def job_list():
-    if is_cacheable(current_app, CacheKeys.SCRAPYD_JOB_LIST):
-        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_JOB_LIST))
-    else:
-        result = generate_job_list_for_jsonify()
-        set_cached(current_app, CacheKeys.SCRAPYD_JOB_LIST, result)
-        return jsonify(result)
+    return generate_job_list_for_jsonify()
 
 
 @scrapyd.route('/job/logs', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.SCRAPYD_LOGS_INFO,
+                          serializable_func=jsonify)
 def logs_info():
-    if is_cacheable(current_app, CacheKeys.SCRAPYD_LOGS_INFO):
-        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_LOGS_INFO))
-    else:
-        result = get_logs_info(agent, request.args.get('project_name'), request.args.get('spider_name'))
-        set_cached(current_app, CacheKeys.SCRAPYD_LOGS_INFO, result)
-        return jsonify(result)
+    return get_logs_info(agent, request.args.get('project_name'), request.args.get('spider_name'))
 
 
 @scrapyd.route('/job/cancel', methods=['POST'])
@@ -56,25 +51,23 @@ def add_version():
 
 
 @scrapyd.route('/project/list', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.SCRAPYD_PROJECT_LIST,
+                          serializable_func=jsonify)
 def project_list():
-    if is_cacheable(current_app, CacheKeys.SCRAPYD_PROJECT_LIST):
-        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_PROJECT_LIST))
-    else:
-        result = get_all_project_list(agent)
-        result = [r.__dict__ for r in result]
-        set_cached(current_app, CacheKeys.SCRAPYD_PROJECT_LIST, result)
-        return jsonify(result)
+    result = get_all_project_list(agent)
+    result = [r.__dict__ for r in result]
+    return result
 
 
 @scrapyd.route('/spider/list', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.SCRAPYD_SPIDER_LIST,
+                          serializable_func=jsonify)
 def spider_list():
-    if is_cacheable(current_app, CacheKeys.SCRAPYD_SPIDER_LIST):
-        return jsonify(get_cached(current_app, CacheKeys.SCRAPYD_SPIDER_LIST))
-    else:
-        result = get_all_spider_list(agent)
-        result = [r.__dict__ for r in result]
-        set_cached(current_app, CacheKeys.SCRAPYD_SPIDER_LIST, result)
-        return jsonify(result)
+    result = get_all_spider_list(agent)
+    result = [r.__dict__ for r in result]
+    return result
 
 
 @scrapyd.route('/job/schedule', methods=['POST'])

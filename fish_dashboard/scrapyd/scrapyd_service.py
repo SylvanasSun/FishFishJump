@@ -3,6 +3,10 @@ from fish_dashboard.scrapyd.scrapyd_db import SqlLite3Agent
 from fish_dashboard.utils.common_utils import format_dict_to_str, get_current_date, list_to_str, str_to_list
 
 
+class ScrapydTimeoutException(Exception):
+    pass
+
+
 class ScrapydJobExtInfoSQLSet():
     TABLE_NAME = 'scrapyd_job_ext_info'
     DB_FILE_NAME = 'scrapyd.db'
@@ -73,7 +77,10 @@ def packing_job_ext_info(job_lsit_DO):
 
 def get_scrapyd_status(agent):
     # record the amount of the project and spider
-    project_list = agent.get_project_list()['projects']
+    project_list = agent.get_project_list()
+    if project_list['status'] == 'error':
+        raise ScrapydTimeoutException
+    project_list = project_list['projects']
     spider_list = []
     for p in project_list:
         s = agent.get_spider_list(project_name=p)
@@ -114,7 +121,10 @@ def get_all_job_list(agent):
     Get all job list by each project name then
     return three job list on the base of different status(pending,running,finished).
     """
-    project_list = agent.get_project_list()['projects']
+    project_list = agent.get_project_list()
+    if project_list['status'] == 'error':
+        raise ScrapydTimeoutException
+    project_list = project_list['projects']
     pending_job_list = []
     running_job_list = []
     finished_job_list = []
@@ -151,7 +161,10 @@ def get_all_job_list(agent):
 
 
 def get_all_project_list(agent):
-    project_name_list = agent.get_project_list()['projects']
+    project_name_list = agent.get_project_list()
+    if project_name_list['status'] == 'error':
+        raise ScrapydTimeoutException
+    project_name_list = project_name_list['projects']
     project_list = []
     for project_name in project_name_list:
         version_list = agent.get_version_list(project_name)['versions']
@@ -170,7 +183,10 @@ def get_all_project_list(agent):
 
 
 def get_all_spider_list(agent):
-    project_name_list = agent.get_project_list()['projects']
+    project_name_list = agent.get_project_list()
+    if project_name_list['status'] == 'error':
+        raise ScrapydTimeoutException
+    project_name_list = project_name_list['projects']
     spider_list = []
     for project_name in project_name_list:
         spider_name_list = agent.get_spider_list(project_name)['spiders']

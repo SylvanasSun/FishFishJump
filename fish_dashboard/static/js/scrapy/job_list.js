@@ -72,16 +72,25 @@ function generateFinishedJobList(list) {
     }
 }
 
-$.ajax({
-    url: "/scrapyd/job/list",
-    type: "GET",
-    success: function (data) {
-        generatePendingJobList(data.pending);
-        generateRunningJobList(data.running);
-        generateFinishedJobList(data.finished);
-    }
-});
+function ajax_job_list() {
+    $.ajax({
+        url: "/scrapyd/job/list",
+        type: "GET",
+        success: function (data) {
+            timeout_alert(data[polling_info.failure_message_key]);
+            if (not_undefined([data.pending, data.running, data.finished])) {
+                generatePendingJobList(data.pending);
+                generateRunningJobList(data.running);
+                generateFinishedJobList(data.finished);
+            }
+        },
+        error: function (xhr, message, throwable) {
+            ajax_error_alert(xhr.status, message);
+        }
+    });
+}
 
+invoke_polling(ajax_job_list);
 
 $("#pendingJobListDataTable").DataTable();
 $("#runningJobListDataTable").DataTable();

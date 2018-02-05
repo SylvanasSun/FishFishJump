@@ -24,10 +24,10 @@ def before_logging(func):
 
 
 @before_logging
-def request_get(url, data, retry_times=6):
+def request_get(url, data, retry_times=3, timeout=0.5):
     for i in range(retry_times):
         try:
-            result = requests.get(url, params=data)
+            result = requests.get(url, timeout=timeout, params=data)
         except Exception as e:
             logging.warning('request[get]: %s - failure, retry times %s ' % (url, i + 1))
             continue
@@ -35,22 +35,22 @@ def request_get(url, data, retry_times=6):
 
 
 @before_logging
-def request_post(url, data, retry_times=6):
+def request_post(url, data, retry_times=3, timeout=0.5):
     for i in range(retry_times):
         try:
-            result = requests.post(url, data=data)
+            result = requests.post(url, timeout=timeout, data=data)
         except Exception as e:
             logging.warning('request[post]: %s - failure, retry times %s ' % (url, i + 1))
             continue
         return result
 
 
-def request(url, data=None, method_type=METHOD_GET, retry_times=6, return_type=RETURN_TEXT):
+def request(url, data=None, method_type=METHOD_GET, retry_times=3, timeout=0.5, return_type=RETURN_TEXT):
     result = None
     if method_type == METHOD_GET:
-        result = request_get(url, data, retry_times)
+        result = request_get(url, data, retry_times, timeout)
     if method_type == METHOD_POST:
-        result = request_post(url, data, retry_times)
+        result = request_post(url, data, retry_times, timeout)
 
     if not result or result == None: return result
     if return_type == RETURN_TEXT:

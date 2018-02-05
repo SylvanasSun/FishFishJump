@@ -15,12 +15,20 @@ function generateSpiderList(list) {
     }
 }
 
-$.ajax({
-    url: "/scrapyd/spider/list",
-    type: "GET",
-    success: function (data) {
-        generateSpiderList(data);
-    }
-});
+function ajax_spider_list() {
+    $.ajax({
+        url: "/scrapyd/spider/list",
+        type: "GET",
+        success: function (data) {
+            timeout_alert(data[polling_info.failure_message_key]);
+            generateSpiderList(data);
+        },
+        error: function (xhr, message, throwable) {
+            ajax_error_alert(xhr.status, message);
+        }
+    });
+}
+
+invoke_polling(ajax_spider_list);
 
 $("#spiderListDataTable").DataTable();

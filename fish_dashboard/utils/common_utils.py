@@ -25,3 +25,9 @@ def list_to_str(list, separator=','):
 def str_to_list(str, separator):
     return str.split(separator)
 
+
+def unite_dict(a, b):
+    c = {}
+    c.update(a)
+    c.update(b)
+    return c

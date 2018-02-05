@@ -4,6 +4,8 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
+from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template, jsonify
+
 from fish_dashboard import settings
 from fish_dashboard.cache import initialize_cache
 from fish_dashboard.cli import enable_opts
@@ -11,7 +13,6 @@ from fish_dashboard.views.dashboard import dashboard
 from fish_dashboard.views.elasticsearch import elasticsearch, init_elasticsearch_client
 from fish_dashboard.views.scrapyd import scrapyd, init_scrapyd_agent
 from fish_dashboard.views.user import user
-from flask import Flask, session, redirect, url_for, request, send_from_directory, render_template
 
 
 def init_client(app):
@@ -79,6 +80,16 @@ def favicon():
 @app.route('/')
 def index():
     return redirect(url_for('dashboard.home_page'))
+
+
+@app.route('/polling/info', methods=['GET'])
+def polling_info():
+    interval = app.config['POLLING_INTERVAL_TIME']
+    if interval > 0:
+        return jsonify({
+            'polling_interval': interval,
+            'failure_message_key': app.config['MAX_FAILURE_MESSAGE_KEY']
+        })
 
 
 @app.errorhandler(404)

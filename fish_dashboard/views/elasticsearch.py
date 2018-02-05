@@ -1,10 +1,11 @@
 import threading
 import time
 
-from fish_dashboard.cache import is_cacheable, get_cached, set_cached, CacheKeys
 from flask import Blueprint, current_app, jsonify, request, Response, session
 
 from fish_core.search_engine import ElasticsearchClient, get_documents_count_from_mongo
+from fish_dashboard.cache import CacheKeys
+from fish_dashboard.fault import fault_tolerant_by_backup
 
 elasticsearch = Blueprint('elasticsearch', __name__)
 
@@ -127,19 +128,11 @@ def cancel_auto_transfer():
 
 
 @elasticsearch.route('/cluster/health/', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.ELASTICSEARCH_CLUSTER_HEALTH,
+                          serializable_func=jsonify)
 def cluster_health_info():
-    if is_cacheable(current_app, CacheKeys.ELASTICSEARCH_CLUSTER_HEALTH):
-        return jsonify(get_cached(current_app, CacheKeys.ELASTICSEARCH_CLUSTER_HEALTH))
-    else:
-        result = es_client.cluster_health()
-        set_cached(current_app, CacheKeys.ELASTICSEARCH_CLUSTER_HEALTH, result)
-        return jsonify(result)
-
-
-@elasticsearch.route('/document/count/<index>', methods=['GET'])
-def index_document_count(index):
-    result = es_client.get_simple_info_for_index(index=index)
-    return jsonify({'document_count': result['docs_count']})
+    return es_client.cluster_health()
 
 
 @elasticsearch.route('/auto/transfer/status', methods=['GET'])
