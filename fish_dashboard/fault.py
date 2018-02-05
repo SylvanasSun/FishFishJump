@@ -5,7 +5,7 @@ import logging
 import threading
 import time
 
-from fish_dashboard.utils.common_utils import unite_dict
+from fish_core.utils.common_utils import unite_dict
 from fish_dashboard.cache import set_cached, get_cached
 
 lock = threading.Lock()
