@@ -8,3 +8,4 @@ six>=1.5.2
 Flask
 requests
 elasticsearch
+beautifulsoup4

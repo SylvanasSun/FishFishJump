@@ -31,3 +31,10 @@ def unite_dict(a, b):
     c.update(a)
     c.update(b)
     return c
+
+
+def check_validity_for_dict(keys, dict):
+    for key in keys:
+        if key not in dict or dict[key] is '' or dict[key] is None:
+            return False
+    return True

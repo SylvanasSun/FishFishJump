@@ -21,10 +21,56 @@
                     <input class="form-control" name="password" id="password" type="password"
                            placeholder="Password">
                 </div>
+                <hr>
+                <span>Register email info for alarm (Optional) Not send email when happening error if is not filled in the following form</span>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary" type="button" data-toggle="collapse"
+                            data-target="#email_info_collapse" aria-expanded="false"
+                            aria-controls="email_info_collapse">
+                        Show email form
+                    </button>
+                </div>
+                <hr>
+                <div class="collapse" id="email_info_collapse">
+                    <div class="form-group">
+                        <label for="email_server_host">Email server host</label>
+                        <input class="form-control" name="email_server_host" id="email_server_host" type="text"
+                               placeholder="Email server host">
+                    </div>
+                    <div class="form-group">
+                        <label for="email_server_port">Email server port</label>
+                        <input class="form-control" name="email_server_port" id="email_server_port" type="text"
+                               placeholder="Email server port">
+                    </div>
+                    <div class="form-group">
+                        <label for="sender_addr">Sender email address</label>
+                        <input class="form-control" name="sender_addr" id="sender_addr" type="text"
+                               placeholder="Sender email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="receiver_name">Receiver name</label>
+                        <input class="form-control" name="receiver_name" id="receiver_name" type="text"
+                               placeholder="Receiver name">
+                    </div>
+                    <div class="form-group">
+                        <label for="receiver_addr">Receiver email address</label>
+                        <input class="form-control" name="receiver_addr" id="receiver_addr" type="text"
+                               placeholder="Receiver email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="email_server_authorization_code">Email server authorization code</label>
+                        <input class="form-control" name="email_server_authorization_code"
+                               id="email_server_authorization_code" type="text"
+                               placeholder="Email server authorization code">
+                    </div>
+                </div>
                 <input class="btn btn-primary btn-block" type="submit" name="Login">
             </form>
         </div>
     </div>
 </div>
+
+<script src="/static/jquery/jquery.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 {% endblock %}
