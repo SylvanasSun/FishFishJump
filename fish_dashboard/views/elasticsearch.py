@@ -135,11 +135,11 @@ def cluster_health_info():
     return es_client.cluster_health()
 
 
-@elasticsearch.route('/cluster/indices', methods=['GET'])
+@elasticsearch.route('/cluster/indices/health', methods=['GET'])
 @fault_tolerant_by_backup(flask_app=current_app,
                           key=CacheKeys.ELASTICSEARCH_CLUSTER_INDICES,
                           serializable_func=jsonify)
-def indices_info():
+def indices_health():
     return es_client.cluster_health_for_indices()[1]
 
 

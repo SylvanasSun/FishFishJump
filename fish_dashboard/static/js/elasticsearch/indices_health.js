@@ -1,10 +1,10 @@
-function ajax_indices_info() {
+function ajax_indices_health() {
     $.ajax({
-        url: "/elasticsearch/cluster/indices",
+        url: "/elasticsearch/cluster/indices/health",
         type: "GET",
         success: function (data) {
             timeout_alert(data[polling_info.failure_message_key]);
-            var tbody = $("#elasticsearch_indices_info_tbody");
+            var tbody = $("#elasticsearch_indices_health_tbody");
             tbody.children().remove();
             for (var i = 0; i < data.length; i++) {
                 var tr = $("<tr></tr>");
@@ -37,4 +37,4 @@ function ajax_indices_info() {
     });
 }
 
-invoke_polling(ajax_indices_info);
+invoke_polling(ajax_indices_health);

@@ -2,7 +2,7 @@
 
 {% block head %}
 {{ super() }}
-{% block title %}Elasticsearch Indices Info{% endblock %}
+{% block title %}Elasticsearch Indices Health{% endblock %}
 {% endblock %}
 
 {% block content_body %}
@@ -11,14 +11,14 @@
     <li class="breadcrumb-item">
         <a href="/dashboard">FishFishJump</a>
     </li>
-    <li class="breadcrumb-item active">Elasticsearch Indices Info</li>
+    <li class="breadcrumb-item active">Elasticsearch Indices Health</li>
 </ol>
 
 <div class="card mb-3">
-    <div class="card-header"><i class="fa fa-table"></i> Elasticsearch Indices Info</div>
+    <div class="card-header"><i class="fa fa-table"></i> Elasticsearch Indices Health</div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover" id="elasticsearch_indices_info_table">
+            <table class="table table-hover" id="elasticsearch_indices_health_table">
                 <thead class="thead-inverse">
                 <tr>
                     <th>#</th>
@@ -33,7 +33,7 @@
                     <th>Unassigned Shards</th>
                 </tr>
                 </thead>
-                <tbody id="elasticsearch_indices_info_tbody"></tbody>
+                <tbody id="elasticsearch_indices_health_tbody"></tbody>
             </table>
         </div>
     </div>
@@ -42,5 +42,5 @@
 
 {% block script %}
 {{ super() }}
-<script src="/static/js/elasticsearch/indices_info.js"></script>
+<script src="/static/js/elasticsearch/indices_health.js"></script>
 {% endblock %}

@@ -1,5 +1,6 @@
 function generateSpiderList(list) {
     var tableBody = $("#spiderListDataTableBody");
+    tableBody.children().remove();
     for (var i = 0; i < list.length; i++) {
         var tr = $("<tr></tr>");
         tr.append($("<td>" + list[i].spider_name + "</td>"));

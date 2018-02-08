@@ -11,6 +11,7 @@ function cancelJob(project_name, job_id) {
 
 function generatePendingJobList(list) {
     var tableBody = $("#pendingJobListDataTableBody");
+    tableBody.children().remove();
     for (var i = 0; i < list.length; i++) {
         var tr = $("<tr></tr>");
         tr.append($("<td>" + list[i].job_id + "</td>"));
@@ -31,6 +32,7 @@ function generatePendingJobList(list) {
 
 function generateRunningJobList(list) {
     var tableBody = $("#runningJobListDataTableBody");
+    tableBody.children().remove();
     for (var i = 0; i < list.length; i++) {
         var tr = $("<tr></tr>");
         tr.append($("<td>" + list[i].job_id + "</td>"));
@@ -52,6 +54,7 @@ function generateRunningJobList(list) {
 
 function generateFinishedJobList(list) {
     var tableBody = $("#finishedJobListDataTableBody");
+    tableBody.children().remove();
     for (var i = 0; i < list.length; i++) {
         var tr = $("<tr></tr>");
         tr.append($("<td>" + list[i].job_id + "</td>"));

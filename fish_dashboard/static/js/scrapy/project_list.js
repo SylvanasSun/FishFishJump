@@ -1,5 +1,6 @@
 function generateProjectList(list) {
     var tableBody = $("#projectListDataTableBody");
+    tableBody.children().remove();
     for (var i = 0; i < list.length; i++) {
         var tr = $("<tr></tr>");
         tr.append($("<td>" + list[i].project_name + "</td>"));
