@@ -32,7 +32,7 @@ function not_undefined(vars) {
 }
 
 function invoke_polling(func, func_args) {
-    if (not_undefined([polling_info, polling_info.polling_interval])) {
+    if (polling_info.polling_interval > 0) {
         window.setInterval(function () {
             if (not_undefined(func_args) && Array.isArray(func_args)) {
                 func.apply(this, func_args);

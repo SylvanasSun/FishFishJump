@@ -84,12 +84,10 @@ def index():
 
 @app.route('/polling/info', methods=['GET'])
 def polling_info():
-    interval = app.config['POLLING_INTERVAL_TIME']
-    if interval > 0:
-        return jsonify({
-            'polling_interval': interval,
-            'failure_message_key': app.config['MAX_FAILURE_MESSAGE_KEY']
-        })
+    return jsonify({
+        'polling_interval': app.config['POLLING_INTERVAL_TIME'],
+        'failure_message_key': app.config['MAX_FAILURE_MESSAGE_KEY']
+    })
 
 
 @app.errorhandler(404)

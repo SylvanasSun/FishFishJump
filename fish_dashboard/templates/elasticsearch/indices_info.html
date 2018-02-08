@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Elasticsearch Indices Info{% endblock %}
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Elasticsearch Indices Info</li>
+</ol>
+
+<div class="card mb-3">
+    <div class="card-header"><i class="fa fa-table"></i> Elasticsearch Indices Info</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="elasticsearch_indices_info_table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th>#</th>
+                    <th>Index Name</th>
+                    <th>Status</th>
+                    <th>Shards Number</th>
+                    <th>Replicas Number</th>
+                    <th>Active Primary Shards</th>
+                    <th>Active Shards</th>
+                    <th>Relocating Shards</th>
+                    <th>Initializing Shards</th>
+                    <th>Unassigned Shards</th>
+                </tr>
+                </thead>
+                <tbody id="elasticsearch_indices_info_tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+<script src="/static/js/elasticsearch/indices_info.js"></script>
+{% endblock %}

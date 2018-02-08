@@ -17,6 +17,7 @@ class CacheKeys():
     SCRAPYD_PROJECT_LIST = 'scrapyd_project_list'
     SCRAPYD_SPIDER_LIST = 'scrapyd_spider_list'
     ELASTICSEARCH_CLUSTER_HEALTH = 'elasticsearch_cluster_health'
+    ELASTICSEARCH_CLUSTER_INDICES = 'elasticsearch_cluster_indices'
 
 
 class CacheStrategy():

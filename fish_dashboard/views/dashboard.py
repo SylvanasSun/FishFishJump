@@ -33,3 +33,8 @@ def schedule_page():
 @dashboard.route('/elasticsearch/cluster/health')
 def cluster_health():
     return render_template('elasticsearch/cluster_health.html')
+
+
+@dashboard.route('/elasticsearch/cluster/indices')
+def cluster_indices_info():
+    return render_template('elasticsearch/indices_info.html')
