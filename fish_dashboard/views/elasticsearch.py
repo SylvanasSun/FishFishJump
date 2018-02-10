@@ -143,6 +143,14 @@ def indices_health():
     return es_client.cluster_health_for_indices()[1]
 
 
+@elasticsearch.route('/cluster/stats', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.ELASTICSEARCH_CLUSTER_STATS,
+                          serializable_func=jsonify)
+def cluster_stats():
+    return es_client.cluster_status_info()
+
+
 @elasticsearch.route('/auto/transfer/status', methods=['GET'])
 def auto_transfer_status():
     global is_auto_transfer

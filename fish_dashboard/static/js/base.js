@@ -59,3 +59,11 @@ function timeout_alert(message) {
 function ajax_error_alert(status_code, message) {
     swal("Oops!", "Ajax request happened error, status code: " + status_code + " message: " + message, "error");
 }
+
+function byte_to_gb(bytes_num, fixed) {
+    return (bytes_num / 1024 / 1024 / 1024).toFixed(fixed);
+}
+
+function byte_to_mb(bytes_num, fixed) {
+    return (bytes_num / 1024 / 1024).toFixed(fixed);
+}

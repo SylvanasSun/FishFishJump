@@ -18,6 +18,7 @@ class CacheKeys():
     SCRAPYD_SPIDER_LIST = 'scrapyd_spider_list'
     ELASTICSEARCH_CLUSTER_HEALTH = 'elasticsearch_cluster_health'
     ELASTICSEARCH_CLUSTER_INDICES = 'elasticsearch_cluster_indices'
+    ELASTICSEARCH_CLUSTER_STATS = 'elasticsearch_cluster_stats'
 
 
 class CacheStrategy():

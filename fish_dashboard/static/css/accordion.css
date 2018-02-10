@@ -1,0 +1,180 @@
+#accordion a:hover, a:focus {
+    outline: none;
+    text-decoration: none;
+}
+
+#accordion .panel {
+    border: 0px none;
+    box-shadow: none;
+}
+
+#accordion .panel-heading {
+    padding: 0;
+    background: #fff;
+}
+
+#accordion .panel-title a {
+    display: block;
+    position: relative;
+    background: transparent;
+    color: #de4d4e;
+    font-size: 14px;
+    font-weight: bolder;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    padding: 15px 50px;
+    border-bottom: 1px solid #de4d4e;
+    border-radius: 0 15px 0 15px;
+    transition: all 0.10s linear 0s;
+}
+
+#accordion .panel-title a.collapsed {
+    color: #808080;
+    border-bottom: 1px solid #d3d3d3;
+    margin: 0;
+}
+
+#accordion .panel-title a i {
+    color: #de4d4e;
+    position: absolute;
+    top: 14px;
+    left: 25px;
+}
+
+#accordion .panel-title a:before,
+#accordion .panel-title a.collapsed:before {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 36px;
+    border: 7px solid transparent;
+    border-top: 7px solid #de4d4e;
+}
+
+#accordion .panel-title a.collapsed:before {
+    content: "";
+    border: 0px none;
+}
+
+#accordion .panel-title a.collapsed:hover {
+    color: #6a6060;
+}
+
+#accordion .panel-title a:after,
+#accordion .panel-title a.collapsed:after {
+    content: "\f106";
+    font-family: FontAwesome;
+    color: #de4d4e;
+    font-size: 20px;
+    line-height: 20px;
+    position: absolute;
+    top: 14px;
+    right: 25px;
+}
+
+#accordion .panel-title a.collapsed:after {
+    content: "\f107";
+    color: #808080;
+}
+
+#accordion .panel-body {
+    border-top: 0 none;
+    color: #808080;
+}
+
+#accordion_second a:hover, a:focus {
+    outline: none;
+    text-decoration: none;
+}
+
+#accordion_second .panel {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin-bottom: 15px;
+}
+
+#accordion_second .panel-heading {
+    padding: 0;
+    border-radius: 0;
+    border: none;
+}
+
+#accordion_second .panel-title a {
+    display: block;
+    padding: 14px 30px 14px 70px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: #ef6145;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease 0s;
+}
+
+#accordion_second .panel-title a.collapsed {
+    background: #f8f8f8;
+    color: #1e4276;
+}
+
+#accordion_second .panel-title a.collapsed:hover {
+    color: #ef6145;
+}
+
+#accordion_second .panel-title a:before {
+    content: "";
+    width: 55px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 0;
+    left: -13px;
+    transform: skewX(-25deg);
+    transition: all 0.5s ease 0s;
+}
+
+#accordion_second .panel-title a.collapsed:hover:before {
+    background: #d7573e;
+}
+
+#accordion_second .panel-title a:after {
+    content: "\f047";
+    font-family: FontAwesome;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    color: #fff;
+    transform: translateY(-50%);
+}
+
+#accordion_second .panel-title a.collapsed:after {
+    color: #9f9f9f;
+}
+
+#accordion_second .panel-title a.collapsed:hover:after {
+    color: #fff;
+}
+
+#accordion_second .panel-body {
+    font-size: 14px;
+    color: #5a3245;
+    line-height: 25px;
+    padding: 20px 15px 20px 40px;
+    position: relative;
+    border: none;
+    transition: all 0.5s ease 0s;
+}
+
+#accordion_second .panel-body:before {
+    content: "";
+    width: 5px;
+    height: 40px;
+    background: #ef6145;
+    position: absolute;
+    top: 30px;
+    left: 0;
+}
+
+#accordion_second .panel-body p {
+    margin-bottom: 0;
+}

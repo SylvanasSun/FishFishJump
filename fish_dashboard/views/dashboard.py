@@ -11,30 +11,35 @@ def home_page():
 
 
 @dashboard.route('/scrapy/job/list')
-def job_list_page():
+def scrapy_job_list_page():
     return render_template('scrapy/job_list.html')
 
 
 @dashboard.route('/scrapy/project/list')
-def project_list_page():
+def scrapy_project_list_page():
     return render_template('scrapy/project_list.html')
 
 
 @dashboard.route('/scrapy/spider/list')
-def spider_list_page():
+def scrapy_spider_list_page():
     return render_template('scrapy/spider_list.html')
 
 
 @dashboard.route('/scrapy/job/schedule')
-def schedule_page():
+def scrapy_schedule_page():
     return render_template('scrapy/schedule.html')
 
 
 @dashboard.route('/elasticsearch/cluster/health')
-def cluster_health():
+def elasticsearch_cluster_health():
     return render_template('elasticsearch/cluster_health.html')
 
 
 @dashboard.route('/elasticsearch/cluster/indices/health')
-def cluster_indices_health():
+def elasticsearch_cluster_indices_health():
     return render_template('elasticsearch/indices_health.html')
+
+
+@dashboard.route('/elasticsearch/cluster/stats')
+def elasticsearch_cluster_stats():
+    return render_template('elasticsearch/cluster_stats.html')

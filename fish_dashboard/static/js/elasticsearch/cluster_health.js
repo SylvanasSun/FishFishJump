@@ -190,7 +190,10 @@ function ajax_cluster_health() {
             $("#initializing_shards").children("span").text(data.initializing_shards);
             $("#unassigned_shards").children("span").text(data.unassigned_shards);
             $("#delayed_unassigned_shards").children("span").text(data.delayed_unassigned_shards);
-            $("#active_shards_percentage").text(data.active_shards_percent_as_number + "%");
+            var percent = data.active_shards_percent_as_number;
+            var active_shards_percentage = $("#active_shards_percentage");
+            active_shards_percentage.children("span").text(percent + "%");
+            active_shards_percentage.attr("class", "c100 p" + Math.round(percent) + " big center");
         },
         error: function (xhr, message, throwable) {
             ajax_error_alert(xhr.status, message);

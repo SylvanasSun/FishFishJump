@@ -1,0 +1,729 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Elasticsearch Cluster Stats{% endblock %}
+<link href="/static/css/accordion.css" rel="stylesheet">
+<link href="/static/css/percentage-cyclic.css" rel="stylesheet">
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Elasticsearch Cluster Stats</li>
+</ol>
+
+<div class="row">
+    <!-- Nodes stats -->
+    <div class="col-6">
+        <div class="container-fluid">
+            <h4 class="text-center">Nodes Stats</h4>
+            <div class="panel-group" role="tablist" id="accordion" aria-multiselectable="true">
+                <!-- Basic info -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#nodes_stats_basic_collapse" aria-expanded="true"
+                               aria-controls="nodes_stats_basic_collapse">
+                                Basic info
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="nodes_stats_basic_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="nodes_stats_basic_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="nodes_basic_li_failed"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Failed
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_basic_li_successful"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Successful
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_basic_li_total"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Count -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#nodes_stats_count_collapse" aria-expanded="true"
+                               aria-controls="nodes_stats_count_collapse">
+                                Count
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="nodes_stats_count_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="nodes_stats_count_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="nodes_count_li_coordinating_only"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Coordinating only
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_count_li_data"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Data
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_count_li_ingest"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Ingest
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_count_li_master"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Master
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_count_li_total"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- File system -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#nodes_stats_fs_collapse" aria-expanded="true"
+                               aria-controls="nodes_stats_fs_collapse">
+                                File system
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="nodes_stats_fs_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="nodes_stats_fs_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="nodes_fs_li_available_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Available in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_fs_li_free_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Free in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_fs_li_total_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Operation system -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#nodes_stats_os_collapse" aria-expanded="true"
+                               aria-controls="nodes_stats_os_collapse">
+                                Operation system
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="nodes_stats_os_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="nodes_stats_os_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="nodes_os_li_allocated_processors"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Allocated processors
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_os_li_available_processors"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Available processors
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                            <a data-toggle="collapse" href="#nodes_os_li_mem_collapse" aria-expanded="true"
+                               aria-controls="nodes_os_li_mem_collapse" class="list-group-item">
+                                Memory info
+                            </a>
+                            <div class="collapse" id="nodes_os_li_mem_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group">
+                                        <li id="nodes_os_li_mem_free_in_bytes"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Free in bytes
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_os_li_mem_free_percent"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Free percent
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_os_li_mem_total_in_bytes"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Total in bytes
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_os_li_mem_used_in_bytes"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Used in bytes
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_os_li_mem_used_percent"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Used percent
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <a data-toggle="collapse" href="#nodes_os_li_names_collapse" aria-expanded="true"
+                               aria-controls="nodes_os_li_names_collapse" class="list-group-item">
+                                Names
+                            </a>
+                            <div class="collapse" id="nodes_os_li_names_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group" id="nodes_os_li_names">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Jvm -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#nodes_stats_jvm_collapse" aria-expanded="true"
+                               aria-controls="nodes_stats_jvm_collapse">
+                                Jvm info
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="nodes_stats_jvm_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="nodes_stats_jvm_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="nodes_jvm_li_max_uptime_in_millis"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Max uptime in millis
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_jvm_li_threads"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Threads
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                            <a data-toggle="collapse" href="#nodes_jvm_li_mem_collapse" aria-expanded="true"
+                               aria-controls="nodes_jvm_li_mem_collapse" class="list-group-item">
+                                Memory info
+                            </a>
+                            <div class="collapse" id="nodes_jvm_li_mem_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group">
+                                        <li id="nodes_jvm_li_mem_heap_max_in_bytes"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Heap max in bytes
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_jvm_li_mem_heap_used_in_bytes"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Heap used in bytes
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <a data-toggle="collapse" href="#nodes_jvm_li_versions_collapse" aria-expanded="true"
+                               aria-controls="nodes_jvm_li_versions_collapse" class="list-group-item">
+                                Versions
+                            </a>
+                            <div class="collapse" id="nodes_jvm_li_versions_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group" id="nodes_jvm_li_versions">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Other info -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#nodes_stats_other_collapse" aria-expanded="true"
+                               aria-controls="nodes_stats_other_collapse">
+                                Other
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="nodes_stats_other_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="nodes_stats_other_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="nodes_other_li_network_types_http_types"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Http types
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_other_li_network_types_transport_types"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Transport types
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="nodes_other_li_process_cpu_percent"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Cpu percent
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                            <a data-toggle="collapse" href="#nodes_other_li_open_file_descriptors_collapse"
+                               aria-expanded="true"
+                               aria-controls="nodes_other_li_open_file_descriptors_collapse" class="list-group-item">
+                                Open file descriptors
+                            </a>
+                            <div class="collapse" id="nodes_other_li_open_file_descriptors_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group">
+                                        <li id="nodes_other_li_open_file_descriptors_avg"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Avg
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_other_li_open_file_descriptors_max"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Max
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="nodes_other_li_open_file_descriptors_min"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Min
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <a data-toggle="collapse" href="#nodes_other_li_plugins_collapse" aria-expanded="true"
+                               aria-controls="nodes_other_li_plugins_collapse" class="list-group-item">
+                                Plugins
+                            </a>
+                            <div class="collapse" id="nodes_other_li_plugins_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group" id="nodes_other_li_plugins">
+                                    </ul>
+                                </div>
+                            </div>
+                            <a data-toggle="collapse" href="#nodes_other_li_versions_collapse" aria-expanded="true"
+                               aria-controls="nodes_other_li_versions_collapse" class="list-group-item">
+                                Versions
+                            </a>
+                            <div class="collapse" id="nodes_other_li_versions_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group" id="nodes_other_li_versions">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Indices Stats -->
+    <div class="col-6">
+        <div class="container-fluid">
+            <h4 class="text-center">Indices Stats</h4>
+            <div class="panel-group" role="tablist" id="accordion_second" aria-multiselectable="true">
+                <!-- Basic -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion_second"
+                               href="#indices_stats_basic_collapse" aria-expanded="true"
+                               aria-controls="indices_stats_basic_collapse">
+                                Basic info
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="indices_stats_basic_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="indices_stats_basic_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="indices_basic_li_completion_size_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Completion bytes size
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_basic_li_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Indices count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_basic_li_docs_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Documents count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_basic_li_docs_deleted"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Deleted documents
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_basic_li_fielddata_evictions"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Field data evictions
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_basic_li_fielddata_memory_size_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Field data memory bytes size
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_basic_li_store"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Indices store bytes size
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Query cache -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion_second"
+                               href="#indices_stats_query_collapse" aria-expanded="true"
+                               aria-controls="indices_stats_query_collapse">
+                                Query cache
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="indices_stats_query_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="indices_stats_query_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="indices_query_li_cache_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Cache count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_query_li_cache_size"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Cache size
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_query_li_evictions"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Evictions
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_query_li_hit_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Hit count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_query_li_memory_size_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Memory size in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_query_li_miss_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Miss count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_query_li_total_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Segments -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion_second"
+                               href="#indices_stats_segments_collapse" aria-expanded="true"
+                               aria-controls="indices_stats_segments_collapse">
+                                Segments
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="indices_stats_segments_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="indices_stats_segments_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="indices_segments_li_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_doc_values_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Document values memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_fixed_bit_set_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Fixed bit set memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_index_writer_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Index writer memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_max_unsafe_auto_id_timestamp"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Max unsafe auto id timestamp
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_norms_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Norms memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_points_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Points memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_stored_fields_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Stored fields memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_term_vectors_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Term vectors memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_terms_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Terms memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_segments_li_version_map_memory_in_bytes"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Version map memory in bytes
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                            <a data-toggle="collapse" href="#indices_segments_li_file_sizes_collapse"
+                               aria-expanded="true"
+                               aria-controls="indices_segments_li_file_sizes_collapse" class="list-group-item">
+                                File sizes
+                            </a>
+                            <div class="collapse" id="indices_segments_li_file_sizes_collapse">
+                                <div class="card card-block">
+                                    <ul class="list-group" id="indices_segments_li_file_sizes">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Shards -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion_second"
+                               href="#indices_stats_shards_collapse" aria-expanded="true"
+                               aria-controls="indices_stats_shards_collapse">
+                                Shards
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="indices_stats_shards_collapse" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="indices_stats_shards_collapse">
+                        <div class="panel-body">
+                            <ul class="list-group">
+                                <li id="indices_shards_li_primaries_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Primaries count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_shards_li_replication_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Replication count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                                <li id="indices_shards_li_total_count"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total count
+                                    <span class="badge badge-primary badge-pill"></span>
+                                </li>
+                            </ul>
+                            <a data-toggle="collapse" href="#indices_shards_li_primaries"
+                               aria-expanded="true"
+                               aria-controls="indices_shards_li_primaries" class="list-group-item">
+                                Primaries
+                            </a>
+                            <div class="collapse" id="indices_shards_li_primaries">
+                                <div class="card card-block">
+                                    <ul class="list-group">
+                                        <li id="indices_shards_li_primaries_avg"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Avg
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="indices_shards_li_primaries_max"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Max
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="indices_shards_li_primaries_min"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Min
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <a data-toggle="collapse" href="#indices_shards_li_replication"
+                               aria-expanded="true"
+                               aria-controls="indices_shards_li_replication" class="list-group-item">
+                                Replication
+                            </a>
+                            <div class="collapse" id="indices_shards_li_replication">
+                                <div class="card card-block">
+                                    <ul class="list-group">
+                                        <li id="indices_shards_li_replication_avg"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Avg
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="indices_shards_li_replication_max"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Max
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="indices_shards_li_replication_min"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Min
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <a data-toggle="collapse" href="#indices_shards_li_shards"
+                               aria-expanded="true"
+                               aria-controls="indices_shards_li_shards" class="list-group-item">
+                                Shards
+                            </a>
+                            <div class="collapse" id="indices_shards_li_shards">
+                                <div class="card card-block">
+                                    <ul class="list-group">
+                                        <li id="indices_shards_li_shards_avg"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Avg
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="indices_shards_li_shards_max"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Max
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                        <li id="indices_shards_li_shards_min"
+                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                            Min
+                                            <span class="badge badge-primary badge-pill"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pie graph -->
+<div class="row mt-5">
+    <div class="col-3">
+        <div class="inner-content text-center">
+            <div id="free_memory_percentage" class="c100 p0 big center">
+                <span>0%</span>
+                <div class="slice">
+                    <div class="bar"></div>
+                    <div class="fill"></div>
+                </div>
+            </div>
+        </div>
+        <h4 class="mt-4 text-center">Free memory</h4>
+    </div>
+    <div class="col-3">
+        <div class="inner-content text-center">
+            <div id="used_memory_percentage" class="c100 p0 big center">
+                <span>0%</span>
+                <div class="slice">
+                    <div class="bar"></div>
+                    <div class="fill"></div>
+                </div>
+            </div>
+        </div>
+        <h4 class="mt-4 text-center">Used memory</h4>
+    </div>
+    <div class="col-3">
+        <div class="inner-content text-center">
+            <div id="available_cpu_processor_percentage" class="c100 p0 big center">
+                <span>0%</span>
+                <div class="slice">
+                    <div class="bar"></div>
+                    <div class="fill"></div>
+                </div>
+            </div>
+        </div>
+        <h4 class="mt-4 text-center">Available cpu processor</h4>
+    </div>
+    <div class="col-3">
+        <div class="inner-content text-center">
+            <div id="used_jvm_heap_memory_percentage" class="c100 p0 big center">
+                <span>0%</span>
+                <div class="slice">
+                    <div class="bar"></div>
+                    <div class="fill"></div>
+                </div>
+            </div>
+        </div>
+        <h4 class="mt-4 text-center">Used jvm heap memory</h4>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+<script src="/static/js/elasticsearch/cluster_stats.js"></script>
+{% endblock %}
