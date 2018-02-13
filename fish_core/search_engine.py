@@ -27,7 +27,7 @@ class ElasticsearchClient(object):
     def __init__(self):
         self.client = None
 
-    def from_normal(self, hosts=default.ELASTICSEARCH_HOSTS):
+    def from_normal(self, hosts=default.ELASTICSEARCH_HOSTS, **kwargs):
         """
         Initialize a Elasticsearch client by specified hosts list.
 
@@ -40,14 +40,14 @@ class ElasticsearchClient(object):
 
         :return: void
         """
-        self.client = Elasticsearch(hosts=hosts)
+        self.client = Elasticsearch(hosts=hosts, **kwargs)
         logger.info('Initialize normal Elasticsearch Client: %s.' % self.client)
 
     def from_sniffing(self,
                       active_nodes,
                       sniff_on_start=True,
                       sniff_on_connection_fail=True,
-                      sniffer_timeout=60):
+                      sniffer_timeout=60, **kwargs):
         """
         Initialize a Elasticsearch client for specify to sniff on startup to
         inspect the cluster and load balance across all nodes.
@@ -64,7 +64,7 @@ class ElasticsearchClient(object):
         self.client = Elasticsearch(active_nodes,
                                     sniff_on_start=sniff_on_start,
                                     sniff_on_connection_fail=sniff_on_connection_fail,
-                                    sniffer_timeout=sniffer_timeout)
+                                    sniffer_timeout=sniffer_timeout, **kwargs)
         logger.info('Initialize sniffing Elasticsearch Client: %s.' % self.client)
 
     def from_ssl(self,
@@ -73,7 +73,7 @@ class ElasticsearchClient(object):
                  client_key,
                  hosts=default.ELASTICSEARCH_HOSTS,
                  use_ssl=True,
-                 verify_certs=True):
+                 verify_certs=True, **kwargs):
         """
         Initialize a Elasticsearch client by SSL.
 
@@ -93,7 +93,7 @@ class ElasticsearchClient(object):
                                     verify_certs=verify_certs,
                                     ca_certs=ca_certs,
                                     client_cert=client_cert,
-                                    client_key=client_key)
+                                    client_key=client_key, **kwargs)
         logger.info('Initialize SSL Elasticsearch Client: %s.' % self.client)
 
     def transfer_data_from_mongo(self,
@@ -173,16 +173,16 @@ class ElasticsearchClient(object):
         finally:
             client.close()
 
-    def create(self, index, doc_type, id, body, params={}):
-        result = self.client.create(index, doc_type, id, body, params=params)
+    def create(self, index, doc_type, id, body, params={}, **kwargs):
+        result = self.client.create(index, doc_type, id, body, params=params, **kwargs)
         logger.info(
             'Create[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
         logger.debug('<Verbose message> operation: %s, version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
-    def index(self, index, doc_type, body, id=None, params={}):
-        result = self.client.index(index, doc_type, body, id, params=params)
+    def index(self, index, doc_type, body, id=None, params={}, **kwargs):
+        result = self.client.index(index, doc_type, body, id, params=params, **kwargs)
         if id is None:
             id_message = 'Automatic Generation'
         else:
@@ -193,16 +193,16 @@ class ElasticsearchClient(object):
             result['result'], result['_version'], result['_shards']))
         return result
 
-    def delete(self, index, doc_type, id, params={}):
-        result = self.client.delete(index, doc_type, id, params=params)
+    def delete(self, index, doc_type, id, params={}, **kwargs):
+        result = self.client.delete(index, doc_type, id, params=params, **kwargs)
         logger.info(
             'Delete[index: %s, doc type: %s, id: %s] is done' % (index, doc_type, id))
         logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
             result['result'], result['_version'], result['_shards']))
         return result
 
-    def search(self, index=None, doc_type=None, body=None, params={}):
-        result = self.client.search(index, doc_type, body, params=params)
+    def search(self, index=None, doc_type=None, body=None, params={}, **kwargs):
+        result = self.client.search(index, doc_type, body, params=params, **kwargs)
         if index is None and doc_type is None and body is None:
             logger.info('Search[all mode] is done')
             return result
@@ -213,8 +213,8 @@ class ElasticsearchClient(object):
                 result['took'], result['_shards'], result['hits']['total']))
         return result
 
-    def count(self, index=None, doc_type=None, body=None, params={}):
-        result = self.client.count(index, doc_type, body, params=params)
+    def count(self, index=None, doc_type=None, body=None, params={}, **kwargs):
+        result = self.client.count(index, doc_type, body, params=params, **kwargs)
         if index is None and doc_type is None and body is None:
             logger.info('Count[all mode] is done')
             return result
@@ -222,8 +222,8 @@ class ElasticsearchClient(object):
         logger.debug('<Verbose message> count: %s shards: %s' % (result['count'], result['_shards']))
         return result
 
-    def update(self, index, doc_type, id, body=None, params={}):
-        result = self.client.update(index, doc_type, id, body, params=params)
+    def update(self, index, doc_type, id, body=None, params={}, **kwargs):
+        result = self.client.update(index, doc_type, id, body, params=params, **kwargs)
         logger.info(
             'Update[index: %s, doc type: %s, id: %s] is done body: \n %s' % (index, doc_type, id, body))
         logger.debug('<Verbose message> operation: %s version: %s shards: %s' % (
@@ -245,8 +245,8 @@ class ElasticsearchClient(object):
         success, failed = es_helpers.bulk(self.client, actions, stats_only, **kwargs)
         logger.info('Bulk is done success %s failed %s actions: \n %s' % (success, failed, actions))
 
-    def mget(self, body, index=None, doc_type=None, params={}):
-        result = self.client.mget(body, index, doc_type, params=params)
+    def mget(self, body, index=None, doc_type=None, params={}, **kwargs):
+        result = self.client.mget(body, index, doc_type, params=params, **kwargs)
         logger.info('Mget[index: %s, doc type: %s] is done body: \n %s' % (index, doc_type, body))
         return result
 
@@ -341,22 +341,22 @@ class ElasticsearchClient(object):
             time.sleep(interval)
         logger.info('[%s]: synchronize data work is shutdown ' % current_thread__name)
 
-    def open_index(self, index, params={}):
-        result = self.client.indices.open(index, params=params)
+    def open_index(self, index, params={}, **kwargs):
+        result = self.client.indices.open(index, params=params, **kwargs)
         logger.info('Index %s is opened' % index)
         return result
 
-    def close_index(self, index, params={}):
-        result = self.client.indices.close(index, params=params)
+    def close_index(self, index, params={}, **kwargs):
+        result = self.client.indices.close(index, params=params, **kwargs)
         logger.info('Index %s is closed' % index)
         return result
 
-    def indices_status_info(self, index=None, metric=None, params=None):
-        result = self.client.indices.stats(index=index, metric=metric, params=params)
+    def indices_status_info(self, index=None, metric=None, params=None, **kwargs):
+        result = self.client.indices.stats(index=index, metric=metric, params=params, **kwargs)
         logger.info('Acquire indices status information is done')
         return result
 
-    def get_simple_info_for_index(self, index=None, params={}):
+    def get_simple_info_for_index(self, index=None, params={}, **kwargs):
         """
         Return a list of simple info by specified index (default all), each elements is a dictionary
         such as
@@ -368,7 +368,7 @@ class ElasticsearchClient(object):
             'store_size' : 10kb, 'pri_store_size' : 10kb
         }
         """
-        raw = self.client.cat.indices(index, params=params).split('\n')
+        raw = self.client.cat.indices(index, params=params, **kwargs).split('\n')
         list = []
         for r in raw:
             alter = r.split(' ')
@@ -400,8 +400,8 @@ class ElasticsearchClient(object):
         logger.info('Acquire simple information of the index is done succeeded: %s' % len(list))
         return list
 
-    def cluster_health(self, index=None, params={}):
-        result = self.client.cluster.health(index, params=params)
+    def cluster_health(self, index=None, params={}, **kwargs):
+        result = self.client.cluster.health(index, params=params, **kwargs)
         message = 'Acquire cluster health information is done index: %s'
         if index is None:
             message = message % 'all'
@@ -410,7 +410,7 @@ class ElasticsearchClient(object):
         logger.info(message)
         return result
 
-    def cluster_health_for_indices(self, index=None, params={}):
+    def cluster_health_for_indices(self, index=None, params={}, **kwargs):
         """
         Return a list of cluster health of specified indices(default all),
         the first element is a dictionary represent a global information of the cluster
@@ -419,10 +419,10 @@ class ElasticsearchClient(object):
         such as [{'index' : 'a', 'status' : 'yellow', ...} , {'index' : 'b', 'status' : 'yellow', ...}, ....]
         """
         params['level'] = 'indices'
-        result = self.cluster_health(index, params)
+        result = self.cluster_health(index, params, **kwargs)
         return self._process_cluster_health_info(result)
 
-    def cluster_health_for_shards(self, index=None, params={}):
+    def cluster_health_for_shards(self, index=None, params={}, **kwargs):
         """
         Return a list of cluster health of specified indices(default all) and
         append shards information of each index
@@ -431,11 +431,11 @@ class ElasticsearchClient(object):
         such as [{'index' : 'a', 'status' : 'yellow', ..., 'shards' : {'0' : {...}, '1' : {...}, ...}, ...]
         """
         params['level'] = 'shards'
-        result = self.cluster_health(index, params)
+        result = self.cluster_health(index, params, **kwargs)
         return self._process_cluster_health_info(result)
 
-    def cluster_status_info(self, node_id=None, params={}):
-        result = self.client.cluster.stats(node_id=node_id, params=params)
+    def cluster_status_info(self, node_id=None, params={}, **kwargs):
+        result = self.client.cluster.stats(node_id=node_id, params=params, **kwargs)
         logger.info('Acquire cluster status information is done')
         return result
 
@@ -456,10 +456,40 @@ class ElasticsearchClient(object):
         list.append(second)
         return list
 
-    def nodes_status_info(self, node_id=None, metric=None, index_metric=None, params={}):
-        result = self.client.nodes.stats(node_id=node_id, metric=metric, index_metric=index_metric, params=params)
+    def nodes_status_info(self, node_id=None, metric=None, index_metric=None, params={}, **kwargs):
+        result = self.client.nodes.stats(node_id=node_id, metric=metric, index_metric=index_metric, params=params,
+                                         **kwargs)
         logger.info('Acquire nodes status information is done')
         return result
+
+    def nodes_info(self, node_id=None, metric=None, params={}, **kwargs):
+        result = self.client.nodes.info(node_id=node_id, metric=metric, params=params, **kwargs)
+        logger.info('Acquire nodes info is done')
+        return result
+
+    def nodes_simple_info(self, params={}, **kwargs):
+        """
+        Return a dictionary of the nodes simple info that key is a column name,
+        such as [{"http_address": "192.111.111.111", "name" : "test", ...}, ...]
+        """
+        h = ['name', 'pid', 'http_address', 'version', 'jdk', 'disk.total', 'disk.used_percent', 'heap.current',
+             'heap.percent', 'ram.current', 'ram.percent', 'uptime', 'node.role']
+        result = self.client.cat.nodes(v=True, h=h, **kwargs, params=params)
+        result = [x.strip().split(' ') for x in result.split('\n')]
+        # Clean up the space
+        result.remove(result[-1])
+        for i in range(len(result)):
+            result[i] = list(filter(lambda x: x != '', result[i]))
+        # Packing into the dictionary
+        dicts = []
+        for i in range(len(result) - 1):
+            dict = {}
+            for k, v in zip(result[0], result[i + 1]):
+                dict[k] = v
+            dicts.append(dict)
+
+        logger.info('Acquire simple information of the nodes is done succeeded: %s' % len(dicts))
+        return dicts
 
 
 def get_documents_count_from_mongo(db,

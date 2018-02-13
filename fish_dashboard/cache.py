@@ -19,6 +19,8 @@ class CacheKeys():
     ELASTICSEARCH_CLUSTER_HEALTH = 'elasticsearch_cluster_health'
     ELASTICSEARCH_CLUSTER_INDICES = 'elasticsearch_cluster_indices'
     ELASTICSEARCH_CLUSTER_STATS = 'elasticsearch_cluster_stats'
+    ELASTICSEARCH_NODES_STATS = 'elasticsearch_nodes_stats'
+    ELASTICSEARCH_NODES_SIMPLE_INFO = 'elasticsearch_nodes_simple_info'
 
 
 class CacheStrategy():

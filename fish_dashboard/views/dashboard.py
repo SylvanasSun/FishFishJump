@@ -43,3 +43,8 @@ def elasticsearch_cluster_indices_health():
 @dashboard.route('/elasticsearch/cluster/stats')
 def elasticsearch_cluster_stats():
     return render_template('elasticsearch/cluster_stats.html')
+
+
+@dashboard.route('/elasticsearch/nodes/info')
+def elasticsearch_nodes_info():
+    return render_template('elasticsearch/nodes_info.html')

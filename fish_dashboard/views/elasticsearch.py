@@ -151,6 +151,22 @@ def cluster_stats():
     return es_client.cluster_status_info()
 
 
+@elasticsearch.route('/nodes/stats/<node_id>', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.ELASTICSEARCH_NODES_STATS,
+                          serializable_func=jsonify)
+def nodes_stats(node_id):
+    return es_client.nodes_status_info(node_id=node_id)
+
+
+@elasticsearch.route('/nodes/simple/info', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.ELASTICSEARCH_NODES_SIMPLE_INFO,
+                          serializable_func=jsonify)
+def nodes_simple_info():
+    return es_client.nodes_simple_info()
+
+
 @elasticsearch.route('/auto/transfer/status', methods=['GET'])
 def auto_transfer_status():
     global is_auto_transfer

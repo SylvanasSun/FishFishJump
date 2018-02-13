@@ -67,3 +67,14 @@ function byte_to_gb(bytes_num, fixed) {
 function byte_to_mb(bytes_num, fixed) {
     return (bytes_num / 1024 / 1024).toFixed(fixed);
 }
+
+function get_tag_by_id(id) {
+    var tag = null;
+    if (id.charAt(0) === "#") {
+        tag = $(id);
+    } else {
+        tag = $("#" + id);
+    }
+
+    return tag;
+}

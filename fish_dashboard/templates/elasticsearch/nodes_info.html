@@ -1,0 +1,866 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Elasticsearch Nodes Info{% endblock %}
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Elasticsearch Nodes Info</li>
+</ol>
+<!-- Nodes info table -->
+<div class="table-responsive">
+    <table class="table table-hover" id="elasticsearch_nodes_info_table">
+        <thead class="thead-inverse">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Process ID</th>
+            <th>Http Address</th>
+            <th>Version</th>
+            <th>Running Java Version</th>
+            <th>Total Disk Space</th>
+            <th>Used Disk Space Percentage</th>
+            <th>Used Heap(JVM)</th>
+            <th>Used Heap Percentage(JVM)</th>
+            <th>Used Total Memory</th>
+            <th>Used Total Memory Percentage</th>
+            <th>Node Uptime</th>
+            <th>Node Role</th>
+            <th>Stats Info</th>
+        </tr>
+        </thead>
+        <tbody id="elasticsearch_nodes_info_tbody"></tbody>
+    </table>
+</div>
+
+<!-- Nodes stats modal -->
+<div class="modal fade bd-example-modal-lg" id="nodes_stats_modal" tabindex="-1" role="dialog"
+     aria-labelledby="nodes_stats_modal_title"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nodes_stats_modal_title">Nodes Stats</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="nodes_stats_modal_body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card border-dark mb-3">
+                            <div class="card-header">
+                                <ul class="nav nav-tabs card-header-tabs" id="nodes_stats_tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="nodes_stats_fs_tab" data-toggle="tab"
+                                           href="#nodes_stats_fs_content" role="tab"
+                                           aria-controls="nodes_stats_fs_content" aria-selected="true">
+                                            File System
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" id="nodes_stats_os_tab" data-toggle="tab"
+                                           href="#nodes_stats_os_content" role="tab"
+                                           aria-controls="nodes_stats_os_content" aria-selected="true">
+                                            Operation System
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" id="nodes_stats_thread_pool_tab" data-toggle="tab"
+                                           href="#nodes_stats_thread_pool_content" role="tab"
+                                           aria-controls="nodes_stats_thread_pool_content" aria-selected="true">
+                                            Thread Pool
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" id="nodes_stats_breakers_tab" data-toggle="tab"
+                                           href="#nodes_stats_breakers_content" role="tab"
+                                           aria-controls="nodes_stats_breakers_content" aria-selected="true">
+                                            Breakers
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" id="nodes_stats_jvm_tab" data-toggle="tab"
+                                           href="#nodes_stats_jvm_content" role="tab"
+                                           aria-controls="nodes_stats_jvm_content" aria-selected="true">
+                                            Jvm
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" id="nodes_stats_indices_tab" data-toggle="tab"
+                                           href="#nodes_stats_indices_content" role="tab"
+                                           aria-controls="nodes_stats_indices_content" aria-selected="true">
+                                            Indices
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content" id="nodes_stats_tabs_content">
+                                    <!-- File System Content -->
+                                    <div class="tab-pane fade show active" id="nodes_stats_fs_content" role="tabpanel"
+                                         aria-labelledby="nodes_stats_fs_tab">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="list-group" role="tablist">
+                                                    <a class="list-group-item list-group-item-action active"
+                                                       id="nodes_stats_fs_content_data" data-toggle="list"
+                                                       href="#nodes_stats_fs_content_data_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_fs_content_data_body">
+                                                        Data
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_fs_content_least" data-toggle="list"
+                                                       href="#nodes_stats_fs_content_least_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_fs_content_least_body">
+                                                        Least usage estimate
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_fs_content_most" data-toggle="list"
+                                                       href="#nodes_stats_fs_content_most_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_fs_content_most_body">
+                                                        Most usage estimate
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_fs_content_total" data-toggle="list"
+                                                       href="#nodes_stats_fs_content_total_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_fs_content_total_body">
+                                                        Total
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active"
+                                                         id="nodes_stats_fs_content_data_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_fs_content_data">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_fs_content_least_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_fs_content_least">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_fs_content_most_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_fs_content_most">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_fs_content_total_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_fs_content_total">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Operation System Content -->
+                                    <div class="tab-pane fade" id="nodes_stats_os_content" role="tabpanel"
+                                         aria-labelledby="nodes_stats_os_tab">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="list-group" role="tablist">
+                                                    <a class="list-group-item list-group-item-action active"
+                                                       id="nodes_stats_os_content_mem" data-toggle="list"
+                                                       href="#nodes_stats_os_content_mem_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_os_content_mem_body">
+                                                        Memory
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_os_content_swap" data-toggle="list"
+                                                       href="#nodes_stats_os_content_swap_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_os_content_swap_body">
+                                                        Swap
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_os_content_cpu" data-toggle="list"
+                                                       href="#nodes_stats_os_content_cpu_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_os_content_cpu_body">
+                                                        Cpu
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active"
+                                                         id="nodes_stats_os_content_mem_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_os_content_mem">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_os_content_swap_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_os_content_swap">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_os_content_cpu_body"
+                                                         role="tabpanel" aria-labelledby="nodes_stats_os_content_cpu">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Thread Pool -->
+                                    <div class="tab-pane fade" id="nodes_stats_thread_pool_content" role="tabpanel"
+                                         aria-labelledby="nodes_stats_thread_pool_tab">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="list-group" role="tablist">
+                                                    <a class="list-group-item list-group-item-action active"
+                                                       id="nodes_stats_thread_pool_content_bulk" data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_bulk_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_bulk_body">
+                                                        Bulk
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_fetch_shard_started"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_fetch_shard_started_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_fetch_shard_started_body">
+                                                        Fetch shard started
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_fetch_shard_store"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_fetch_shard_store_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_fetch_shard_store_body">
+                                                        Fetch shard store
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_flush"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_flush_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_flush_body">
+                                                        Flush
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_force_merge"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_force_merge_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_force_merge_body">
+                                                        Force merge
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_generic"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_generic_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_generic_body">
+                                                        Generic
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_get"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_get_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_get_body">
+                                                        Get
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_index"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_index_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_index_body">
+                                                        Index
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_listener"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_listener_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_listener_body">
+                                                        Listener
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_management"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_management_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_management_body">
+                                                        Management
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_refresh"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_refresh_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_refresh_body">
+                                                        Refresh
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_search"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_search_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_search_body">
+                                                        Search
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_snapshot"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_snapshot_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_snapshot_body">
+                                                        Snapshot
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_thread_pool_content_warmer"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_thread_pool_content_warmer_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_thread_pool_content_warmer_body">
+                                                        Warmer
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active"
+                                                         id="nodes_stats_thread_pool_content_bulk_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_bulk">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_fetch_shard_started_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_fetch_shard_started">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_fetch_shard_store_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_fetch_shard_store">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_flush_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_flush">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_force_merge_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_force_merge">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_generic_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_generic">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_get_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_get">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_index_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_index">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_listener_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_listener">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_management_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_management">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_refresh_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_refresh">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_search_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_search">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_snapshot_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_snapshot">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_thread_pool_content_warmer_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_thread_pool_content_warmer">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Breakers -->
+                                    <div class="tab-pane fade" id="nodes_stats_breakers_content" role="tabpanel"
+                                         aria-labelledby="nodes_stats_breakers_tab">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="list-group" role="tablist">
+                                                    <a class="list-group-item list-group-item-action active"
+                                                       id="nodes_stats_breakers_content_fielddata" data-toggle="list"
+                                                       href="#nodes_stats_breakers_content_fielddata_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_breakers_content_fielddata_body">
+                                                        Fielddata
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_breakers_content_in_flight_requests"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_breakers_content_in_flight_requests_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_breakers_content_in_flight_requests_body">
+                                                        In flight requests
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_breakers_content_parent"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_breakers_content_parent_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_breakers_content_parent_body">
+                                                        Parent
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_breakers_content_request"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_breakers_content_request_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_breakers_content_request_body">
+                                                        Request
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active"
+                                                         id="nodes_stats_breakers_content_fielddata_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_breakers_content_fielddata">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_breakers_content_in_flight_requests_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_breakers_content_in_flight_requests">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_breakers_content_parent_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_breakers_content_parent">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_breakers_content_request_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_breakers_content_request">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Jvm -->
+                                    <div class="tab-pane fade" id="nodes_stats_jvm_content" role="tabpanel"
+                                         aria-labelledby="nodes_stats_jvm_tab">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="list-group" role="tablist">
+                                                    <a class="list-group-item list-group-item-action active"
+                                                       id="nodes_stats_jvm_content_buffer_pools_direct"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_buffer_pools_direct_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_buffer_pools_direct_body">
+                                                        Buffer pools direct
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_buffer_pools_mapped"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_buffer_pools_mapped_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_buffer_pools_mapped_body">
+                                                        Buffer pools mapped
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_classes"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_classes_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_classes_body">
+                                                        Classes
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_gc_old"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_gc_old_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_gc_old_body">
+                                                        Gc old
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_gc_young"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_gc_young_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_gc_young_body">
+                                                        Gc young
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_mem"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_mem_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_mem_body">
+                                                        Memory
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_mem_pools_old"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_mem_pools_old_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_mem_pools_old_body">
+                                                        Memory of old generation
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_mem_pools_survivor"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_mem_pools_survivor_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_mem_pools_survivor_body">
+                                                        Memory of survivor
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_mem_pools_young"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_mem_pools_young_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_mem_pools_young_body">
+                                                        Memory of young generation
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_threads"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_threads_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_threads_body">
+                                                        Threads
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_jvm_content_other"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_jvm_content_other_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_jvm_content_other_body">
+                                                        Other
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active"
+                                                         id="nodes_stats_jvm_content_buffer_pools_direct_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_buffer_pools_direct">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_buffer_pools_mapped_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_buffer_pools_mapped">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_classes_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_classes">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_gc_old_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_gc_old">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_gc_young_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_gc_young">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_mem_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_mem">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_mem_pools_old_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_mem_pools_old">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_mem_pools_survivor_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_mem_pools_survivor">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_mem_pools_young_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_mem_pools_young">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_threads_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_threads">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_jvm_content_other_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_jvm_content_other">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Indices -->
+                                    <div class="tab-pane fade" id="nodes_stats_indices_content" role="tabpanel"
+                                         aria-labelledby="nodes_stats_indices_tab">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="list-group" role="tablist">
+                                                    <a class="list-group-item list-group-item-action active"
+                                                       id="nodes_stats_indices_content_completion" data-toggle="list"
+                                                       href="#nodes_stats_indices_content_completion_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_completion_body">
+                                                        Completion
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_docs"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_docs_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_docs_body">
+                                                        Docs
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_fielddata"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_fielddata_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_fielddata_body">
+                                                        Fielddata
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_flush"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_flush_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_flush_body">
+                                                        Flush
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_get"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_get_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_get_body">
+                                                        Get
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_indexing"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_indexing_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_indexing_body">
+                                                        Indexing
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_merges"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_merges_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_merges_body">
+                                                        Merges
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_query_cache"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_query_cache_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_query_cache_body">
+                                                        Query cache
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_recovery"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_recovery_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_recovery_body">
+                                                        Recovery
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_refresh"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_refresh_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_refresh_body">
+                                                        Refresh
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_request_cache"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_request_cache_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_request_cache_body">
+                                                        Request cache
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_search"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_search_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_search_body">
+                                                        Search
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_segments"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_segments_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_segments_body">
+                                                        Segments
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_store"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_store_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_store_body">
+                                                        Store
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_translog"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_translog_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_translog_body">
+                                                        Translog
+                                                    </a>
+                                                    <a class="list-group-item list-group-item-action"
+                                                       id="nodes_stats_indices_content_warmer"
+                                                       data-toggle="list"
+                                                       href="#nodes_stats_indices_content_warmer_body"
+                                                       role="tab"
+                                                       aria-controls="nodes_stats_indices_content_warmer_body">
+                                                        Warmer
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active"
+                                                         id="nodes_stats_indices_content_completion_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_completion">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_docs_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_docs">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_fielddata_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_fielddata">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_flush_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_flush">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_get_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_get">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_indexing_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_indexing">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_merges_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_merges">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_query_cache_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_query_cache">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_recovery_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_recovery">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_refresh_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_refresh">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_request_cache_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_request_cache">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_search_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_search">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_segments_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_segments">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_store_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_store">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_translog_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_translog">
+                                                    </div>
+                                                    <div class="tab-pane fade"
+                                                         id="nodes_stats_indices_content_warmer_body"
+                                                         role="tabpanel"
+                                                         aria-labelledby="nodes_stats_indices_content_warmer">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+<script src="/static/js/elasticsearch/nodes_info.js"></script>
+{% endblock %}
