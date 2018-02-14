@@ -149,6 +149,7 @@ def fault_tolerant_by_backup(flask_app, key, serializable_func=json.dumps):
             except Exception:
                 times = generate_sleep_time_window(flask_app, key)
                 logger.warning('Server %s failure so now return backup data (failure times: %s)' % (key, times))
+                logger.exception(Exception)
                 return serializable_func(use_backup_if_fail(flask_app, key))
             return serializable_func(result)
 

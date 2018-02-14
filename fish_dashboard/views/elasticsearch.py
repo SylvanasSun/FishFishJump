@@ -167,6 +167,32 @@ def nodes_simple_info():
     return es_client.nodes_simple_info()
 
 
+@elasticsearch.route('/indices/simple/info', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.ELASTICSEARCH_INDICES_SIMPLE_INFO,
+                          serializable_func=jsonify)
+def indices_simple_info():
+    return es_client.get_simple_info_for_index()
+
+
+@elasticsearch.route('/indices/stats/<index>', methods=['GET'])
+@fault_tolerant_by_backup(flask_app=current_app,
+                          key=CacheKeys.ELASTICSEARCH_INDICES_STATS,
+                          serializable_func=jsonify)
+def indices_stats(index):
+    return es_client.indices_stats_info(index=index.split(','))
+
+
+@elasticsearch.route('/indices/close/<index>', methods=['POST'])
+def close_index(index):
+    return jsonify(es_client.close_index(index=index))
+
+
+@elasticsearch.route('/indices/open/<index>', methods=['POST'])
+def open_index(index):
+    return jsonify(es_client.open_index(index=index))
+
+
 @elasticsearch.route('/auto/transfer/status', methods=['GET'])
 def auto_transfer_status():
     global is_auto_transfer

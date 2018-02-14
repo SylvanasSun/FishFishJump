@@ -351,7 +351,7 @@ class ElasticsearchClient(object):
         logger.info('Index %s is closed' % index)
         return result
 
-    def indices_status_info(self, index=None, metric=None, params=None, **kwargs):
+    def indices_stats_info(self, index=None, metric=None, params={}, **kwargs):
         result = self.client.indices.stats(index=index, metric=metric, params=params, **kwargs)
         logger.info('Acquire indices status information is done')
         return result

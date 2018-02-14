@@ -78,3 +78,24 @@ function get_tag_by_id(id) {
 
     return tag;
 }
+
+function generate_ul(key, data) {
+    var ul = $("<ul class='list-group list-group-flush'></ul>");
+    var map = data[key];
+    for (var k in map) {
+        var li = $("<li class='list-group-item'><h5>" + k + "</h5></li>");
+        li.append($("<span class='badge badge-primary badge-pill'>" + map[k] + "</span>"));
+        ul.append(li);
+    }
+    return ul;
+}
+
+function generate_ul_under_body(key, data, body_id, clean_children) {
+    var body = get_tag_by_id(body_id);
+
+    if (clean_children) {
+        body.children().remove();
+    }
+
+    body.append(generate_ul(key, data));
+}

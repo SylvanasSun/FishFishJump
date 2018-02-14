@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+{% block title %}Elasticsearch Indices Info{% endblock %}
+{% endblock %}
+
+{% block content_body %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="/dashboard">FishFishJump</a>
+    </li>
+    <li class="breadcrumb-item active">Elasticsearch Indices Info</li>
+</ol>
+
+<!-- Indices info table -->
+<div class="table-responsive">
+    <table class="table table-hover" id="indices_info_table">
+        <thead class="thead-inverse">
+        <tr>
+            <th>#</th>
+            <th>Index</th>
+            <th>Health</th>
+            <th>Docs Count</th>
+            <th>Docs Deleted</th>
+            <th>Primaries</th>
+            <th>Primaries Store Size</th>
+            <th>Replication</th>
+            <th>Status</th>
+            <th>Store Size</th>
+            <th>UUID</th>
+            <th>Stats Info</th>
+        </tr>
+        </thead>
+        <tbody id="indices_info_tbody"></tbody>
+    </table>
+</div>
+
+<!-- Indices stats modal -->
+<div class="modal fade bd-example-modal-lg" id="indices_stats_modal" tabindex="-1" role="dialog"
+     aria-labelledby="indices_stats_modal_title" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="indices_stats_modal_title">Indices Stats</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="indices_stats_modal_body">
+                <div class="container-fluid">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="indices_stats_tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="indices_stats_tab_primaries" data-toggle="tab"
+                                       href="#indices_stats_primaries_content" role="tab"
+                                       aria-controls="indices_stats_primaries_content" aria-selected="true">
+                                        Primaries
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="indices_stats_tab_total" data-toggle="tab"
+                                       href="#indices_stats_total_content" role="tab"
+                                       aria-controls="indices_stats_total_content" aria-selected="true">
+                                        Total
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="indices_stats_tabs_content">
+                                <!-- Primaries -->
+                                <div class="tab-pane fade show active" id="indices_stats_primaries_content"
+                                     role="tabpanel"
+                                     aria-labelledby="indices_stats_tab_primaries">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="list-group" role="tablist">
+                                                <a class="list-group-item list-group-item-action active"
+                                                   id="indices_stats_primaries_content_completion" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_completion_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_completion_body">
+                                                    Completion
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_docs" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_docs_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_docs_body">
+                                                    Docs
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_fielddata" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_fielddata_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_fielddata_body">
+                                                    Fielddata
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_flush" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_flush_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_flush_body">
+                                                    Flush
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_get" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_get_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_get_body">
+                                                    Get
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_indexing" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_indexing_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_indexing_body">
+                                                    Indexing
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_merges" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_merges_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_merges_body">
+                                                    Merges
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_query_cache" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_query_cache_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_query_cache_body">
+                                                    Query cache
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_recovery" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_recovery_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_recovery_body">
+                                                    Recovery
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_refresh" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_refresh_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_refresh_body">
+                                                    Refresh
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_request_cache" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_request_cache_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_request_cache_body">
+                                                    Request cache
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_search" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_search_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_search_body">
+                                                    Search
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_segments" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_segments_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_segments_body">
+                                                    Segments
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_store" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_store_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_store_body">
+                                                    Store
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_translog" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_translog_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_translog_body">
+                                                    Translog
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_primaries_content_warmer" data-toggle="list"
+                                                   href="#indices_stats_primaries_content_warmer_body" role="tab"
+                                                   aria-controls="indices_stats_primaries_content_warmer_body">
+                                                    Warmer
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="tab-content">
+                                                <div class="tab-pane fade show active"
+                                                     id="indices_stats_primaries_content_completion_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_completion">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_docs_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_docs">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_fielddata_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_fielddata">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_flush_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_flush">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_get_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_get">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_indexing_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_indexing">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_merges_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_merges">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_query_cache_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_query_cache">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_recovery_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_recovery">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_refresh_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_refresh">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_request_cache_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_request_cache">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_search_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_search">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_segments_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_segments">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_store_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_store">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_translog_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_translog">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_primaries_content_warmer_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_primaries_content_warmer">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Total -->
+                                <div class="tab-pane fade" id="indices_stats_total_content" role="tabpanel"
+                                     aria-labelledby="indices_stats_tab_total">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="list-group" role="tablist">
+                                                <a class="list-group-item list-group-item-action active"
+                                                   id="indices_stats_total_content_completion" data-toggle="list"
+                                                   href="#indices_stats_total_content_completion_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_completion_body">
+                                                    Completion
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_docs" data-toggle="list"
+                                                   href="#indices_stats_total_content_docs_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_docs_body">
+                                                    Docs
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_fielddata" data-toggle="list"
+                                                   href="#indices_stats_total_content_fielddata_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_fielddata_body">
+                                                    Fielddata
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_flush" data-toggle="list"
+                                                   href="#indices_stats_total_content_flush_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_flush_body">
+                                                    Flush
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_get" data-toggle="list"
+                                                   href="#indices_stats_total_content_get_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_get_body">
+                                                    Get
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_indexing" data-toggle="list"
+                                                   href="#indices_stats_total_content_indexing_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_indexing_body">
+                                                    Indexing
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_merges" data-toggle="list"
+                                                   href="#indices_stats_total_content_merges_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_merges_body">
+                                                    Merges
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_query_cache" data-toggle="list"
+                                                   href="#indices_stats_total_content_query_cache_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_query_cache_body">
+                                                    Query cache
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_recovery" data-toggle="list"
+                                                   href="#indices_stats_total_content_recovery_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_recovery_body">
+                                                    Recovery
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_refresh" data-toggle="list"
+                                                   href="#indices_stats_total_content_refresh_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_refresh_body">
+                                                    Refresh
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_request_cache" data-toggle="list"
+                                                   href="#indices_stats_total_content_request_cache_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_request_cache_body">
+                                                    Request cache
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_search" data-toggle="list"
+                                                   href="#indices_stats_total_content_search_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_search_body">
+                                                    Search
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_segments" data-toggle="list"
+                                                   href="#indices_stats_total_content_segments_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_segments_body">
+                                                    Segments
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_store" data-toggle="list"
+                                                   href="#indices_stats_total_content_store_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_store_body">
+                                                    Store
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_translog" data-toggle="list"
+                                                   href="#indices_stats_total_content_translog_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_translog_body">
+                                                    Translog
+                                                </a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="indices_stats_total_content_warmer" data-toggle="list"
+                                                   href="#indices_stats_total_content_warmer_body" role="tab"
+                                                   aria-controls="indices_stats_total_content_warmer_body">
+                                                    Warmer
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="tab-content">
+                                                <div class="tab-pane fade show active"
+                                                     id="indices_stats_total_content_completion_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_completion">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_docs_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_docs">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_fielddata_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_fielddata">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_flush_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_flush">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_get_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_get">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_indexing_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_indexing">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_merges_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_merges">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_query_cache_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_query_cache">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_recovery_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_recovery">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_refresh_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_refresh">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_request_cache_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_request_cache">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_search_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_search">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_segments_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_segments">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_store_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_store">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_translog_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_translog">
+                                                </div>
+                                                <div class="tab-pane fade"
+                                                     id="indices_stats_total_content_warmer_body"
+                                                     role="tabpanel"
+                                                     aria-labelledby="indices_stats_total_content_warmer">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+<script src="/static/js/elasticsearch/indices_info.js"></script>
+{% endblock %}

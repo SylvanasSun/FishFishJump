@@ -1,6 +1,7 @@
-import logging
-import json
 import functools
+import json
+import logging
+
 from werkzeug.contrib.cache import SimpleCache
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,8 @@ class CacheKeys():
     ELASTICSEARCH_CLUSTER_STATS = 'elasticsearch_cluster_stats'
     ELASTICSEARCH_NODES_STATS = 'elasticsearch_nodes_stats'
     ELASTICSEARCH_NODES_SIMPLE_INFO = 'elasticsearch_nodes_simple_info'
+    ELASTICSEARCH_INDICES_SIMPLE_INFO = 'elasticsearch_indices_simple_info'
+    ELASTICSEARCH_INDICES_STATS = 'elasticsearch_indices_stats'
 
 
 class CacheStrategy():
