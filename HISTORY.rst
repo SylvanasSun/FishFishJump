@@ -2,6 +2,10 @@
 History
 =======
 
+0.2.2 (2018-2-14)
+------------------
+* Add monitoring function for Elasticsearch.
+
 0.2.1 (2017-12-28)
 ------------------
 * Repair problem that failure of the docker build.
