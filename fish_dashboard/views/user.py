@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from flask import Blueprint, request, current_app, session, redirect, url_for, render_template
 
 from fish_core.utils.common_utils import check_validity_for_dict

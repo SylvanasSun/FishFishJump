@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from fish_core.utils.common_utils import format_dict_to_str, get_current_date, list_to_str, str_to_list
 from fish_dashboard.scrapyd.model import ScrapydStatusVO, JobListDO, JobStatus, JobPriority, ProjectListVO, SpiderListVO
 from fish_dashboard.scrapyd.scrapyd_db import SqlLite3Agent

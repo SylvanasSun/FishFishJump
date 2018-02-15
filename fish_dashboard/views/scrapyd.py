@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from flask import Blueprint, jsonify, current_app, request
 
 from fish_dashboard.cache import CacheKeys

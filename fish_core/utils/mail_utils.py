@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import smtplib
 from email import encoders
 from email.header import Header
