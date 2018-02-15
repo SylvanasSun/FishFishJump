@@ -1,6 +1,8 @@
-[logo]
+.. image:: info/logo.png
 
-.. image:: https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php   :target: .. image:: https://img.shields.io/pypi/pyversions/Django.svg   :target: .. image:: https://img.shields.io/pypi/v/nine.svg   :target:
+.. image:: https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php   :target:
+.. image:: https://img.shields.io/pypi/pyversions/Django.svg   :target:
+.. image:: https://img.shields.io/pypi/v/nine.svg   :target:
 
 FishFishJump is a solution that simply and basic for search engines and provide multiple demos that independent deployment by used Docker.
 
@@ -17,7 +19,7 @@ If you want to independent deployments then you only need input following order 
 
     docker-compose up -d
 
-More about docker and docker-compose please refer to  ` Docker Compose <https://docs.docker.com/compose/>`_.
+More about docker and docker-compose please refer to: https://docs.docker.com/compose/
 
 Notice: for fish_crawlers, you also need to access the Docker container and deploy scrapy, FishFishJump deployment way use Scrapyd, the related configuration file is in the scrapy.cfg such as:
 
@@ -49,7 +51,7 @@ Look at the following command to deployments:
     # exit from the Docker container
     exit
 
-More about please refer to  ` Scrapyd-client <https://github.com/scrapy/scrapyd-client>`_.
+More about please refer to: https://github.com/scrapy/scrapyd-client
 
 By the way, fish_crawlers use local Redis and MongoDB by Docker. if you don't want to then you can delete the following content in docker-compose.yml and config your Redis and MongoDB address in Scrapy project(settings.py).
 
@@ -91,17 +93,7 @@ For fish_crawlers you can also use scrapyd for deployments.
 Dashboard
 ---------
 
-
-[dashboard01]
-
-[dashboard02]
-
-[dashboard03]
-
-[dashboard04]
-
-.. |logo| image:: info/logo.png
-.. |dashboard01| image:: info/dashboard-01.png
-.. |dashboard02| image:: info/dashboard-02.png
-.. |dashboard03| image:: info/dashboard-03.gif
-.. |dashboard04| image:: info/dashboard-04.gif
+.. image:: info/dashboard-01.png
+.. image:: info/dashboard-02.png
+.. image:: info/dashboard-03.gif
+.. image:: info/dashboard-04.gif
