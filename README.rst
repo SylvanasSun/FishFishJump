@@ -1,8 +1,14 @@
 .. image:: info/logo.png
+    :target: https://pypi.python.org/pypi/FishFishJump
+    :width: 400px
+    :height: 400px
 
-.. image:: https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php   :target:
-.. image:: https://img.shields.io/pypi/pyversions/Django.svg   :target:
-.. image:: https://img.shields.io/pypi/v/nine.svg   :target:
+.. image:: https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/pypi/pyversions/Django.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/pypi/v/nine.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
 
 FishFishJump is a solution that simply and basic for search engines and provide multiple demos that independent deployment by used Docker.
 
