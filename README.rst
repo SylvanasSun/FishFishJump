@@ -1,20 +1,30 @@
-.. image:: info/logo.png
+.. image:: info/logo_904x487.png
     :target: https://pypi.python.org/pypi/FishFishJump
-    :width: 400px
-    :height: 400px
 
 .. image:: https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php
     :target: https://pypi.python.org/pypi/FishFishJump
 .. image:: https://img.shields.io/pypi/pyversions/Django.svg
     :target: https://pypi.python.org/pypi/FishFishJump
-.. image:: https://img.shields.io/pypi/v/nine.svg
+.. image:: https://img.shields.io/badge/Scrapy-1.4.0-blue.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/badge/Flask-0.12.2-blue.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/badge/Redis-required-green.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/badge/Elasticsearch-required-green.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/badge/MongoDB-required-green.svg
+    :target: https://pypi.python.org/pypi/FishFishJump
+.. image:: https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg
     :target: https://pypi.python.org/pypi/FishFishJump
 
 FishFishJump is a solution that simply and basic for search engines and provide multiple demos that independent deployment by used Docker.
 
-- fish_core: Include some common utils or components and other modules depend on it.
-- fish_crawlers: A demo of the distributed crawler that implements base on scrapy-redis, it contains two projects of scrapy, the master_crawler will crawl link from http://dmoztools.net/ and put it to the Redis queue, the slave_crawler will crawl the link from the Redis queue then extract info and store into the MongoDB.
-- fish_dashboard: A web app for monitoring health status and info of  Scrapy and Elasticsearch base on Flask.
+- **fish_core**: Include some common utils or components and other modules depend on it.
+
+- **fish_crawlers**: A demo of the distributed crawler that implements base on scrapy-redis, it contains two projects of scrapy, the master_crawler will crawl link from http://dmoztools.net/ and put it to the Redis queue, the slave_crawler will crawl the link from the Redis queue then extract info and store into the MongoDB.
+
+- **fish_dashboard**: A web app for monitoring health status and info of  Scrapy and Elasticsearch base on Flask.
 
 Usage
 ---------
@@ -98,6 +108,66 @@ For fish_crawlers you can also use scrapyd for deployments.
 
 Dashboard
 ---------
+
+fish_dashboard is a monitoring platform that monitoring health status and information of the Scrapy and Elasticsearch and it has some feature help you better for manage Scrpay and Elasticsearch such as:
+
+- real-time update data display by ajax polling if you don't want to use it you can set config POLLING_INTERVAL_TIME to 0 for cancel ajax polling.
+
+- fault alarm mechanism, fish_dashboard will send an alarm email to you when your Scrapy or Elasticsearch there  was no response for a long time(reach maximum fault number of times, this param refer to MAX_FAILURE_TIMES in the settings.py).
+
+- transfer data mechanism, you have two methods to transfer data from MongoDB into the Elasticsearch for generating index database for search, the first way is the manual transfer and data is transmitted at one time in the off-line state, the second way is the automatic transfer data based on a thread polling implementation and this thread will always transfer data from MongoDB into the Elasticsearch until you cancel it.
+
+fish_dashboard is based on a Flask implementation and its config file is settings.py in the root directory of the fish_dashboard you can also use command line interface, the specific configuration is as following:
+
+::
+
+    Usage: fish_dashboard [options] args
+
+    Command line param for FishFishJump webapp.
+
+    Options:
+    -h, --help            show this help message and exit
+    --host=HOST           host address, default: 0.0.0.0
+    --port=PORT           port, default: 5000
+    --username=ADMIN_USERNAME
+                            administrator username for login, default: admin
+    --password=ADMIN_PASSWORD
+                            administrator password for login, default: 123456
+    -d, --debug           enable debug pattern of the flask, default: True
+    -t, --test            enable test pattern of the flask, default: False
+    --cached-expire=CACHE_EXPIRE
+                            expire of the flask cache, default: 60
+    --scrapyd-url=SCRAPYD_URL
+                            url of the scrapyd for connect scrapyd service,
+                            default: http://localhost:6800/
+    -v, --verbose           verbose that log info, default: False
+    --log-file-dir=LOG_FILE_DIR
+                            the dir path of the where store log file, default:
+                            E:\FishFishJump\log\
+    --log-file-name=LOG_FILE_BASIS_NAME
+                            the name of the what log file, default:
+                            fish_fish_jump_webapp.log
+    --elasticsearch-hosts=ELASTICSEARCH_HOSTS
+                            the string represent a host address for Elasticsearch,
+                            format: hostname:port and able to write multiple
+                            address by comma separated default: localhost:9200
+    --polling-interval=POLLING_INTERVAL_TIME
+                            the time of the interval time for real-time dynamic
+                            update, units second default: 3
+    --failure-sleep-time=FAILURE_SLEEP_TIME
+                            if connected fail will turn to this time window and
+                            return backup data in this time window, units second
+                            default: 30
+    --max-failure-times=MAX_FAILURE_TIMES
+                            the number of the max failure times if occurred fail
+                            reaching the upper limit will sent message into the
+                            front-end, default: 5
+    --max-failure-message-key=MAX_FAILURE_MESSAGE_KEY
+                            the string of the key for message sent after reaching
+                            the upper limit, default: timeout_error
+
+
+Here are some renderings:
 
 .. image:: info/dashboard-01.png
 .. image:: info/dashboard-02.png
