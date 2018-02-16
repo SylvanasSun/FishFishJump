@@ -10,13 +10,6 @@ def read_file(filename):
         return fp.read().strip()
 
 
-def read_rst(filename):
-    # Ignore unsupported directives by pypi.
-    content = read_file(filename)
-    return ''.join(line for line in io.StringIO(content)
-                   if not line.startswith('.. comment::'))
-
-
 def read_requirements(filename):
     return [line.strip() for line in read_file(filename).splitlines()
             if not line.startswith('#')]
@@ -28,7 +21,7 @@ setup(
     name='FishFishJump',
     version=read_file('VERSION'),
     description='Simple solution for search engines in the python',
-    long_description=read_rst('README.rst') + '\n\n' + read_rst('HISTORY.rst'),
+    long_description=open('README.rst').read() + '\n\n' + open('HISTORY.rst').read(),
     author='SylvanasSun',
     author_email='sylvanas.sun@gmail.com',
     url='https://github.com/SylvanasSun/FishFishJump',
