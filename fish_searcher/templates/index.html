@@ -1,0 +1,55 @@
+{% extends "head.html" %}
+
+{% block css %}
+<!-- Favicon -->
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<!-- Google Fonts -->
+<link href="/static/css/google_fonts.css" rel="stylesheet" type="text/css">
+<!-- Font Awesome -->
+<link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link href="/static/css/index.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<body>
+<div class="overlay"></div>
+<div class="pat">
+    <ul class="user clearfix">
+        <li><a href="#"><i class="fa fa-user"></i>Sign In</a></li>
+        <li><a href="#"><i class="fa fa-cog"></i>Settings</a></li>
+    </ul>
+    <div class="wrapper">
+        <div class="form">
+            <h1>Fish Fish Jump</h1>
+            <input type="search" class="search" placeholder="Searching for you want.....">
+            <a class="gif"></a>
+            <ul class="yioop clearfix">
+                <li><a href="#"><i class="fa fa-photo"></i>Images</a></li>
+                <li><a href="#"><i class="fa fa-film"></i>Videos</a></li>
+                <li><a href="#"><i class="fa fa-newspaper-o"></i>News</a></li>
+            </ul>
+            <p class="result" id="searching"></p>
+            <ul class="res clearfix">
+                <!-- TODO: real-time keywords prompt -->
+                <li>
+                    <h3></h3>
+                    <p></p>
+                </li>
+            </ul>
+        </div>
+        <div class="footer">
+            <div class="footer-wrap">
+                <ul>
+                    <li><a href="https://pypi.python.org/pypi/FishFishJump">PyPI</a></li>
+                    <li><a href="https://github.com/SylvanasSun/FishFishJump">GitHub</a></li>
+                    <li><a href="https://github.com/SylvanasSun/FishFishJump"> | &copy; Fish Fish Jump</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src='/static/jquery/jquery.min.js'></script>
+<script src="/static/js/index.js"></script>
+</body>
+{% endblock %}

@@ -1,0 +1,5 @@
+fish-searcher:
+  container_name: FishFishJump_Searcher
+  build: .
+  ports:
+    - "5009:5009"

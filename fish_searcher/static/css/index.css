@@ -1,0 +1,223 @@
+/*Reset*/
+* {
+    list-style: none;
+    margin: 0px;
+}
+
+/*Mixins*/
+/*Overlay*/
+.overlay {
+    background: url(/static/image/background.jpg) center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+/*Pattern Overlay*/
+.pat {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4) url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGklEQVQIW2NkYGD4D8SMQAwGcAY2AbBKDBUAVuYCBQPd34sAAAAASUVORK5CYII=");
+    max-width: 100%;
+}
+
+/*Wrappers*/
+.wrapper {
+    width: 500px;
+    margin: 0 auto;
+    margin-top: 14%;
+    /*Typography*/
+    /*Form*/
+    /*Result*/
+}
+
+.wrapper h1 {
+    font: 70px Lobster;
+    color: #FFF;
+    text-align: center;
+    text-shadow: #000 0px 2px 2px;
+    margin-bottom: 40px;
+}
+
+.wrapper a {
+    color: #FFF;
+    text-decoration: none;
+    font: 16px Lobster;
+    text-shadow: #000 0px 2px 2px;
+}
+
+.wrapper a:hover {
+    color: #ccc;
+    -webkit-transition: 0.5s ease;
+    -moz-transition: 0.5s ease;
+    -o-transition: 0.5s ease;
+    -ms-transition: 0.5s ease;
+    transition: 0.5s ease;
+}
+
+.wrapper input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 50px;
+    box-shadow: #000 0px 1px 5px;
+    margin-bottom: 10px;
+    outline: none;
+    font: 14px Raleway;
+    color: #bdbdbd;
+}
+
+.wrapper .result {
+    color: #FFF;
+    text-decoration: none;
+    font: 16px Lobster;
+    text-shadow: #000 0px 2px 2px;
+    text-align: center;
+    display: none;
+    margin-bottom: 20px;
+}
+
+.wrapper ul li {
+    float: left;
+    padding: 0px 0px 0px 25px;
+}
+
+.user {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.user li {
+    list-style: none;
+    float: left;
+    padding: 2px;
+}
+
+.user li a {
+    color: #FFF;
+    text-decoration: none;
+    font: 16px Lobster;
+    text-shadow: #000 0px 2px 2px;
+}
+
+.user li a:hover {
+    color: #ccc;
+    -webkit-transition: 0.5s ease;
+    -moz-transition: 0.5s ease;
+    -o-transition: 0.5s ease;
+    -ms-transition: 0.5s ease;
+    transition: 0.5s ease;
+}
+
+.gif {
+    width: 16px;
+    height: 10px;
+    display: block;
+    background: url("http://marshall-design.com/codepen/gif.gif");
+    margin-left: 47%;
+    display: none;
+}
+
+.footer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.footer li {
+    float: left;
+    list-style: none;
+    padding: 5px;
+}
+
+.footer li a {
+    color: #FFF;
+    text-decoration: none;
+    font: 16px Lobster;
+    text-shadow: #000 0px 2px 2px;
+}
+
+.footer li a:hover {
+    color: #ccc;
+    -webkit-transition: 0.5s ease;
+    -moz-transition: 0.5s ease;
+    -o-transition: 0.5s ease;
+    -ms-transition: 0.5s ease;
+    transition: 0.5s ease;
+}
+
+.form {
+    position: relative;
+}
+
+.res {
+    clear: both;
+    margin-top: 10px;
+    width: 85%;
+}
+
+.res li {
+    display: none;
+    margin-bottom: 30px;
+}
+
+.res h3, .res p {
+    color: #FFF;
+}
+
+.res h3 {
+    font: 17px Raleway;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-shadow: #000 0px 2px 2px;
+}
+
+.res p {
+    font: 13px Raleway;
+}
+
+/*Clearfix*/
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+.clearfix {
+    display: inline-block;
+}
+
+html[xmlns] .clearfix {
+    display: block;
+}
+
+* html .clearfix {
+    height: 1%;
+}
+
+/*Yioop Menu*/
+.yioop {
+    position: absolute;
+    top: 120;
+}
+
+/*Font Awesome Fix*/
+.fa {
+    margin-right: 5px;
+}
+
+.fa-cog {
+    margin-left: 15px;
+}

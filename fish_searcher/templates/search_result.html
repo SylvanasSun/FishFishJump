@@ -1,0 +1,114 @@
+{% extends "head.html" %}
+{% block title %}{{ title }} - Search Result - FishFishJump{% endblock %}
+{% block css %}
+<!-- Favicon -->
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<link href="/static/css/search_result.css" rel="stylesheet">
+<link href="/static/css/pagination.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<body>
+<div class="container">
+    <div class="headerSearch">
+        <!--Topleft Logo-->
+        <div class="logo"><a href="/"><img
+                src="/static/image/search_result_page_topleft_logo.png"></a>
+        </div>
+        <!--Searchbar-->
+        <form id="searchForm" class="searchForm" action="/search">
+            <input name="keywords" id="keywords" class="searchBar" type="text" value="{{ title }}">
+        </form>
+    </div>
+    <!--Navigation tabs-->
+    <div class="headerNav">
+        <ul>
+            <li><a href="#">All</a></li>
+            <li><a href="#">Videos</a></li>
+            <li><a href="#">News</a></li>
+            <li><a href="#">Shopping</a></li>
+            <li><a href="#">Maps</a></li>
+            <li><a href="#">More</a></li>
+            <li><a href="#">Search tools</a></li>
+        </ul>
+    </div>
+
+    <div class="searchResults">
+        {% if pagination['current'] == 1 %}
+        <p class="grey">About {{ result_count }} results ({{ consuming_time }} seconds)</p>
+        {% else %}
+        <p class="grey">
+            Page {{ pagination['current'] }} about {{ result_count }} results ({{ consuming_time }}seconds)
+        </p>
+        {% endif %}
+        <ul>
+            {% if pages_info != None %}
+            {% for p in pages_info %}
+            <div class="searchResultsItem">
+                <li>
+                    <a href="{{ p.url }}">{{ p.title }}</a>
+                </li>
+                <p class="resultAddr">{{ p.url }}</p>
+                <p>{{ p.description }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </ul>
+
+        {% if pages_info != None %}
+        <div class="relatedSearches">
+            <h4>Searches related to {{ title }}</h4>
+            <ul class="relatedSearchesList">
+                {% for k in related_kw %}
+                <li><a href="/search?keywords={{ k }}">{{ k }}</a></li>
+                {% endfor %}
+            </ul>
+            <hr>
+        </div>
+        {% else %}
+        <h1>No search results were found!</h1>
+        {% endif %}
+    </div>
+
+    <div class="pageNumbers">
+        <nav class="pagination-container">
+            <div class="pagination">
+                {% if pagination['current'] > 1 %}
+                <a class="pagination-newer" href="/search?keywords={{ title }}&page={{ pagination['current'] - 1 }}">PREV</a>
+                {% endif %}
+                <span class="pagination-inner">
+                    {% for i in range(pagination['start'], pagination['end'] + 1) %}
+                    {% if i == pagination['current'] %}
+                    <a href="/search?keywords={{ title }}&page={{ i }}" class="pagination-active">{{ i }}</a>
+                    {% else %}
+                    <a href="/search?keywords={{ title }}&page={{ i }}">{{ i }}</a>
+                    {% endif %}
+                    {% endfor %}
+                </span>
+                {% if pagination['current'] < pagination['end'] %}
+                <a class="pagination-older" href="/search?keywords={{ title }}&page={{ pagination['current'] + 1 }}">NEXT</a>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+
+    <div class="footer">
+        <div class="location">
+            <ul>
+                <li><span class="copyright">&copy;</span>{{ footer_info }}</li>
+                <li><a href="#">Use precise location</a> -</li>
+                <li><a href="#">Learn more</a></li>
+            </ul>
+        </div>
+        <div class="footerNav">
+            <ul>
+                <li><a href="#">Help</a></li>
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Terms</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+{% endblock %}

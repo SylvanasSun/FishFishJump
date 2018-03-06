@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% if error_code %}
+    <title>{{ error_code }} Error - FishFishJump</title>
+    {% endif %}
+    <!-- for-mobile-apps -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name=""/>
+    <script type="application/x-javascript"> addEventListener("load", function () {
+        setTimeout(hideURLbar, 0);
+    }, false);
+
+    function hideURLbar() {
+        window.scrollTo(0, 1);
+    } </script>
+    <!-- //for-mobile-apps -->
+    <link href="/static/css/error.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href='http://fonts.useso.com/css?family=Viga' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({
+            google_ad_client: "ca-pub-1112982054462406",
+            enable_page_level_ads: true
+        });
+    </script>
+</head>
+<body>
+<div class="main">
+    <div class="nav_w3l">
+        <ul>
+            <li class="active"><a href="/">Index</a></li>
+            <li><a href="#" class="hvr-sweep-to-bottom">About Us</a></li>
+            <li><a href="#" class="hvr-sweep-to-bottom">Portfolio</a></li>
+            <li><a href="#" class="hvr-sweep-to-bottom">Services</a></li>
+            <li><a href="#" class="hvr-sweep-to-bottom">Mail Us</a></li>
+        </ul>
+    </div>
+    {% if error_code %}
+    <h1>{{ error_code }}</h1>
+    {% endif %}
+    <h2>ooops, something goes wrong</h2>
+    <div class="more_w3ls">
+        <a href="/">Back Index Page</a>
+    </div>
+    <div class="wthree_social_icons">
+        <div>
+            <a href="#"><span>Facebook</span></a>
+            <a href="#"><span>Twitter</span></a>
+            <a href="#"><span>Tumblr</span></a>
+            <a href="#"><span>LinkedIn</span></a>
+            <a href="#"><span>Vimeo</span></a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
