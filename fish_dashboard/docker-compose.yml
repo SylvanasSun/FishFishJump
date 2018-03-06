@@ -1,5 +1,5 @@
-fish-webapp:
-  container_name: FishFishJump_webapp
+fish-dashboard:
+  container_name: FishFishJump_Dashboard
   build: .
   ports:
     - "5000:5000"

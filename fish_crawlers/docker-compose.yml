@@ -1,17 +1,17 @@
 redis:
   image: redis
-  container_name: FishFishJump_redis
+  container_name: FishFishJump_Redis
   ports:
     - "6379:6379"
 
 mongo:
   image: mongo
-  container_name: FishFishJump_mongo
+  container_name: FishFishJump_Mongo
   ports:
     - "27017:27017"
 
 crawlers-manager:
-  container_name: FishFishJump_crawlers
+  container_name: FishFishJump_Crawlers
   build: .
   ports:
     - "6800:6800"

@@ -3,6 +3,7 @@ graft tests
 graft fish_crawlers
 graft fish_core
 graft fish_dashboard
+graft fish_searcher
 
 include *.in
 include *.ini

@@ -9,3 +9,4 @@ Flask
 requests
 elasticsearch
 beautifulsoup4
+python-common-cache
