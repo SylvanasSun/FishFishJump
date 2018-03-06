@@ -504,3 +504,40 @@ def get_documents_count_from_mongo(db,
     finally:
         client.close()
     return result
+
+
+def create_multiple_queries_statement(condition='should'):
+    """
+    >>> create_multiple_queries_statement()
+    {'query': {'bool': {'should': []}}}
+    >>> create_multiple_queries_statement(condition='must')
+    {'query': {'bool': {'must': []}}}
+    """
+    return {'query': {'bool': {condition: []}}}
+
+
+def create_query_statement(condition='match'):
+    """
+    >>> create_query_statement()
+    {'query': {'match': {}}}
+    >>> create_query_statement(condition='bool')
+    {'query': {'bool': {}}}
+    """
+    return {'query': {condition: {}}}
+
+
+def append_condition(statement, condition, key, value):
+    """
+    >>> list = []
+    >>> append_condition(list, 'match', 'name', 'Jack')
+    >>> list
+    [{'match': {'name': 'Jack'}}]
+    >>> dict = {}
+    >>> append_condition(dict, 'match', 'name', 'Marry')
+    >>> dict
+    {'match': {'name': 'Marry'}}
+    """
+    if isinstance(statement, list):
+        statement.append({condition: {key: value}})
+    if isinstance(statement, dict):
+        statement[condition] = {key: value}
