@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import queue
 import threading
 import time
 
-from flask import Blueprint, current_app, jsonify, request, Response, session
+from flask import Blueprint, current_app, jsonify, request, Response
 
 from fish_core.search_engine import ElasticsearchClient, get_documents_count_from_mongo
 from fish_dashboard.cache import CacheKeys
@@ -19,6 +20,8 @@ lock = threading.Lock()
 
 auto_transfer_thread_id = None
 
+transfer_data_info_queue = queue.Queue()
+
 
 def init_elasticsearch_client(hosts):
     global es_client
@@ -30,10 +33,13 @@ def init_elasticsearch_client(hosts):
 
 
 def transfer_progress_event():
-    if 'transfer_data_info' not in session:
+    try:
+        transfer_data_info = transfer_data_info_queue.get(timeout=2)
+    except queue.Empty as e:
         current_app.logger.warning('Illegal invoke, transfer data info is not in existence')
+        current_app.logger.exception(e)
         return 'data: error\n\n'
-    transfer_data_info = session['transfer_data_info']
+
     if transfer_data_info['filter_field'] == '':
         query_params = {}
     else:
@@ -46,8 +52,9 @@ def transfer_progress_event():
                                                          query_params=query_params)
         es_count = es_client.count(index=transfer_data_info['elasticsearch_index'],
                                    doc_type=transfer_data_info['elasticsearch_doc_type'])['count']
-    except Exception:
-        current_app.app.logger.warning('Connected MongoDB or Elasticsearch occurred error.')
+    except Exception as e:
+        current_app.logger.warning('Connected MongoDB or Elasticsearch occurred error.')
+        current_app.logger.exception(e)
         return 'data: error\n\n'
 
     while True:
@@ -68,9 +75,10 @@ def transfer_progress():
 
 @elasticsearch.route('/enable/transfer', methods=['POST'])
 def enable_transfer():
-    session['transfer_data_info'] = {}
+    transfer_data_info = {}
     for k, v in request.form.items():
-        session['transfer_data_info'][k] = v
+        transfer_data_info[k] = v
+    transfer_data_info_queue.put(transfer_data_info)
 
     success, failed = es_client.transfer_data_from_mongo(index=request.form['elasticsearch_index'],
                                                          doc_type=request.form['elasticsearch_doc_type'],
@@ -107,7 +115,8 @@ def enable_auto_transfer():
                                                                               'mongo_collection'])
         if not is_auto_transfer:
             is_auto_transfer = not is_auto_transfer
-    except Exception:
+    except Exception as e:
+        current_app.logger.exception(e)
         return jsonify({'status': 'failure'})
     finally:
         lock.release()
