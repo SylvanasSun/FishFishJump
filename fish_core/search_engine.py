@@ -101,7 +101,6 @@ class ElasticsearchClient(object):
                                  doc_type,
                                  use_mongo_id=False,
                                  indexed_flag_field_name='',
-                                 mongo_client_params={},
                                  mongo_query_params={},
                                  mongo_host=default.MONGO_HOST,
                                  mongo_port=default.MONGO_PORT,
@@ -124,7 +123,7 @@ class ElasticsearchClient(object):
         :param mongo_collection: The name of the collection from MongoDB
         :return: void
         """
-        mongo_client = MongoClient(mongo_client_params, host=mongo_host, port=mongo_port)
+        mongo_client = MongoClient(host=mongo_host, port=int(mongo_port))
         try:
             collection = mongo_client[mongo_db][mongo_collection]
             if indexed_flag_field_name != '':
@@ -144,9 +143,12 @@ class ElasticsearchClient(object):
             id_array.append(doc['_id'])
             if not use_mongo_id:
                 doc.pop('_id')
+            else:
+                doc['id'] = str(doc['_id'])
+                doc.pop('_id')
             action['_source'] = doc
             actions.append(action)
-        success, failed = es_helpers.bulk(self.client, actions)
+        success, failed = es_helpers.bulk(self.client, actions, request_timeout=60 * 60)
         logger.info(
             'Transfer data from MongoDB(%s:%s) into the Elasticsearch(%s) success: %s, failed: %s' % (
                 mongo_host, mongo_port, self.client, success, failed))
@@ -263,7 +265,6 @@ class ElasticsearchClient(object):
                                       thread_name='automatic_syn_data_thread',
                                       interval=60,
                                       use_mongo_id=False,
-                                      mongo_client_params={},
                                       mongo_query_params={},
                                       mongo_host=default.MONGO_HOST,
                                       mongo_port=default.MONGO_PORT,
@@ -294,7 +295,7 @@ class ElasticsearchClient(object):
         t = threading.Thread(target=ElasticsearchClient._automatic_syn_data_from_mongo_worker,
                              args=(self, thread_id, index, doc_type,
                                    indexed_flag_field_name, interval, use_mongo_id,
-                                   mongo_client_params, mongo_query_params,
+                                   mongo_query_params,
                                    mongo_host, mongo_port,
                                    mongo_db, mongo_collection),
                              name=thread_name)
@@ -319,7 +320,6 @@ class ElasticsearchClient(object):
                                               indexed_flag_field_name,
                                               interval=60,
                                               use_mongo_id=False,
-                                              mongo_client_params={},
                                               mongo_query_params={},
                                               mongo_host=default.MONGO_HOST,
                                               mongo_port=default.MONGO_PORT,
@@ -331,7 +331,6 @@ class ElasticsearchClient(object):
                 current_thread__name, mongo_host, mongo_port, self.client))
             success, failed = self.transfer_data_from_mongo(index=index, doc_type=doc_type,
                                                             use_mongo_id=use_mongo_id,
-                                                            mongo_client_params=mongo_client_params,
                                                             indexed_flag_field_name=indexed_flag_field_name,
                                                             mongo_query_params=mongo_query_params,
                                                             mongo_host=mongo_host, mongo_port=mongo_port,
