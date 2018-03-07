@@ -175,7 +175,8 @@ def packing_page_items(data, start, end):
             'description': x['description'],
             'url': x['url']
         })
-        related_kw.append(x['keywords'])
+        kw = x['keywords']
+        related_kw.append(kw[0:kw.find(',')] if kw.find(',') != -1 else kw)
     return pages_info, related_kw[0:8]
 
 
