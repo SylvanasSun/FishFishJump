@@ -4,6 +4,7 @@ graft fish_crawlers
 graft fish_core
 graft fish_dashboard
 graft fish_searcher
+graft info
 
 include *.in
 include *.ini

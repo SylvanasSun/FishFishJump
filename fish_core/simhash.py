@@ -49,6 +49,21 @@ class Simhash(object):
     difference of the "Hamming Distance" implements filter duplicate content.
     About simhash algorithms the more introduction: https://en.wikipedia.org/wiki/SimHash
     Simhash default tokenizer is jieba (https://github.com/fxsjy/jieba).
+
+    >>> sentence_A = "明朝军制建立在军户制度上，军户即为中国古代世代从军、充当军差的人户。东晋南北朝时，士兵及家属的户籍隶于军府称为军户。军户子弟世袭为兵未经准许不得脱离军籍。北魏军户亦有用俘虏充当的。元朝实行军户制度，军户必须出成年男子到军队服役，父死子替，兄亡弟代，世代相袭。"
+    >>> sentence_B = "明朝的军制是在元朝基础上改进，而没有采用唐宋时期的募兵制。元朝的军制是建立在游牧民族制度上发展而来，游牧民族在战争是全民征兵，实际上是军户制度。建立元朝以后，蒙古族还是全部军户，对于占领区招降的军队，也实行军户制度。"
+    >>> sentence_C = "You know nothing Jon Snow!"
+    >>> sentence_D = "Jon Snow: I konw nothing."
+    >>> simhash_A = Simhash(sentence_A)
+    >>> simhash_B = Simhash(sentence_B)
+    >>> simhash_C = Simhash(sentence_C)
+    >>> simhash_D = Simhash(sentence_D)
+    >>> simhash_A.is_equal(simhash_B) is True
+    True
+    >>> simhash_B.is_equal(simhash_C) is False
+    True
+    >>> simhash_C.is_equal(simhash_D) is True
+    True
     """
 
     def __init__(self, data, keyword_weight_pair=20, hash_bit_number=64, hashfunc=None, tokenizer_func=None):
@@ -173,32 +188,3 @@ class Simhash(object):
             result += 1
             x &= x - 1
         return result
-
-
-if __name__ == "__main__":
-    sentence_A = """
-                 明朝军制建立在军户制度上，军户即为中国古代世代从军、充当军差的人户。
-                 东晋南北朝时，士兵及家属的户籍隶于军府称为军户。军户子弟世袭为兵未经准许不得脱离军籍。
-                 北魏军户亦有用俘虏充当的。元朝实行军户制度，军户必须出成年男子到军队服役，父死子替，兄亡弟代，世代相袭。
-                 """
-    sentence_B = """
-                 明朝的军制是在元朝基础上改进，而没有采用唐宋时期的募兵制。
-                 元朝的军制是建立在游牧民族制度上发展而来，游牧民族在战争是全民征兵，实际上是军户制度。
-                 建立元朝以后，蒙古族还是全部军户，对于占领区招降的军队，也实行军户制度。
-                 """
-    sentence_C = "You know nothing Jon Snow!"
-    sentence_D = "Jon Snow: I konw nothing."
-
-    simhash_A = Simhash(sentence_A)
-    simhash_B = Simhash(sentence_B)
-    simhash_C = Simhash(sentence_C)
-    simhash_D = Simhash(sentence_D)
-
-    print(simhash_A)
-    print(simhash_B)
-    print(simhash_C)
-    print(simhash_D)
-
-    assert simhash_A.is_equal(simhash_B) is True
-    assert simhash_B.is_equal(simhash_C) is False
-    assert simhash_C.is_equal(simhash_D) is True

@@ -1,6 +1,10 @@
 History
 ---------
 
+0.2.3 (2018-3-08)
+------------------
+* Add web app fish_searcher that support search.
+
 0.2.2 (2018-2-14)
 ------------------
 * Add monitoring function for Elasticsearch.
