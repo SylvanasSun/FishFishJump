@@ -29,13 +29,7 @@
                 <li><a href="#"><i class="fa fa-newspaper-o"></i>News</a></li>
             </ul>
             <p class="result" id="searching"></p>
-            <ul class="res clearfix">
-                <!-- TODO: real-time keywords prompt -->
-                <li>
-                    <h3></h3>
-                    <p></p>
-                </li>
-            </ul>
+            <div id="suggest_list"></div>
         </div>
         <div class="footer">
             <div class="footer-wrap">
@@ -50,6 +44,7 @@
 </div>
 
 <script src='/static/jquery/jquery.min.js'></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script src="/static/js/index.js"></script>
 </body>
 {% endblock %}
