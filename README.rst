@@ -65,7 +65,7 @@
 
 .. _简体中文: README_CH.rst
 
-FishFishJump is a solution that simply and basic for search engines and provide multiple demos that independent deployment by used Docker, through those examples can help you implement your customizable search engine site.
+FishFishJump is a solution that simplifies and basic for search engines and provides multiple demos that are deployed independently through Docker. Examples are included to help implement a customizable search engine site.
 
 .. image:: info/flow_chat.png
 
@@ -80,15 +80,15 @@ FishFishJump is a solution that simply and basic for search engines and provide 
 Usage
 ---------
 
-If you want to independent deployments then you only need input following commands in the root directory of the project(must contain file docker-compose.yml):
+If you want independent deployments, input the following commands in the root directory of your project (must contain the docker-compose.yml file):
 
 ::
 
     docker-compose up -d --build
 
-More about docker and docker-compose please refer to: https://docs.docker.com/compose/
+For more about docker and docker-compose please refer to: https://docs.docker.com/compose/
 
-Notice: for fish_crawlers, you also need to access the Docker container and deploy scrapy, FishFishJump deployment way use Scrapyd, the related configuration file is in the scrapy.cfg such as:
+Note: for fish_crawlers, you also need to access the Docker container and deploy scrapy, FishFishJump deployment way use Scrapyd, the related configuration file is in the scrapy.cfg such as:
 
 ::
 
@@ -108,7 +108,7 @@ Look at the following command to deployments:
 
 ::
 
-    # enter in inside of the Docker container
+    # enter inside of the Docker container
     docker exec -it [container id] /bin/bash
     # deploy scrapy project by command 'scrapyd-deploy [deploy name]', the deploy name refers to the file scrapy.cfg
     cd master_crawler
@@ -126,7 +126,7 @@ Look at the following command to deployments:
 
 More about please refer to: https://github.com/scrapy/scrapyd-client
 
-By the way, fish_crawlers use local Redis and MongoDB by Docker. if you don't want to then you can delete the following content in docker-compose.yml and config your Redis and MongoDB address in Scrapy project(settings.py).
+Note: fish_crawlers use Redis and MongoDB through Docker. To disable Redis and MongoDB usage, delete the following content in docker-compose.yml and configure your Redis and MongoDB address in Scrapy project(settings.py).
 
 ::
 
@@ -147,11 +147,11 @@ By the way, fish_crawlers use local Redis and MongoDB by Docker. if you don't wa
         - mongo
 
 
-if you want not use Docker then you need manual start fish_crawlers or fish_dashboard, please input following order:
+If you do not want to use Docker then you need to manually start fish_crawlers or fish_dashboard by inputting the following commands:
 
 ::
 
-    # the first need install dependency
+    # First we need to install FishFishJump
     pip install FishFishJump
     # if on the root directory of the master_crawler
     scrapy crawl dmoz_crawler
@@ -166,15 +166,15 @@ For fish_crawlers you can also use scrapyd for deployments, or remote manage by 
 Dashboard
 ---------
 
-fish_dashboard is a monitoring platform that monitoring health status and information of the Scrapy and Elasticsearch and it has some feature help you better for manage Scrpay and Elasticsearch such as:
+fish_dashboard is a monitoring platform that monitors health status and information of Scrapy and Elasticsearch. Supports several features such as:
 
-- real-time update data display by ajax polling if you don't want to use it you can set config POLLING_INTERVAL_TIME to 0 for cancel ajax polling.
+- Real-time data updates are displayed using ajax polling. Can be disabled by setting ``POLLING_INTERVAL_TIME`` to 0.
 
-- fault alarm mechanism, fish_dashboard will send an alarm email to you when your Scrapy or Elasticsearch there  was no response for a long time(reach maximum fault number of times, this param refer to MAX_FAILURE_TIMES in the settings.py).
+- Fault alarm mechanism, fish_dashboard will send an email to you when your Scrapy or Elasticsearch returns no response for a long time(reach maximum fault number of times, this param refer to MAX_FAILURE_TIMES in the settings.py).
 
-- transfer data mechanism, you have two methods to transfer data from MongoDB into the Elasticsearch for generating index database for search, the first way is the manual transfer and data is transmitted at one time in the off-line state, the second way is the automatic transfer data based on a thread polling implementation and this thread will always transfer data from MongoDB into the Elasticsearch until you cancel it.
+- Data transfer mechanism, there are two methods of data transfer from MongoDB into the Elasticsearch for generating index databases for searching. The first way is through manual transfer where data is transmitted offline once at one time. The second way is the automatic transfer data based on a thread polling implementation. This thread will always transfer data from MongoDB into the Elasticsearch until disable it.
 
-fish_dashboard is based on a Flask implementation and its config file is settings.py in the root directory of the fish_dashboard you can also use command line interface, the specific configuration is as following:
+fish_dashboard is based on a Flask implementation and its config file is in the settings.py in the root directory of the fish_dashboard. You can also use command line interface. The specific configuration is as following:
 
 ::
 
@@ -234,7 +234,7 @@ Here are some renderings:
 Searcher
 ---------
 
-The fish_searcher is a web app that supports search and return search results and implement base on the Elasticsearch, it provides some basic function as a search engine site.
+The fish_searcher is a web app that supports search and returns search results and implementions based on the Elasticsearch. It provides some basic functions that are similar to a search engine site.
 
 .. image:: info/searching.gif
 
